@@ -35,6 +35,13 @@
 			<version>2.1.6</version>
 		</dependency>
 
+		<!-- Jackson for YAML-(De-)Serialization -->
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<version>1.33</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
