@@ -22,23 +22,11 @@ public class MainConfig implements Config {
         return database.mongoDBURL;
     }
 
-    public String getDatabaseUser() {
-        return database.user;
-    }
-
-    public String getDatabasePassword() {
-        return database.password;
-    }
-
     static class Database {
         private final String mongoDBURL;
-        private final String user;
-        private final String password;
 
         Database() {
-            mongoDBURL = "jdbc:mariadb://localhost:3306/";
-            user = "";
-            password = "";
+            mongoDBURL = "";
         }
 
     }
