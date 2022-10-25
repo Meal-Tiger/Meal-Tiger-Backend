@@ -18,8 +18,8 @@ public class MainConfig implements Config {
         database = new Database();
     }
 
-    public String getJdbcUrl() {
-        return database.jdbcURL;
+    public String getMongoConnectionString() {
+        return database.mongoDBURL;
     }
 
     public String getDatabaseUser() {
@@ -31,12 +31,12 @@ public class MainConfig implements Config {
     }
 
     static class Database {
-        private final String jdbcURL;
+        private final String mongoDBURL;
         private final String user;
         private final String password;
 
         Database() {
-            jdbcURL = "jdbc:mariadb://localhost:3306/";
+            mongoDBURL = "jdbc:mariadb://localhost:3306/";
             user = "";
             password = "";
         }
