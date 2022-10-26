@@ -25,7 +25,14 @@ public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
      */
     @Override
     protected String getDatabaseName() {
-        return "test";
+        Config config;
+        try {
+            ConfigLoader configLoader = new ConfigLoader();
+            config = configLoader.loadConfig(MainConfig.class);
+        } catch (Exception e) {
+            config = new MainConfig();
+        }
+        return ((MainConfig) config).getMongoDatabase();
     }
 
     /**
