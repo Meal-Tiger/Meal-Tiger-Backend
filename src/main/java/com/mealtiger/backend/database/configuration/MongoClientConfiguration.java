@@ -11,15 +11,27 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
+/**
+ * This class serves as a supplier of MongoClients for the Spring Data API.
+ *
+ * @author Sebastian Maier
+ */
 @Configuration
 @EnableMongoRepositories(basePackages = "com.mealtiger.backend.database.repository")
 public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
 
+    /**
+     * @return Database Name
+     */
     @Override
     protected String getDatabaseName() {
         return "test";
     }
 
+    /**
+     * This method provides a mongoDB Client that is connecting to the server configured in the config file.
+     * @return mongoDB Client
+     */
     @Override
     public MongoClient mongoClient() {
         Config config;

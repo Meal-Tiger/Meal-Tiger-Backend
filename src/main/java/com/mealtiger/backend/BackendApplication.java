@@ -10,6 +10,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * This is the main class. Its main method is run to start the application.
+ *
+ * @author Lucca Greschner, Sebastian Maier
+ */
 @SpringBootApplication
 public class BackendApplication implements CommandLineRunner {
 

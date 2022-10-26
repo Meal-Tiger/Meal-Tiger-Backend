@@ -5,6 +5,12 @@ import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+/**
+ * This class serves as a model for the recipes stored in database.
+ *
+ * @author Sebastian Maier
+ */
+
 @Document
 public class Recipe {
 
