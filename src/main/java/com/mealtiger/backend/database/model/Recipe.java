@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * @author Sebastian Maier
  */
 
-@Document
+@Document(collection="recipe")
 public class Recipe {
 
     @Id
