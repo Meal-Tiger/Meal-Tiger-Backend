@@ -38,4 +38,9 @@ public class Recipe {
     public void setId(String id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "Id: " + id + ", Title: " + title;
+    }
 }
