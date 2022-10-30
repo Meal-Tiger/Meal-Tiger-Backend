@@ -1,5 +1,6 @@
 package com.mealtiger.backend.configuration;
 
+import com.mealtiger.backend.configuration.exceptions.NoSuchConfigException;
 import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +71,7 @@ public class Configurator {
             String logLevel = getString("Main.Logging.logLevel");
 
             properties.put("logging.level.root", logLevel);
-        } catch (NoSuchPropertyException e) {
+        } catch (NoSuchPropertyException | NoSuchConfigException e) {
             throw new RuntimeException(e);
         }
 
@@ -83,9 +84,13 @@ public class Configurator {
      * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
      * @return Object that corresponds to the property string
      */
-    private Object getProperty(String property) {
+    private Object getProperty(String property) throws NoSuchConfigException {
         String[] paths = property.split("\\.");
         Object config = loadedConfigs.get(paths[0]);
+
+        if (config == null) {
+            throw new NoSuchConfigException(paths[0]);
+        }
 
         String propertyDescriptor = property.substring(paths[0].length() + 1);
 
@@ -94,7 +99,7 @@ public class Configurator {
         Method[] configMethods = config.getClass().getMethods();
 
         for (Method method : configMethods) {
-            if(method.isAnnotationPresent(ConfigNode.class) && method.getAnnotation(ConfigNode.class).name().equals(propertyDescriptor)) {
+            if (method.isAnnotationPresent(ConfigNode.class) && method.getAnnotation(ConfigNode.class).name().equals(propertyDescriptor)) {
                 try {
                     returnValue = method.invoke(config);
                 } catch (IllegalAccessException | InvocationTargetException e) {
@@ -108,56 +113,60 @@ public class Configurator {
 
     /**
      * Used to get a boolean from a config file.
+     *
      * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
      * @return Boolean saved at the given property descriptor.
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
-    public boolean getBoolean(String property) throws NoSuchPropertyException {
+    public boolean getBoolean(String property) throws NoSuchPropertyException, NoSuchConfigException {
         Object returnValue = getProperty(property);
 
-        if(!(returnValue instanceof Boolean)) {
+        if (!(returnValue instanceof Boolean)) {
             throw new NoSuchPropertyException(property);
         } else return (Boolean) returnValue;
     }
 
     /**
      * Used to get a String from a config file.
+     *
      * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
      * @return Boolean saved at the given property descriptor.
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
-    public String getString(String property) throws NoSuchPropertyException {
+    public String getString(String property) throws NoSuchPropertyException, NoSuchConfigException {
         Object returnValue = getProperty(property);
 
-        if(!(returnValue instanceof String)) {
+        if (!(returnValue instanceof String)) {
             throw new NoSuchPropertyException(property);
         } else return (String) returnValue;
     }
 
     /**
      * Used to get an integer from a config file.
+     *
      * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
      * @return Boolean saved at the given property descriptor.
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
-    public int getInteger(String property) throws NoSuchPropertyException {
+    public int getInteger(String property) throws NoSuchPropertyException, NoSuchConfigException {
         Object returnValue = getProperty(property);
 
-        if(!(returnValue instanceof Integer)) {
+        if (!(returnValue instanceof Integer)) {
             throw new NoSuchPropertyException(property);
         } else return (Integer) returnValue;
     }
 
     /**
      * Used to get a double from a config file.
+     *
      * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
      * @return Boolean saved at the given property descriptor.
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
-    public double getDouble(String property) throws NoSuchPropertyException {
+    public double getDouble(String property) throws NoSuchPropertyException, NoSuchConfigException {
         Object returnValue = getProperty(property);
 
-        if(!(returnValue instanceof Double)) {
+        if (!(returnValue instanceof Double)) {
             throw new NoSuchPropertyException(property);
         } else return (Double) returnValue;
     }

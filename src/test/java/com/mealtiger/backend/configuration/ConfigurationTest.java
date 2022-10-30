@@ -1,6 +1,7 @@
 package com.mealtiger.backend.configuration;
 
 import com.mealtiger.backend.configuration.configs.TestConfig;
+import com.mealtiger.backend.configuration.exceptions.NoSuchConfigException;
 import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    void loadSingleConfigTest() throws IOException, NoSuchPropertyException {
+    void loadSingleConfigTest() throws IOException, NoSuchPropertyException, NoSuchConfigException {
         ConfigLoader configLoader = new ConfigLoader();
         TestConfig testConfig = (TestConfig) configLoader.loadConfig(TestConfig.class);
 
@@ -45,6 +46,13 @@ public class ConfigurationTest {
         Configurator configurator = new Configurator();
 
         assertThrows(NoSuchPropertyException.class, () -> configurator.getString("Test.Other.Node"));
+    }
+
+    @Test
+    void noSuchConfigExceptionTest() {
+        Configurator configurator = new Configurator();
+
+        assertThrows(NoSuchConfigException.class, () -> configurator.getString("Some.Non.Existing.Config"));
     }
 
 }

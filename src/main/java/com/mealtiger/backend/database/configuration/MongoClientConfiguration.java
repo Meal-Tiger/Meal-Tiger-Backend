@@ -1,6 +1,7 @@
 package com.mealtiger.backend.database.configuration;
 
 import com.mealtiger.backend.configuration.Configurator;
+import com.mealtiger.backend.configuration.exceptions.NoSuchConfigException;
 import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
@@ -29,7 +30,7 @@ public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
 
         try {
             databaseName = configurator.getString("Main.Database.databaseName");
-        } catch (NoSuchPropertyException e) {
+        } catch (NoSuchPropertyException | NoSuchConfigException e) {
             throw new RuntimeException(e);
         }
 
@@ -48,7 +49,7 @@ public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
         String mongoDBConnectionString;
         try {
             mongoDBConnectionString = configurator.getString("Main.Database.mongoDBURL");
-        } catch (NoSuchPropertyException e) {
+        } catch (NoSuchPropertyException | NoSuchConfigException e) {
             throw new RuntimeException(e);
         }
 

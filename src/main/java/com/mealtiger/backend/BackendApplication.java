@@ -1,6 +1,7 @@
 package com.mealtiger.backend;
 
 import com.mealtiger.backend.configuration.Configurator;
+import com.mealtiger.backend.configuration.exceptions.NoSuchConfigException;
 import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
 import com.mealtiger.backend.database.repository.RecipeRepository;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class BackendApplication implements CommandLineRunner {
 						.build()
 						.run(args);
 			}
-		} catch (NoSuchPropertyException e) {
+		} catch (NoSuchPropertyException | NoSuchConfigException e) {
 			throw new RuntimeException(e);
 		}
 	}
