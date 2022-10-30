@@ -1,8 +1,8 @@
 package com.mealtiger.backend.database.configuration;
 
-import com.mealtiger.backend.configuration.ConfigLoader;
-import com.mealtiger.backend.configuration.configs.Config;
-import com.mealtiger.backend.configuration.configs.MainConfig;
+import com.mealtiger.backend.configuration.Configurator;
+import com.mealtiger.backend.configuration.exceptions.NoSuchConfigException;
+import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
@@ -25,14 +25,16 @@ public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
      */
     @Override
     protected String getDatabaseName() {
-        Config config;
+        Configurator configurator = new Configurator();
+        String databaseName;
+
         try {
-            ConfigLoader configLoader = new ConfigLoader();
-            config = configLoader.loadConfig(MainConfig.class);
-        } catch (Exception e) {
-            config = new MainConfig();
+            databaseName = configurator.getString("Main.Database.databaseName");
+        } catch (NoSuchPropertyException | NoSuchConfigException e) {
+            throw new RuntimeException(e);
         }
-        return ((MainConfig) config).getMongoDatabase();
+
+        return databaseName;
     }
 
     /**
@@ -41,15 +43,17 @@ public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
      */
     @Override
     public MongoClient mongoClient() {
-        Config config;
+        Configurator configurator = new Configurator();
+
+
+        String mongoDBConnectionString;
         try {
-            ConfigLoader configLoader = new ConfigLoader();
-            config = configLoader.loadConfig(MainConfig.class);
-        } catch (Exception e) {
-            config = new MainConfig();
+            mongoDBConnectionString = configurator.getString("Main.Database.mongoDBURL");
+        } catch (NoSuchPropertyException | NoSuchConfigException e) {
+            throw new RuntimeException(e);
         }
 
-        ConnectionString connectionString = new ConnectionString(((MainConfig) config).getMongoConnectionString());
+        ConnectionString connectionString = new ConnectionString(mongoDBConnectionString);
         MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
                 .build();

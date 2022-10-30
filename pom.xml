@@ -31,8 +31,8 @@
 			<artifactId>okta-spring-boot-starter</artifactId>
 			<version>2.1.6</version>
 		</dependency>
-    
-		<!-- Jackson for YAML-(De-)Serialization -->
+
+		<!-- SnakeYAML for YAML-(De-)Serialization -->
 		<dependency>
 			<groupId>org.yaml</groupId>
 			<artifactId>snakeyaml</artifactId>
