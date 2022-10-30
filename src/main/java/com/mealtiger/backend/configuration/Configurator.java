@@ -89,8 +89,6 @@ public class Configurator {
 
         String propertyDescriptor = property.substring(paths[0].length() + 1);
 
-        System.out.println(propertyDescriptor);
-
         Object returnValue = null;
 
         Method[] configMethods = config.getClass().getMethods();
