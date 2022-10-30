@@ -37,6 +37,7 @@ public class BackendApplication implements CommandLineRunner {
 			if (configurator.getString("Main.Database.mongoDBURL").length() == 0) {
 				log.info("Database connection string is not defined. Please use the config file main.yml to configure!");
 			} else {
+				log.debug("Starting application with custom properties: {}!", springProperties);
 				applicationContext = new SpringApplicationBuilder(BackendApplication.class)
 						.properties(springProperties)
 						.build()

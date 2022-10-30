@@ -28,6 +28,7 @@ public class Configurator {
 
     public Configurator() {
         if (loadedConfigs.isEmpty()) {
+            log.trace("Starting to load configs due to empty loadedConfigs Map!");
             try {
                 loadConfigs();
             } catch (IOException e) {
@@ -45,6 +46,8 @@ public class Configurator {
      * @throws IOException When an IO error occurs upon trying to open the corresponding config files.
      */
     private void loadConfigs() throws IOException {
+        log.info("Loading configs...");
+
         AnnotatedTypeScanner annotatedTypeScanner = new AnnotatedTypeScanner(false, Config.class);
 
         Set<Class<?>> configSet = annotatedTypeScanner.findTypes("com.mealtiger.backend.configuration.configs");
@@ -59,6 +62,8 @@ public class Configurator {
 
             loadedConfigs.put(configName, config);
         }
+
+        log.debug("Finished loading configs!");
     }
 
     /**
@@ -75,6 +80,8 @@ public class Configurator {
             throw new RuntimeException(e);
         }
 
+        log.debug("Handing over spring properties: {}!", properties);
+
         return properties;
     }
 
@@ -85,6 +92,8 @@ public class Configurator {
      * @return Object that corresponds to the property string
      */
     private Object getProperty(String property) throws NoSuchConfigException {
+        log.trace("Getting property {}.", property);
+
         String[] paths = property.split("\\.");
         Object config = loadedConfigs.get(paths[0]);
 
@@ -119,6 +128,8 @@ public class Configurator {
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
     public boolean getBoolean(String property) throws NoSuchPropertyException, NoSuchConfigException {
+        log.debug("Getting boolean property {}.", property);
+
         Object returnValue = getProperty(property);
 
         if (!(returnValue instanceof Boolean)) {
@@ -134,6 +145,8 @@ public class Configurator {
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
     public String getString(String property) throws NoSuchPropertyException, NoSuchConfigException {
+        log.debug("Getting String property {}.", property);
+
         Object returnValue = getProperty(property);
 
         if (!(returnValue instanceof String)) {
@@ -149,6 +162,8 @@ public class Configurator {
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
     public int getInteger(String property) throws NoSuchPropertyException, NoSuchConfigException {
+        log.debug("Getting integer property {}.", property);
+
         Object returnValue = getProperty(property);
 
         if (!(returnValue instanceof Integer)) {
@@ -164,6 +179,8 @@ public class Configurator {
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
     public double getDouble(String property) throws NoSuchPropertyException, NoSuchConfigException {
+        log.debug("Getting double property {}.", property);
+
         Object returnValue = getProperty(property);
 
         if (!(returnValue instanceof Double)) {
