@@ -84,3 +84,5 @@ A guide on how to configure the application will follow.
 
 Meal-Tiger-Backend (c) 2022 [Sebastian Maier](https://github.com/SebastianMaier03)
 , [Konstantinos Gimoussiakakis](https://github.com/Kostanix), [Lucca Greschner](https://github.com/Uggah)
+
+SPDX-License-Identifier: GPL-3.0
