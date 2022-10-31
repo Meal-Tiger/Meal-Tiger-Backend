@@ -69,25 +69,16 @@ A guide on how to configure the application will follow.
 
 |Dependency|Creator|License|
 |:--:|:--:|:--:|
-|[Spring Boot Framework](https://github.com/spring-projects/spring-boot)
-|[VMware, Inc. and contributors](https://github.com/spring-projects)
-|[Apache-2.0 License](https://github.com/spring-projects/spring-boot/blob/main/LICENSE.txt)|
-|[Spring Data MongoDB](https://github.com/spring-projects/spring-data-mongodb)
-|[VMware, Inc. and contributors](https://github.com/spring-projects)
-|[Apache-2.0 License](https://github.com/spring-projects/spring-data-mongodb/blob/main/LICENSE.txt)|
-|[Okta Spring Boot Starter](https://github.com/okta/okta-spring-boot)|[Okta](https://github.com/okta)
-|[Apache-2.0 License](https://opensource.org/licenses/Apache-2.0)|
-|[SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/)
-|[SnakeYAML team of developers](https://bitbucket.org/snakeyaml/snakeyaml/src)
-|[Apache-2.0 License](https://bitbucket.org/snakeyaml/snakeyaml/src/master/LICENSE.txt)|
+|[Spring Boot Framework](https://github.com/spring-projects/spring-boot)|[VMware, Inc. and contributors](https://github.com/spring-projects)|[Apache-2.0 License](https://github.com/spring-projects/spring-boot/blob/main/LICENSE.txt)|
+|[Spring Data MongoDB](https://github.com/spring-projects/spring-data-mongodb)|[VMware, Inc. and contributors](https://github.com/spring-projects)|[Apache-2.0 License](https://github.com/spring-projects/spring-data-mongodb/blob/main/LICENSE.txt)|
+|[Okta Spring Boot Starter](https://github.com/okta/okta-spring-boot)|[Okta](https://github.com/okta)|[Apache-2.0 License](https://opensource.org/licenses/Apache-2.0)|
+|[SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/)|[SnakeYAML team of developers](https://bitbucket.org/snakeyaml/snakeyaml/src)|[Apache-2.0 License](https://bitbucket.org/snakeyaml/snakeyaml/src/master/LICENSE.txt)|
 
 ### Testing dependencies
 
 |Dependency|Creator|License|
 |:--:|:--:|:--:|
-|[Spring Boot Test Starter](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test/2.7.5)
-|[VMware, Inc. and contributors](https://github.com/spring-projects)
-|[Apache-2.0 License](https://opensource.org/licenses/Apache-2.0)
+|[Spring Boot Test Starter](https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test/2.7.5)|[VMware, Inc. and contributors](https://github.com/spring-projects)|[Apache-2.0 License](https://opensource.org/licenses/Apache-2.0)
 
 ## Copyright
 
