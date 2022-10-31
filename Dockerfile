@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM openjdk:latest
-COPY ./target/*.jar /usr/src/backend/app.jar
-WORKDIR /usr/src/backend
-ENTRYPOINT ["java","-jar","./app.jar"]
+COPY ./target/*.jar /app.jar
+RUN mkdir /config
+WORKDIR /config
+ENTRYPOINT ["java","-jar","/app.jar"]
