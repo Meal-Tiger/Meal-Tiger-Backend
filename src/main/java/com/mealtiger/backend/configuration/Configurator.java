@@ -1,5 +1,7 @@
 package com.mealtiger.backend.configuration;
 
+import com.mealtiger.backend.configuration.annotations.Config;
+import com.mealtiger.backend.configuration.annotations.ConfigNode;
 import com.mealtiger.backend.configuration.exceptions.NoSuchConfigException;
 import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
 import org.slf4j.Logger;

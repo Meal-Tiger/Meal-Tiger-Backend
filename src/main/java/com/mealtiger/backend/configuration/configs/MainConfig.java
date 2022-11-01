@@ -1,7 +1,7 @@
 package com.mealtiger.backend.configuration.configs;
 
-import com.mealtiger.backend.configuration.Config;
-import com.mealtiger.backend.configuration.ConfigNode;
+import com.mealtiger.backend.configuration.annotations.Config;
+import com.mealtiger.backend.configuration.annotations.ConfigNode;
 import org.springframework.boot.logging.LogLevel;
 
 /**
