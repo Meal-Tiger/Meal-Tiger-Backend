@@ -21,19 +21,19 @@ public class MainConfig {
         logging = new Logging();
     }
 
-    @ConfigNode(name = "Database.mongoDBURL")
+    @ConfigNode(name = "Database.mongoDBURL", envKey = "DBURL")
     @SuppressWarnings("unused")
     public String getMongoConnectionString() {
         return database.mongoDBURL;
     }
 
-    @ConfigNode(name = "Database.databaseName")
+    @ConfigNode(name = "Database.databaseName", envKey = "DB")
     @SuppressWarnings("unused")
     public String getMongoDatabase() {
         return database.database;
     }
 
-    @ConfigNode(name = "Logging.logLevel")
+    @ConfigNode(name = "Logging.logLevel", envKey = "LOGLEVEL")
     @SuppressWarnings("unused")
     public String getLogLevel() {
         return logging.logLevel;

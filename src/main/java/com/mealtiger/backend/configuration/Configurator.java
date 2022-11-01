@@ -111,10 +111,37 @@ public class Configurator {
 
         for (Method method : configMethods) {
             if (method.isAnnotationPresent(ConfigNode.class) && method.getAnnotation(ConfigNode.class).name().equals(propertyDescriptor)) {
-                try {
-                    returnValue = method.invoke(config);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new RuntimeException("Error when trying to retrieve config property " + property + "!");
+                String envKey = method.getAnnotation(ConfigNode.class).envKey();
+                String envValue = envKey.length() != 0 ? System.getenv(envKey) : "";
+
+                if (envKey.length() != 0) {
+                    Class<?> returnType = method.getReturnType();
+
+                    try {
+                        if (returnType == String.class) {
+                            returnValue = envValue;
+                        } else if (returnType == Integer.class) {
+                            returnValue = Integer.valueOf(envValue);
+                        } else if (returnType == Boolean.class) {
+                            switch (envValue.toLowerCase()) {
+                                case "true" -> returnValue = Boolean.TRUE;
+                                case "false" -> returnValue = Boolean.FALSE;
+                                default -> throw new IllegalArgumentException();
+                            }
+                        } else if (returnType == Double.class) {
+                            returnValue = Double.valueOf(envValue);
+                        }
+                    } catch (Exception e) {
+                        log.error("Environment variable {} cannot be parsed. Proceeding with config value!", envKey);
+                    }
+                }
+
+                if (returnValue == null) {
+                    try {
+                        returnValue = method.invoke(config);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new RuntimeException("Error when trying to retrieve config property " + property + "!");
+                    }
                 }
             }
         }
