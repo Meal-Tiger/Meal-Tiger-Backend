@@ -401,7 +401,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 5,
-                15
+                -1
         );
 
         mvc.perform(post("/recipes")
@@ -423,27 +423,6 @@ public class RecipeAPITest {
                 3,
                 5,
                 0
-        );
-
-        mvc.perform(post("/recipes")
-                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-
-        assertTrue(recipeRepository.findAll().isEmpty());
-
-        // Minimum unit is null
-
-        testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                15
         );
 
         mvc.perform(post("/recipes")
