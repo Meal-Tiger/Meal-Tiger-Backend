@@ -113,11 +113,10 @@ public class Recipe {
         if (getDifficulty() != recipe.getDifficulty()) return false;
         if (getRating() != recipe.getRating()) return false;
         if (getTitle() != null ? !getTitle().equals(recipe.getTitle()) : recipe.getTitle() != null) return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(getIngredients(), recipe.getIngredients())) return false;
         if (getDescription() != null ? !getDescription().equals(recipe.getDescription()) : recipe.getDescription() != null)
             return false;
-        return (getTime() != recipe.getTime());
+        return (getTime() == recipe.getTime());
     }
 
     @Override
