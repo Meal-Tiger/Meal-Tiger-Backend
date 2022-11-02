@@ -23,9 +23,9 @@ public class Recipe {
     private String description;
     private int difficulty;
     private int rating;
-    private Time time;
+    private int time;
 
-    public Recipe(String title, Ingredient[] ingredients, String description, int difficulty, int rating, Time time) {
+    public Recipe(String title, Ingredient[] ingredients, String description, int difficulty, int rating, int time) {
         this.title = title;
         this.ingredients = ingredients;
         this.description = description;
@@ -66,11 +66,11 @@ public class Recipe {
         this.rating = rating;
     }
 
-    public Time getTime() {
+    public int getTime() {
         return time;
     }
 
-    public void setTime(Time time) {
+    public void setTime(int time) {
         this.time = time;
     }
 
@@ -113,11 +113,10 @@ public class Recipe {
         if (getDifficulty() != recipe.getDifficulty()) return false;
         if (getRating() != recipe.getRating()) return false;
         if (getTitle() != null ? !getTitle().equals(recipe.getTitle()) : recipe.getTitle() != null) return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(getIngredients(), recipe.getIngredients())) return false;
         if (getDescription() != null ? !getDescription().equals(recipe.getDescription()) : recipe.getDescription() != null)
             return false;
-        return getTime() != null ? getTime().equals(recipe.getTime()) : recipe.getTime() == null;
+        return (getTime() == recipe.getTime());
     }
 
     @Override
@@ -127,7 +126,7 @@ public class Recipe {
         result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
         result = 31 * result + getDifficulty();
         result = 31 * result + getRating();
-        result = 31 * result + (getTime() != null ? getTime().hashCode() : 0);
+        result = 31 * result + getTime();
         return result;
     }
 }
