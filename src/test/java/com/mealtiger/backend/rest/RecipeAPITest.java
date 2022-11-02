@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mealtiger.backend.BackendApplication;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.database.model.recipe.Recipe;
-import com.mealtiger.backend.database.model.recipe.Time;
 import com.mealtiger.backend.database.repository.RecipeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,7 +61,7 @@ public class RecipeAPITest {
                         "TestDescription",
                         3,
                         5,
-                        new Time(15, "Minuten")
+                        15
                 ),
                 new Recipe(
                         "Gebratene Cashewkerne",
@@ -73,7 +72,7 @@ public class RecipeAPITest {
                         "TestDescription",
                         3,
                         5,
-                        new Time(15, "Minuten")
+                        15
                 ),
                 new Recipe(
                         "Toast Hawaii",
@@ -86,7 +85,7 @@ public class RecipeAPITest {
                         "TestDescription",
                         1,
                         4,
-                        new Time(30, "Minuten")
+                        15
                 ),
         };
 
@@ -114,7 +113,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 5,
-                new Time(15, "Minuten")
+                15
         );
 
         mvc.perform(post("/recipes")
@@ -141,7 +140,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 5,
-                new Time(15, "Minuten")
+                15
         );
 
         recipeRepository.save(testRecipe);
@@ -159,7 +158,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 1,
                 4,
-                new Time(30, "Minuten")
+                30
         );
 
         mvc.perform(put("/recipes/" + id)
@@ -184,7 +183,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 5,
-                new Time(15, "Minuten")
+                15
         );
 
         recipeRepository.save(testRecipe);
@@ -212,7 +211,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 5,
-                new Time(15, "Minuten")
+                15
         );
 
         recipeRepository.save(testRecipe);
@@ -252,7 +251,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 5,
-                new Time(15, "Minuten")
+                15
         );
 
         mvc.perform(put("/recipes/someRandomID")
@@ -277,7 +276,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 5,
-                new Time(15, "Minuten")
+                15
         );
 
         mvc.perform(post("/recipes")
@@ -295,7 +294,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 5,
-                new Time(15, "Minuten")
+                15
         );
 
         mvc.perform(post("/recipes")
@@ -317,7 +316,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 4,
                 5,
-                new Time(15, "Minuten")
+                15
         );
 
         mvc.perform(post("/recipes")
@@ -338,7 +337,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 0,
                 5,
-                new Time(15, "Minuten")
+                15
         );
 
         mvc.perform(post("/recipes")
@@ -360,7 +359,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 6,
-                new Time(15, "Minuten")
+                15
         );
 
         mvc.perform(post("/recipes")
@@ -381,7 +380,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 0,
-                new Time(15, "Minuten")
+                15
         );
 
         mvc.perform(post("/recipes")
@@ -392,7 +391,6 @@ public class RecipeAPITest {
         assertTrue(recipeRepository.findAll().isEmpty());
 
         // Wrong time
-        // Maximum equal to 0 when unit is set
 
         testRecipe = new Recipe(
                 "Gebrannte Mandeln",
@@ -403,7 +401,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 5,
-                new Time(15, "Minuten", 0, "Some unit")
+                15
         );
 
         mvc.perform(post("/recipes")
@@ -413,7 +411,7 @@ public class RecipeAPITest {
 
         assertTrue(recipeRepository.findAll().isEmpty());
 
-        // Minimum is 0
+        // Minimum Time is 0
 
         testRecipe = new Recipe(
                 "Gebrannte Mandeln",
@@ -424,7 +422,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 5,
-                new Time(0, "Minuten")
+                0
         );
 
         mvc.perform(post("/recipes")
@@ -445,7 +443,7 @@ public class RecipeAPITest {
                 "TestDescription",
                 3,
                 5,
-                new Time(15, null)
+                15
         );
 
         mvc.perform(post("/recipes")

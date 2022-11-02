@@ -105,11 +105,7 @@ public class RecipeController {
             boolean correctDifficulty = recipe.getDifficulty() <= 3 && recipe.getDifficulty() > 0;
             boolean correctIngredients = recipe.getIngredients().length > 0;
             boolean correctDescription = recipe.getDescription().length() > 0;
-            boolean correctTime =
-                    recipe.getTime().getMinimumUnit() != null
-                            && recipe.getTime().getMinimum() > 0
-                            && ((recipe.getTime().getMaximum() > recipe.getTime().getMinimum() && recipe.getTime().getMaximumUnit() != null)
-                            || (recipe.getTime().getMaximumUnit() == null && recipe.getTime().getMaximum() == 0));
+            boolean correctTime = recipe.getTime() > 0;
             boolean correctTitle = recipe.getTitle().length() > 0;
 
             return correctRating && correctDifficulty && correctIngredients && correctDescription && correctTime && correctTitle;
