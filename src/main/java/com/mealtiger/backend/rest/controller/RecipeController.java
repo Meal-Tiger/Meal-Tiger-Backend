@@ -5,7 +5,16 @@ import com.mealtiger.backend.database.repository.RecipeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This acts as the controller-part for our REST API.
@@ -21,13 +30,33 @@ public class RecipeController {
     private RecipeRepository recipeRepository;
 
     /**
-     * This retrieves all recipes from the repository.
-     *
-     * @return All recipes from the repository as an array.
+     * Gets recipes from Database and Returns them sorted and paginated.
+     * @param page int of Page we are on.
+     * @param size int of Page size.
+     * @param sort string to sort after.
+     * @return sorted and paginated recipes from the repository as an map.
      */
-    public Recipe[] getAllRecipes() {
+    public Map<String, Object> getRecipePage(int page, int size, String sort) {
         log.trace("Getting recipes from repository.");
-        return recipeRepository.findAll().toArray(new Recipe[0]);
+        try {
+            List<Recipe> recipes;
+
+            Pageable paging = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, sort));
+
+            Page<Recipe> pageTuts;
+            pageTuts = recipeRepository.findAll(paging);
+
+            recipes = pageTuts.getContent();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("Recipes", recipes);
+            response.put("currentPage", pageTuts.getNumber());
+            response.put("totalItems", pageTuts.getTotalElements());
+            response.put("totalPages", pageTuts.getTotalPages());
+            return response;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

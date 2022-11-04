@@ -1,13 +1,22 @@
 package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.database.model.recipe.Recipe;
+import com.mealtiger.backend.database.repository.RecipeRepository;
 import com.mealtiger.backend.rest.controller.RecipeController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This acts as the view-part to our REST API.
@@ -20,19 +29,34 @@ public class RecipeAPI {
     private static final Logger log = LoggerFactory.getLogger(RecipeAPI.class);
 
     @Autowired
+    private RecipeRepository recipeRepository;
+    @Autowired
     private RecipeController recipeController;
 
 
     /**
-     * Sends all entries for recipes in the database to the user.
-     *
+     * Sends requested recipe to user.
+     * @param page int of Page we are on.
+     * @param size int of Page size.
+     * @param sort string to sort after.
      * @return all recipes in database.
      */
     @GetMapping("/recipes")
-    public Recipe[] getRecipes() {
-        log.debug("Getting all recipes!");
+    private ResponseEntity<Map<String, Object>> getAllRecipesPage(
+            @RequestParam() String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size) {
 
-        return recipeController.getAllRecipes();
+        log.debug("Sorting after: {}", sort);
+        log.debug("Page is: {}", page);
+        log.debug("Size is: {}", size);
+
+        Map<String, Object> returnValue = recipeController.getRecipePage(page,size,sort);
+
+        if (returnValue == null) {
+            return ResponseEntity.status(404).body(null);
+        }
+        return ResponseEntity.ok(returnValue);
     }
 
     /**
