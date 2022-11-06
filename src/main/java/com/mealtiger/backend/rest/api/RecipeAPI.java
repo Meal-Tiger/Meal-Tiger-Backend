@@ -23,21 +23,19 @@ public class RecipeAPI {
     private static final Logger log = LoggerFactory.getLogger(RecipeAPI.class);
 
     @Autowired
-    private RecipeRepository recipeRepository;
-    @Autowired
     private RecipeController recipeController;
 
 
     /**
      * Sends requested recipe to user.
-     * @param page int of Page we are on.
-     * @param size int of Page size.
-     * @param sort string to sort after.
-     * @return all recipes in database.
+     * @param page int of Page we are on default 0.
+     * @param size int of Page size default 3.
+     * @param sort string to sort after default title.
+     * @return HTTP Status 200 if getting recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
     @GetMapping("/recipes")
     private ResponseEntity<Map<String, Object>> getAllRecipesPage(
-            @RequestParam() String sort,
+            @RequestParam(defaultValue = "title") String sort,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "3") int size) {
 
