@@ -35,9 +35,9 @@ public class RecipeAPI {
      */
     @GetMapping("/recipes")
     private ResponseEntity<Map<String, Object>> getAllRecipesPage(
-            @RequestParam(defaultValue = "title") String sort,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size) {
+            @RequestParam(value = "sort", defaultValue = "title") String sort,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "3") int size) {
 
         log.debug("Sorting after: {}", sort);
         log.debug("Page is: {}", page);
