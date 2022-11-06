@@ -1,6 +1,7 @@
 package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.database.model.recipe.Recipe;
+import com.mealtiger.backend.database.repository.RecipeRepository;
 import com.mealtiger.backend.rest.controller.RecipeController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * This acts as the view-part to our REST API.
@@ -24,15 +27,28 @@ public class RecipeAPI {
 
 
     /**
-     * Sends all entries for recipes in the database to the user.
-     *
-     * @return all recipes in database.
+     * Sends requested recipe to user.
+     * @param page int of Page we are on default 0.
+     * @param size int of Page size default 3.
+     * @param sort string to sort after default title.
+     * @return HTTP Status 200 if getting recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
     @GetMapping("/recipes")
-    public Recipe[] getRecipes() {
-        log.debug("Getting all recipes!");
+    private ResponseEntity<Map<String, Object>> getAllRecipesPage(
+            @RequestParam(defaultValue = "title") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size) {
 
-        return recipeController.getAllRecipes();
+        log.debug("Sorting after: {}", sort);
+        log.debug("Page is: {}", page);
+        log.debug("Size is: {}", size);
+
+        Map<String, Object> returnValue = recipeController.getRecipePage(page, size, sort);
+
+        if (returnValue == null) {
+            return ResponseEntity.status(404).body(null);
+        }
+        return ResponseEntity.ok(returnValue);
     }
 
     /**
