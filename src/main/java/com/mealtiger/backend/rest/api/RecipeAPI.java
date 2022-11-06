@@ -26,10 +26,11 @@ public class RecipeAPI {
 
 
     /**
-     * Sends requested recipe to user.
-     * @param page int of Page we are on default 0.
-     * @param size int of Page size default 3.
-     * @param sort string to sort after default title.
+     * Sends all recipes paginated and sorted according to parameters to user.
+     *
+     * @param page # of current page, default is 0.
+     * @param size page size, default is 3.
+     * @param sort string to sort after, default is title.
      * @return HTTP Status 200 if getting recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
     @GetMapping("/recipes")
