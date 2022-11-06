@@ -1,7 +1,6 @@
 package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.database.model.recipe.Recipe;
-import com.mealtiger.backend.database.repository.RecipeRepository;
 import com.mealtiger.backend.rest.controller.RecipeController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
