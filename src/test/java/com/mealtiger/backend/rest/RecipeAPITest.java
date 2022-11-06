@@ -6,15 +6,21 @@ import com.mealtiger.backend.BackendApplication;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.database.repository.RecipeRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -40,17 +46,18 @@ public class RecipeAPITest {
     private RecipeRepository recipeRepository;
 
     @BeforeEach
-    void beforeEach() {
+    @AfterEach
+    void beforeAfterEach() {
         recipeRepository.deleteAll();
     }
 
     // POSITIVE TESTS
 
     /**
-     * Tests getting all recipes
+     * Tests getting recipes with default paging parameters.
      */
     @Test
-    void getRecipesTest() throws Exception {
+    void getRecipesDefaultTest() throws Exception {
         Recipe[] testRecipes = {
                 new Recipe(
                         "Gebrannte Mandeln",
@@ -90,9 +97,380 @@ public class RecipeAPITest {
         };
 
         recipeRepository.saveAll(Arrays.asList(testRecipes));
-        String testRecipesJSON = new ObjectMapper().writer().writeValueAsString(recipeRepository.findAll().toArray());
+
+        Pageable paging = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "title"));
+
+        Map<String, Object> expectedAnswer = new HashMap<>();
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("totalItems", 3);
+        expectedAnswer.put("totalPages", 1);
+        expectedAnswer.put("currentPage", 0);
+
+        String testRecipesJSON = new ObjectMapper().writer().writeValueAsString(expectedAnswer);
 
         mvc.perform(get("/recipes")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(testRecipesJSON));
+    }
+
+    /**
+     * Tests getting recipes with multiple pages.
+     */
+    @Test
+    void getRecipesMultiplePagesTest() throws Exception {
+        Recipe[] testRecipes = {
+                new Recipe(
+                        "Gebrannte Mandeln",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Gebratene Cashewkerne",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Toast Hawaii",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Schinken"),
+                                new Ingredient(10, "Scheiben", "Toastbrot"),
+                                new Ingredient(10, "Scheiben", "Ananas"),
+                                new Ingredient(10, "Scheiben", "Schmelzkäse")
+                        },
+                        "TestDescription",
+                        1,
+                        4,
+                        15
+                ),
+                new Recipe(
+                        "Gebrannte Mandeln",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Gebratene Cashewkerne",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Toast Hawaii",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Schinken"),
+                                new Ingredient(10, "Scheiben", "Toastbrot"),
+                                new Ingredient(10, "Scheiben", "Ananas"),
+                                new Ingredient(10, "Scheiben", "Schmelzkäse")
+                        },
+                        "TestDescription",
+                        1,
+                        4,
+                        15
+                ),
+                new Recipe(
+                        "Gebrannte Mandeln",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Gebratene Cashewkerne",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Toast Hawaii",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Schinken"),
+                                new Ingredient(10, "Scheiben", "Toastbrot"),
+                                new Ingredient(10, "Scheiben", "Ananas"),
+                                new Ingredient(10, "Scheiben", "Schmelzkäse")
+                        },
+                        "TestDescription",
+                        1,
+                        4,
+                        15
+                ),
+        };
+
+        recipeRepository.saveAll(Arrays.asList(testRecipes));
+
+        Pageable paging = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "title"));
+
+        // Page 0
+
+        Map<String, Object> expectedAnswer = new HashMap<>();
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("totalItems", 9);
+        expectedAnswer.put("totalPages", 3);
+        expectedAnswer.put("currentPage", 0);
+
+        String testRecipesJSON = new ObjectMapper().writer().writeValueAsString(expectedAnswer);
+
+        System.out.println(testRecipesJSON);
+
+        mvc.perform(get("/recipes")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(testRecipesJSON));
+
+        // Page 1
+
+        paging = PageRequest.of(1, 3, Sort.by(Sort.Direction.DESC, "title"));
+
+        expectedAnswer.clear();
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("totalItems", 9);
+        expectedAnswer.put("totalPages", 3);
+        expectedAnswer.put("currentPage", 1);
+
+        testRecipesJSON = new ObjectMapper().writer().writeValueAsString(expectedAnswer);
+
+        mvc.perform(get("/recipes?page=1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(testRecipesJSON));
+
+        // Page 2
+
+        paging = PageRequest.of(2, 3, Sort.by(Sort.Direction.DESC, "title"));
+
+        expectedAnswer.clear();
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("totalItems", 9);
+        expectedAnswer.put("totalPages", 3);
+        expectedAnswer.put("currentPage", 2);
+
+        testRecipesJSON = new ObjectMapper().writer().writeValueAsString(expectedAnswer);
+
+        mvc.perform(get("/recipes?page=2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(testRecipesJSON));
+    }
+
+    /**
+     * Tests getting recipes with multiple pages and variable sizes.
+     */
+    @Test
+    void getRecipesMultiplePagesVariableSizeTest() throws Exception {
+        Recipe[] testRecipes = {
+                new Recipe(
+                        "Gebrannte Mandeln",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Gebratene Cashewkerne",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Toast Hawaii",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Schinken"),
+                                new Ingredient(10, "Scheiben", "Toastbrot"),
+                                new Ingredient(10, "Scheiben", "Ananas"),
+                                new Ingredient(10, "Scheiben", "Schmelzkäse")
+                        },
+                        "TestDescription",
+                        1,
+                        4,
+                        15
+                ),
+                new Recipe(
+                        "Gebrannte Mandeln",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Gebratene Cashewkerne",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Toast Hawaii",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Schinken"),
+                                new Ingredient(10, "Scheiben", "Toastbrot"),
+                                new Ingredient(10, "Scheiben", "Ananas"),
+                                new Ingredient(10, "Scheiben", "Schmelzkäse")
+                        },
+                        "TestDescription",
+                        1,
+                        4,
+                        15
+                ),
+                new Recipe(
+                        "Gebrannte Mandeln",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Gebratene Cashewkerne",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Toast Hawaii",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Schinken"),
+                                new Ingredient(10, "Scheiben", "Toastbrot"),
+                                new Ingredient(10, "Scheiben", "Ananas"),
+                                new Ingredient(10, "Scheiben", "Schmelzkäse")
+                        },
+                        "TestDescription",
+                        1,
+                        4,
+                        15
+                ),
+        };
+
+        recipeRepository.saveAll(Arrays.asList(testRecipes));
+
+        // Size 3
+
+        Pageable paging = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "title"));
+
+        Map<String, Object> expectedAnswer = new HashMap<>();
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("totalItems", 9);
+        expectedAnswer.put("totalPages", 3);
+        expectedAnswer.put("currentPage", 0);
+
+        String testRecipesJSON = new ObjectMapper().writer().writeValueAsString(expectedAnswer);
+
+        System.out.println(testRecipesJSON);
+
+        mvc.perform(get("/recipes")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(testRecipesJSON));
+
+        // Size 4
+
+        paging = PageRequest.of(0, 4, Sort.by(Sort.Direction.DESC, "title"));
+
+        expectedAnswer.clear();
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("totalItems", 9);
+        expectedAnswer.put("totalPages", 3);
+        expectedAnswer.put("currentPage", 0);
+
+        testRecipesJSON = new ObjectMapper().writer().writeValueAsString(expectedAnswer);
+
+        mvc.perform(get("/recipes?size=4")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(testRecipesJSON));
+
+        // Size 9
+
+        paging = PageRequest.of(0, 9, Sort.by(Sort.Direction.DESC, "title"));
+
+        expectedAnswer.clear();
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("totalItems", 9);
+        expectedAnswer.put("totalPages", 1);
+        expectedAnswer.put("currentPage", 0);
+
+        testRecipesJSON = new ObjectMapper().writer().writeValueAsString(expectedAnswer);
+
+        mvc.perform(get("/recipes?size=9")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(testRecipesJSON));
+
+        // Size > 9
+
+        paging = PageRequest.of(0, 9, Sort.by(Sort.Direction.DESC, "title"));
+
+        expectedAnswer.clear();
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("totalItems", 9);
+        expectedAnswer.put("totalPages", 1);
+        expectedAnswer.put("currentPage", 0);
+
+        testRecipesJSON = new ObjectMapper().writer().writeValueAsString(expectedAnswer);
+
+        mvc.perform(get("/recipes?size=5000")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -228,11 +606,57 @@ public class RecipeAPITest {
 
     // NEGATIVE TESTS
 
+    @Test
+    void negative_404_getPaginationTest() throws Exception {
+        Recipe[] testRecipes = {
+                new Recipe(
+                        "Gebrannte Mandeln",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Gebratene Cashewkerne",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Toast Hawaii",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Schinken"),
+                                new Ingredient(10, "Scheiben", "Toastbrot"),
+                                new Ingredient(10, "Scheiben", "Ananas"),
+                                new Ingredient(10, "Scheiben", "Schmelzkäse")
+                        },
+                        "TestDescription",
+                        1,
+                        4,
+                        15
+                ),
+        };
+
+        recipeRepository.saveAll(Arrays.asList(testRecipes));
+
+        mvc.perform(get("/recipes?page=15"))
+                .andExpect(status().isNotFound());
+    }
+
     /**
      * Testing a 404 error on a wrong ID.
      */
     @Test
-    void negative_404_getTest() throws Exception {
+    void negative_404_getSingleTest() throws Exception {
         mvc.perform(get("/recipes/someRandomID"))
                 .andExpect(status().isNotFound());
     }
@@ -432,5 +856,6 @@ public class RecipeAPITest {
 
         assertTrue(recipeRepository.findAll().isEmpty());
     }
+
 
 }

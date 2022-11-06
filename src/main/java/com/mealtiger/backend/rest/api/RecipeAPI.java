@@ -1,7 +1,6 @@
 package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.database.model.recipe.Recipe;
-import com.mealtiger.backend.database.repository.RecipeRepository;
 import com.mealtiger.backend.rest.controller.RecipeController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,17 +26,18 @@ public class RecipeAPI {
 
 
     /**
-     * Sends requested recipe to user.
-     * @param page int of Page we are on default 0.
-     * @param size int of Page size default 3.
-     * @param sort string to sort after default title.
+     * Sends all recipes paginated and sorted according to parameters to user.
+     *
+     * @param page # of current page, default is 0.
+     * @param size page size, default is 3.
+     * @param sort string to sort after, default is title.
      * @return HTTP Status 200 if getting recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
     @GetMapping("/recipes")
     private ResponseEntity<Map<String, Object>> getAllRecipesPage(
-            @RequestParam(defaultValue = "title") String sort,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size) {
+            @RequestParam(value = "sort", defaultValue = "title") String sort,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "3") int size) {
 
         log.debug("Sorting after: {}", sort);
         log.debug("Page is: {}", page);
