@@ -30,28 +30,36 @@ public class RecipeController {
 
     /**
      * Gets recipes from Database and Returns them sorted and paginated.
-     * @param page int of Page we are on.
-     * @param size int of Page size.
-     * @param sort string to sort after.
+     *
+     * @param pageNumber int of Page we are on.
+     * @param size       int of Page size.
+     * @param sort       string to sort after.
      * @return sorted and paginated recipes from the repository as an map.
      */
-    public Map<String, Object> getRecipePage(int page, int size, String sort) {
+    public Map<String, Object> getRecipePage(int pageNumber, int size, String sort) {
         log.trace("Getting recipes from repository.");
         try {
             List<Recipe> recipes;
 
-            Pageable paging = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, sort));
+            Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
 
-            Page<Recipe> pageTuts;
-            pageTuts = recipeRepository.findAll(paging);
+            Page<Recipe> page;
+            page = recipeRepository.findAll(paging);
 
-            recipes = pageTuts.getContent();
+            recipes = page.getContent();
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("Recipes", recipes);
-            response.put("currentPage", pageTuts.getNumber());
-            response.put("totalItems", pageTuts.getTotalElements());
-            response.put("totalPages", pageTuts.getTotalPages());
+            Map<String, Object> response;
+
+            if (recipes.size() != 0) {
+                response = new HashMap<>();
+                response.put("recipes", recipes);
+                response.put("currentPage", page.getNumber());
+                response.put("totalItems", page.getTotalElements());
+                response.put("totalPages", page.getTotalPages());
+            } else {
+                response = null;
+            }
+
             return response;
         } catch (Exception e) {
             return null;
