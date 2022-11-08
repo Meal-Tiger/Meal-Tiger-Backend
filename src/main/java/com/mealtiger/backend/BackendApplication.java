@@ -3,14 +3,17 @@ package com.mealtiger.backend;
 import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.configuration.exceptions.NoSuchConfigException;
 import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
-import com.mealtiger.backend.database.repository.RecipeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 import java.util.Properties;
 
 /**
@@ -42,6 +45,27 @@ public class BackendApplication implements CommandLineRunner {
 		} catch (NoSuchPropertyException | NoSuchConfigException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				Configurator configurator = new Configurator();
+				String allowedOrigins;
+				try {
+					allowedOrigins = configurator.getString("Main.REST.corsAllowedOrigins");
+				} catch (NoSuchPropertyException | NoSuchConfigException e) {
+					log.error("Error upon retrieving allowed cors origins!");
+					throw new RuntimeException(e);
+				}
+
+				String[] allowedOriginsArray = allowedOrigins.split(",");
+
+				registry.addMapping("/recipes").allowedOrigins(allowedOriginsArray);
+			}
+		};
 	}
 
 	@Override
