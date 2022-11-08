@@ -489,8 +489,8 @@ public class RecipeAPITest {
                         new Ingredient(200, "Gramm", "Zucker")
                 },
                 "TestDescription",
-                3,
-                5,
+                2.8,
+                4.3,
                 15
         );
 
@@ -738,7 +738,7 @@ public class RecipeAPITest {
                         new Ingredient(200, "Gramm", "Zucker")
                 },
                 "TestDescription",
-                4,
+                3.1,
                 5,
                 15
         );
@@ -782,7 +782,7 @@ public class RecipeAPITest {
                 },
                 "TestDescription",
                 3,
-                6,
+                5.2,
                 15
         );
 
