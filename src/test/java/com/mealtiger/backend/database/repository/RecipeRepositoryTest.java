@@ -78,7 +78,7 @@ class RecipeRepositoryTest {
         Pageable pageable = PageRequest.of(0,1);
 
         String compareTitle = "Gebrannte Mandeln";
-        String foundTitle = recipeRepository.findRecipesByTitleContainingIgnoreCase(randomcased, pageable).get(0).getTitle();
+        String foundTitle = recipeRepository.findRecipesByTitleContainingIgnoreCase(randomcased, pageable).getContent().get(0).getTitle();
         assertEquals(compareTitle, foundTitle);
     }
 

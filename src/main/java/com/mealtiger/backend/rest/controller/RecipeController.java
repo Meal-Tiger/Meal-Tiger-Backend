@@ -5,12 +5,10 @@ import com.mealtiger.backend.database.repository.RecipeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import javax.management.Query;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +43,45 @@ public class RecipeController {
 
             Page<Recipe> page;
             page = recipeRepository.findAll(paging);
+
+            recipes = page.getContent();
+
+            Map<String, Object> response;
+
+            if (recipes.size() != 0) {
+                response = new HashMap<>();
+                response.put("recipes", recipes);
+                response.put("currentPage", page.getNumber());
+                response.put("totalItems", page.getTotalElements());
+                response.put("totalPages", page.getTotalPages());
+            } else {
+                response = null;
+            }
+
+            return response;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    /**
+     * Gets recipes from Database and Returns them sorted and paginated.
+     *
+     * @param pageNumber int of Page we are on.
+     * @param size       int of Page size.
+     * @param sort       string to sort after.
+     * @return sorted and paginated recipes from the repository as an map.
+     */
+    public Map<String, Object> getRecipePageByTitleQuery(int pageNumber, int size, String sort, String query) {
+        log.trace("Getting recipes from repository.");
+        try {
+            List<Recipe> recipes;
+
+            Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
+
+            Page<Recipe> page;
+            page = recipeRepository.findRecipesByTitleContainingIgnoreCase(query, paging);
 
             recipes = page.getContent();
 
