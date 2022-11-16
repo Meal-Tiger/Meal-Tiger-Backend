@@ -9,6 +9,8 @@ import com.mealtiger.backend.database.repository.RecipeRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,10 +19,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -604,6 +609,71 @@ public class RecipeAPITest {
         assertTrue(recipeRepository.findAll().isEmpty());
     }
 
+    /**
+     * Testing the query parameter
+     */
+
+    @Test
+    void getQueriedRecipeTest() throws Exception {
+        Recipe[] testRecipes = {
+                new Recipe(
+                        "Gebrannte Mandeln",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Gebratene Cashewkerne",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        5,
+                        15
+                ),
+                new Recipe(
+                        "Toast Hawaii",
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Schinken"),
+                                new Ingredient(10, "Scheiben", "Toastbrot"),
+                                new Ingredient(10, "Scheiben", "Ananas"),
+                                new Ingredient(10, "Scheiben", "Schmelzkäse")
+                        },
+                        "TestDescription",
+                        1,
+                        4,
+                        15
+                )
+        };
+
+        recipeRepository.saveAll(Arrays.asList(testRecipes));
+
+        Pageable pageable = PageRequest.of(0,1);
+
+        Map<String, Object> expectedAnswer = new HashMap<>();
+        expectedAnswer.put("recipes", recipeRepository.findRecipesByTitleContaining("Gebrannte Mandeln", pageable));
+        expectedAnswer.put("totalItems", 1);
+        expectedAnswer.put("totalPages", 1);
+        expectedAnswer.put("currentPage", 0);
+
+        String testRecipesJSON = new ObjectMapper().writer().writeValueAsString(expectedAnswer);
+
+        mvc.perform(get("/recipes?q=Gebrannte Mandeln")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(testRecipesJSON));
+
+    }
+
     // NEGATIVE TESTS
 
     @Test
@@ -856,6 +926,5 @@ public class RecipeAPITest {
 
         assertTrue(recipeRepository.findAll().isEmpty());
     }
-
 
 }
