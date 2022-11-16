@@ -39,6 +39,7 @@ public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
 
     /**
      * This method provides a mongoDB Client that is connecting to the server configured in the config file.
+     *
      * @return mongoDB Client
      */
     @Override

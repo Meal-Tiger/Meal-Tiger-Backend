@@ -1,6 +1,5 @@
 package com.mealtiger.backend.database.repository;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mealtiger.backend.BackendApplication;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.database.model.recipe.Recipe;
@@ -13,18 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
@@ -35,6 +27,16 @@ class RecipeRepositoryTest {
     @Autowired
     private RecipeRepository recipeRepository;
 
+    private static Stream<String> randomcasedStrings() {
+        return Stream.of(
+                "GEBRaNNTe mandEln",
+                "gEbRaNNTe MANDElN",
+                "GeBrAnNTe mANdeln",
+                "gEBrANntE MAndEln",
+                "GEBrANnte mAnDELN"
+        );
+    }
+
     @BeforeEach
     @AfterEach
     void beforeAfterEach() {
@@ -43,7 +45,7 @@ class RecipeRepositoryTest {
 
     @ParameterizedTest(name = "#{index} - Case insensitivity test with randomcased string {0}")
     @MethodSource("randomcasedStrings")
-    void findRecipesByTitleContainingIgnoreCaseTest(String randomcased){
+    void findRecipesByTitleContainingIgnoreCaseTest(String randomcased) {
         Recipe[] testRecipes = {
                 new Recipe(
                         "Gebrannte Mandeln",
@@ -84,19 +86,21 @@ class RecipeRepositoryTest {
 
         recipeRepository.saveAll(Arrays.asList(testRecipes));
 
-        Pageable pageable = PageRequest.of(0,1);
+        Pageable pageable = PageRequest.of(0, 1);
 
         String compareTitle = "Gebrannte Mandeln";
         String foundTitle = recipeRepository.findRecipesByTitleContainingIgnoreCase(randomcased, pageable).getContent().get(0).getTitle();
         assertEquals(compareTitle, foundTitle);
     }
 
+    //Value sources
+
     /**
      * Testing the query parameter
      */
 
     @Test
-    void findRecipesByTitleContainingTest() throws Exception {
+    void findRecipesByTitleContainingTest() {
         Recipe[] testRecipes = {
                 new Recipe(
                         "Gebrannte Mandeln",
@@ -137,21 +141,9 @@ class RecipeRepositoryTest {
 
         recipeRepository.saveAll(Arrays.asList(testRecipes));
 
-        Pageable pageable = PageRequest.of(0,1);
+        Pageable pageable = PageRequest.of(0, 1);
 
         String foundTitle = recipeRepository.findRecipesByTitleContainingIgnoreCase("Gebrannte Mandeln", pageable).getContent().get(0).getTitle();
         assertEquals("Gebrannte Mandeln", foundTitle);
-    }
-
-    //Value sources
-
-    private static Stream<String> randomcasedStrings() {
-        return Stream.of(
-                "GEBRaNNTe mandEln",
-                "gEbRaNNTe MANDElN",
-                "GeBrAnNTe mANdeln",
-                "gEBrANntE MAndEln",
-                "GEBrANnte mAnDELN"
-                );
     }
 }

@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 /**
  * Annotation used to indicate a config-class
  *
- * @see com.mealtiger.backend.configuration.Configurator
  * @author Lucca Greschner
+ * @see com.mealtiger.backend.configuration.Configurator
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
