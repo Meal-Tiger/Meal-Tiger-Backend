@@ -5,7 +5,15 @@ import com.mealtiger.backend.database.repository.RecipeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This acts as the controller-part for our REST API.
@@ -21,13 +29,47 @@ public class RecipeController {
     private RecipeRepository recipeRepository;
 
     /**
-     * This retrieves all recipes from the repository.
+     * Gets recipes from Database and Returns them sorted and paginated.
      *
-     * @return All recipes from the repository as an array.
+     * @param pageNumber int of Page we are on.
+     * @param size       int of Page size.
+     * @param sort       string to sort after.
+     * @return sorted and paginated recipes from the repository as an map.
      */
-    public Recipe[] getAllRecipes() {
+    public Map<String, Object> getRecipePage(int pageNumber, int size, String sort) {
         log.trace("Getting recipes from repository.");
-        return recipeRepository.findAll().toArray(new Recipe[0]);
+        try {
+            Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
+            Page<Recipe> page = recipeRepository.findAll(paging);
+
+            return assemblePaginatedResult(page);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    /**
+     * Gets recipes from Database and Returns them sorted and paginated.
+     *
+     * @param pageNumber int of Page we are on.
+     * @param size       int of Page size.
+     * @param sort       string to sort after.
+     * @return sorted and paginated recipes from the repository as an map.
+     */
+    public Map<String, Object> getRecipePageByTitleQuery(int pageNumber, int size, String sort, String query) {
+        log.trace("Getting recipes from repository.");
+        try {
+
+            Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
+
+            Page<Recipe> page;
+            page = recipeRepository.findRecipesByTitleContainingIgnoreCase(query, paging);
+
+            return assemblePaginatedResult(page);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
@@ -105,16 +147,38 @@ public class RecipeController {
             boolean correctDifficulty = recipe.getDifficulty() <= 3 && recipe.getDifficulty() > 0;
             boolean correctIngredients = recipe.getIngredients().length > 0;
             boolean correctDescription = recipe.getDescription().length() > 0;
-            boolean correctTime =
-                    recipe.getTime().getMinimumUnit() != null
-                            && recipe.getTime().getMinimum() > 0
-                            && ((recipe.getTime().getMaximum() > recipe.getTime().getMinimum() && recipe.getTime().getMaximumUnit() != null)
-                            || (recipe.getTime().getMaximumUnit() == null && recipe.getTime().getMaximum() == 0));
+            boolean correctTime = recipe.getTime() > 0;
             boolean correctTitle = recipe.getTitle().length() > 0;
 
             return correctRating && correctDifficulty && correctIngredients && correctDescription && correctTime && correctTitle;
         } catch (NullPointerException e) {
             return false;
         }
+    }
+
+    // PRIVATE HELPER METHODS
+
+    /**
+     * This method assembles a map that contains all needed information for a stateless implementation in the frontend application from a page.
+     *
+     * @param page Page to be used for assembling the result.
+     * @return Map that contains the entries 'recipes', 'currentPage', 'totalItems', 'totalPages'.
+     */
+    private Map<String, Object> assemblePaginatedResult(Page<Recipe> page) {
+        List<Recipe> recipes = page.getContent();
+
+        Map<String, Object> response;
+
+        if (recipes.size() != 0) {
+            response = new HashMap<>();
+            response.put("recipes", recipes);
+            response.put("currentPage", page.getNumber());
+            response.put("totalItems", page.getTotalElements());
+            response.put("totalPages", page.getTotalPages());
+        } else {
+            response = null;
+        }
+
+        return response;
     }
 }
