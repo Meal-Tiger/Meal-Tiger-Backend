@@ -21,11 +21,11 @@ public class Recipe {
     private String title;
     private Ingredient[] ingredients;
     private String description;
-    private int difficulty;
-    private int rating;
+    private double difficulty;
+    private double rating;
     private int time;
 
-    public Recipe(String title, Ingredient[] ingredients, String description, int difficulty, int rating, int time) {
+    public Recipe(String title, Ingredient[] ingredients, String description, double difficulty, double rating, int time) {
         this.title = title;
         this.ingredients = ingredients;
         this.description = description;
@@ -50,19 +50,19 @@ public class Recipe {
         this.description = description;
     }
 
-    public int getDifficulty() {
+    public double getDifficulty() {
         return difficulty;
     }
 
-    public void setDifficulty(int difficulty) {
+    public void setDifficulty(double difficulty) {
         this.difficulty = difficulty;
     }
 
-    public int getRating() {
+    public double getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public void setRating(double rating) {
         this.rating = rating;
     }
 
@@ -121,11 +121,16 @@ public class Recipe {
 
     @Override
     public int hashCode() {
-        int result = getTitle() != null ? getTitle().hashCode() : 0;
+        int result;
+        long temp;
+        result = getId().hashCode();
+        result = 31 * result + getTitle().hashCode();
         result = 31 * result + Arrays.hashCode(getIngredients());
-        result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
-        result = 31 * result + getDifficulty();
-        result = 31 * result + getRating();
+        result = 31 * result + getDescription().hashCode();
+        temp = Double.doubleToLongBits(getDifficulty());
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(getRating());
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + getTime();
         return result;
     }

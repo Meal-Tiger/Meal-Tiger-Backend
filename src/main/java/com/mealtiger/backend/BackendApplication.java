@@ -9,6 +9,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Properties;
 
@@ -20,29 +24,52 @@ import java.util.Properties;
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class BackendApplication implements CommandLineRunner {
 
-    private static final Logger log = LoggerFactory.getLogger(BackendApplication.class);
+	private static final Logger log = LoggerFactory.getLogger(BackendApplication.class);
 
-    public static void main(String[] args) {
-        Configurator configurator = new Configurator();
-        Properties springProperties = configurator.getSpringProperties();
+	private static ConfigurableApplicationContext applicationContext;
 
-        try {
-            if (configurator.getString("Main.Database.mongoDBURL").length() == 0) {
-                log.info("Database connection string is not defined. Please use the config file main.yml to configure!");
-            } else {
-                log.debug("Starting application with custom properties: {}!", springProperties);
-                new SpringApplicationBuilder(BackendApplication.class)
-                        .properties(springProperties)
-                        .build()
-                        .run(args);
-            }
-        } catch (NoSuchPropertyException | NoSuchConfigException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	public static void main(String[] args) {
+		Configurator configurator = new Configurator();
+		Properties springProperties = configurator.getSpringProperties();
 
-    @Override
-    public void run(String... args) {
-    }
+		try {
+			if (configurator.getString("Main.Database.mongoDBURL").length() == 0) {
+				log.info("Database connection string is not defined. Please use the config file main.yml to configure!");
+			} else {
+				log.debug("Starting application with custom properties: {}!", springProperties);
+				applicationContext = new SpringApplicationBuilder(BackendApplication.class)
+						.properties(springProperties)
+						.build()
+						.run(args);
+			}
+		} catch (NoSuchPropertyException | NoSuchConfigException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Bean
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				Configurator configurator = new Configurator();
+				String allowedOrigins;
+				try {
+					allowedOrigins = configurator.getString("Main.REST.corsAllowedOrigins");
+				} catch (NoSuchPropertyException | NoSuchConfigException e) {
+					log.error("Error upon retrieving allowed cors origins!");
+					throw new RuntimeException(e);
+				}
+
+				String[] allowedOriginsArray = allowedOrigins.split(",");
+
+				registry.addMapping("/recipes").allowedOrigins(allowedOriginsArray);
+			}
+		};
+	}
+
+	@Override
+	public void run(String... args) {
+	}
 
 }

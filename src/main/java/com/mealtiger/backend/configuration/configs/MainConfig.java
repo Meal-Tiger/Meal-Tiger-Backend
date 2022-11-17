@@ -14,11 +14,13 @@ import org.springframework.boot.logging.LogLevel;
 public class MainConfig {
     private final Database database;
     private final Logging logging;
+    private final REST rest;
 
     @SuppressWarnings("unused")
     public MainConfig() {
         database = new Database();
         logging = new Logging();
+        rest = new REST();
     }
 
     @ConfigNode(name = "Database.mongoDBURL", envKey = "DBURL")
@@ -37,6 +39,11 @@ public class MainConfig {
     @SuppressWarnings("unused")
     public String getLogLevel() {
         return logging.logLevel;
+    }
+
+    @ConfigNode(name = "REST.corsAllowedOrigins", envKey = "ALLOWED_ORIGINS")
+    public String getAllowedOrigins() {
+        return rest.corsOrigins;
     }
 
     static class Database {
@@ -64,6 +71,14 @@ public class MainConfig {
 
         Logging() {
             logLevel = LogLevel.INFO.toString();
+        }
+    }
+
+    static class REST {
+        private final String corsOrigins;
+
+        REST() {
+            corsOrigins = "";
         }
     }
 }
