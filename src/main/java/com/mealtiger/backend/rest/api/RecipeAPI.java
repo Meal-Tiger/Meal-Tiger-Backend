@@ -4,7 +4,6 @@ import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.rest.controller.RecipeController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,36 +19,52 @@ import java.util.Map;
 public class RecipeAPI {
 
     private static final Logger log = LoggerFactory.getLogger(RecipeAPI.class);
+    private final RecipeController recipeController;
 
-    @Autowired
-    private RecipeController recipeController;
-
+    /**
+     * This constructor is called by the Spring Boot Framework to inject dependencies.
+     *
+     * @param recipeController Automatically injected.
+     */
+    public RecipeAPI(RecipeController recipeController) {
+        this.recipeController = recipeController;
+    }
 
     /**
      * Sends all recipes paginated and sorted according to parameters to user.
      *
-     * @param page # of current page, default is 0.
-     * @param size page size, default is 3.
-     * @param sort string to sort after, default is title.
+     * @param page  # of current page, default is 0.
+     * @param size  page size, default is 3.
+     * @param sort  string to sort after, default is title.
+     * @param query string to search after.
      * @return HTTP Status 200 if getting recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
-    @GetMapping("/recipes")
-    private ResponseEntity<Map<String, Object>> getAllRecipesPage(
+    @GetMapping(value = "/recipes")
+    public ResponseEntity<Map<String, Object>> getRecipesPage(
             @RequestParam(value = "sort", defaultValue = "title") String sort,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "3") int size) {
+            @RequestParam(value = "size", defaultValue = "3") int size,
+            @RequestParam(value = "q", required = false) String query) {
 
         log.debug("Sorting after: {}", sort);
         log.debug("Page is: {}", page);
         log.debug("Size is: {}", size);
+        log.debug("Query is: {}", query);
 
-        Map<String, Object> returnValue = recipeController.getRecipePage(page, size, sort);
+        Map<String, Object> returnValue;
+
+        if (query != null) {
+            returnValue = recipeController.getRecipePageByTitleQuery(page, size, sort, query);
+        } else {
+            returnValue = recipeController.getRecipePage(page, size, sort);
+        }
 
         if (returnValue == null) {
             return ResponseEntity.status(404).body(null);
         }
         return ResponseEntity.ok(returnValue);
     }
+
 
     /**
      * User adds a recipe to database.

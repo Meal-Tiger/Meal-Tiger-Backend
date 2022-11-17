@@ -16,8 +16,8 @@ import java.nio.file.Files;
 /**
  * This class is used to load configs.
  *
- * @see com.mealtiger.backend.configuration.Configurator
  * @author Lucca Greschner
+ * @see com.mealtiger.backend.configuration.Configurator
  */
 public class ConfigLoader {
 
@@ -41,7 +41,7 @@ public class ConfigLoader {
      * @throws IOException if an I/O-Error occurs.
      */
     Object loadConfig(Class<?> configClass) throws IOException {
-        if (!configClass.isAnnotationPresent(Config.class)){
+        if (!configClass.isAnnotationPresent(Config.class)) {
             throw new RuntimeException("Not a config!");
         }
 

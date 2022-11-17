@@ -39,28 +39,34 @@ public class RecipeController {
     public Map<String, Object> getRecipePage(int pageNumber, int size, String sort) {
         log.trace("Getting recipes from repository.");
         try {
-            List<Recipe> recipes;
+            Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
+            Page<Recipe> page = recipeRepository.findAll(paging);
+
+            return assemblePaginatedResult(page);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+    /**
+     * Gets recipes from Database and Returns them sorted and paginated.
+     *
+     * @param pageNumber int of Page we are on.
+     * @param size       int of Page size.
+     * @param sort       string to sort after.
+     * @return sorted and paginated recipes from the repository as an map.
+     */
+    public Map<String, Object> getRecipePageByTitleQuery(int pageNumber, int size, String sort, String query) {
+        log.trace("Getting recipes from repository.");
+        try {
 
             Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
 
             Page<Recipe> page;
-            page = recipeRepository.findAll(paging);
+            page = recipeRepository.findRecipesByTitleContainingIgnoreCase(query, paging);
 
-            recipes = page.getContent();
-
-            Map<String, Object> response;
-
-            if (recipes.size() != 0) {
-                response = new HashMap<>();
-                response.put("recipes", recipes);
-                response.put("currentPage", page.getNumber());
-                response.put("totalItems", page.getTotalElements());
-                response.put("totalPages", page.getTotalPages());
-            } else {
-                response = null;
-            }
-
-            return response;
+            return assemblePaginatedResult(page);
         } catch (Exception e) {
             return null;
         }
@@ -148,5 +154,31 @@ public class RecipeController {
         } catch (NullPointerException e) {
             return false;
         }
+    }
+
+    // PRIVATE HELPER METHODS
+
+    /**
+     * This method assembles a map that contains all needed information for a stateless implementation in the frontend application from a page.
+     *
+     * @param page Page to be used for assembling the result.
+     * @return Map that contains the entries 'recipes', 'currentPage', 'totalItems', 'totalPages'.
+     */
+    private Map<String, Object> assemblePaginatedResult(Page<Recipe> page) {
+        List<Recipe> recipes = page.getContent();
+
+        Map<String, Object> response;
+
+        if (recipes.size() != 0) {
+            response = new HashMap<>();
+            response.put("recipes", recipes);
+            response.put("currentPage", page.getNumber());
+            response.put("totalItems", page.getTotalElements());
+            response.put("totalPages", page.getTotalPages());
+        } else {
+            response = null;
+        }
+
+        return response;
     }
 }

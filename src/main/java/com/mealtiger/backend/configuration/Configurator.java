@@ -44,8 +44,9 @@ public class Configurator {
 
     /**
      * Loads all config files in the com.mealtiger.backend.configuration.configs package annotated with the @Config annotation
-     * @see Config
+     *
      * @throws IOException When an IO error occurs upon trying to open the corresponding config files.
+     * @see Config
      */
     private void loadConfigs() throws IOException {
         log.info("Loading configs...");
