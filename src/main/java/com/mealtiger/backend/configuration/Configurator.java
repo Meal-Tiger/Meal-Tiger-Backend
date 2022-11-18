@@ -1,5 +1,7 @@
 package com.mealtiger.backend.configuration;
 
+import com.mealtiger.backend.configuration.exceptions.ConfigLoadingException;
+import com.mealtiger.backend.configuration.exceptions.ConfigPropertyException;
 import com.mealtiger.backend.configuration.exceptions.NoSuchConfigException;
 import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
 import org.slf4j.Logger;
@@ -33,7 +35,7 @@ public class Configurator {
                 loadConfigs();
             } catch (IOException e) {
                 log.error("IO Error when trying to load configs. Check the permissions on the config files!");
-                throw new RuntimeException(e);
+                throw new ConfigLoadingException(e);
             }
         }
     }
@@ -42,8 +44,9 @@ public class Configurator {
 
     /**
      * Loads all config files in the com.mealtiger.backend.configuration.configs package annotated with the @Config annotation
-     * @see Config
+     *
      * @throws IOException When an IO error occurs upon trying to open the corresponding config files.
+     * @see Config
      */
     private void loadConfigs() throws IOException {
         log.info("Loading configs...");
@@ -72,13 +75,8 @@ public class Configurator {
     public Properties getSpringProperties() {
         Properties properties = new Properties();
 
-        try {
-            String logLevel = getString("Main.Logging.logLevel");
-
-            properties.put("logging.level.root", logLevel);
-        } catch (NoSuchPropertyException | NoSuchConfigException e) {
-            throw new RuntimeException(e);
-        }
+        String logLevel = getString("Main.Logging.logLevel");
+        properties.put("logging.level.root", logLevel);
 
         log.debug("Handing over spring properties: {}!", properties);
 
@@ -112,7 +110,7 @@ public class Configurator {
                 try {
                     returnValue = method.invoke(config);
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new RuntimeException("Error when trying to retrieve config property " + property + "!");
+                    throw new ConfigPropertyException(property);
                 }
             }
         }
@@ -132,9 +130,9 @@ public class Configurator {
 
         Object returnValue = getProperty(property);
 
-        if (!(returnValue instanceof Boolean)) {
+        if (!(returnValue instanceof Boolean booleanReturnValue)) {
             throw new NoSuchPropertyException(property);
-        } else return (Boolean) returnValue;
+        } else return booleanReturnValue;
     }
 
     /**
@@ -149,9 +147,9 @@ public class Configurator {
 
         Object returnValue = getProperty(property);
 
-        if (!(returnValue instanceof String)) {
+        if (!(returnValue instanceof String stringReturnValue)) {
             throw new NoSuchPropertyException(property);
-        } else return (String) returnValue;
+        } else return stringReturnValue;
     }
 
     /**
@@ -166,9 +164,9 @@ public class Configurator {
 
         Object returnValue = getProperty(property);
 
-        if (!(returnValue instanceof Integer)) {
+        if (!(returnValue instanceof Integer integerReturnValue)) {
             throw new NoSuchPropertyException(property);
-        } else return (Integer) returnValue;
+        } else return integerReturnValue;
     }
 
     /**
@@ -183,8 +181,8 @@ public class Configurator {
 
         Object returnValue = getProperty(property);
 
-        if (!(returnValue instanceof Double)) {
+        if (!(returnValue instanceof Double doubleReturnValue)) {
             throw new NoSuchPropertyException(property);
-        } else return (Double) returnValue;
+        } else return doubleReturnValue;
     }
 }

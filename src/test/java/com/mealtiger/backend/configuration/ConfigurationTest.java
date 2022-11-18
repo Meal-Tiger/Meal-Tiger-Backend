@@ -11,7 +11,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ConfigurationTest {
+class ConfigurationTest {
 
     @Test
     void loadConfigsTest() throws NoSuchFieldException, IllegalAccessException {
@@ -20,7 +20,7 @@ public class ConfigurationTest {
         Field loadedConfigsField = configurator.getClass().getDeclaredField("loadedConfigs");
         loadedConfigsField.setAccessible(true);
 
-        Map<String, Object> loadedConfigs = (Map<String, Object>) loadedConfigsField.get(configurator);
+        Map<?, ?> loadedConfigs = (Map<?, ?>) loadedConfigsField.get(configurator);
 
         assertFalse(loadedConfigs.isEmpty());
     }

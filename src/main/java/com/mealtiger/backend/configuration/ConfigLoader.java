@@ -1,5 +1,6 @@
 package com.mealtiger.backend.configuration;
 
+import com.mealtiger.backend.configuration.exceptions.ConfigLoadingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
@@ -15,8 +16,8 @@ import java.nio.file.Files;
 /**
  * This class is used to load configs.
  *
- * @see com.mealtiger.backend.configuration.Configurator
  * @author Lucca Greschner
+ * @see com.mealtiger.backend.configuration.Configurator
  */
 public class ConfigLoader {
 
@@ -40,8 +41,8 @@ public class ConfigLoader {
      * @throws IOException if an I/O-Error occurs.
      */
     Object loadConfig(Class<?> configClass) throws IOException {
-        if (!configClass.isAnnotationPresent(Config.class)){
-            throw new RuntimeException("Not a config!");
+        if (!configClass.isAnnotationPresent(Config.class)) {
+            throw new ConfigLoadingException(configClass.getSimpleName() + " is not a config!");
         }
 
         Config annotation = configClass.getAnnotation(Config.class);
@@ -57,7 +58,7 @@ public class ConfigLoader {
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
                      InvocationTargetException e) {
                 log.error("Could not create new config. Aborting...");
-                throw new RuntimeException(e);
+                throw new ConfigLoadingException(e);
             }
 
             try (PrintWriter out = new PrintWriter(file)) {

@@ -5,7 +5,6 @@ import com.mealtiger.backend.rest.controller.RecipeController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +41,7 @@ public class RecipeAPI {
      *               HTTP Status 200 if adding recipe was successful, HTTP Status 500 on error/exception.
      */
     @PostMapping("/recipes")
-    public ResponseEntity<?> postRecipe(@RequestBody Recipe recipe) {
+    public ResponseEntity<String> postRecipe(@RequestBody Recipe recipe) {
         log.debug("Recipe posted: {}", recipe);
 
         if (!recipeController.checkValidity(recipe)) {
@@ -57,7 +56,7 @@ public class RecipeAPI {
 
         recipeController.saveRecipe(recipe);
 
-        return ResponseEntity.ok(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -86,7 +85,7 @@ public class RecipeAPI {
      * @return HTTP Status 200 if replacing recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
     @PutMapping("/recipes/{id}")
-    public ResponseEntity<?> replaceRecipe(@PathVariable(value = "id") String id, @RequestBody Recipe recipe) {
+    public ResponseEntity<String> replaceRecipe(@PathVariable(value = "id") String id, @RequestBody Recipe recipe) {
         log.debug("Editing recipe with id {}!", id);
 
         if (!recipeController.checkValidity(recipe)) {
@@ -94,7 +93,7 @@ public class RecipeAPI {
             return ResponseEntity.badRequest().body("Invalid recipe sent!");
         }
 
-        return recipeController.replaceRecipe(id, recipe) ? ResponseEntity.ok(HttpStatus.OK) : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Recipe ID not found!");
+        return recipeController.replaceRecipe(id, recipe) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
     /**
@@ -104,9 +103,9 @@ public class RecipeAPI {
      * @return HTTP Status 200 if deleting recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
     @DeleteMapping("/recipes/{id}")
-    public ResponseEntity<?> deleteRecipe(@PathVariable(value = "id") String id) {
+    public ResponseEntity<Void> deleteRecipe(@PathVariable(value = "id") String id) {
         log.debug("Deleting recipe with id {}!", id);
 
-        return recipeController.deleteRecipe(id) ? ResponseEntity.ok(HttpStatus.OK) : ResponseEntity.status(HttpStatus.NOT_FOUND).body("Recipe ID not found!");
+        return recipeController.deleteRecipe(id) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 }

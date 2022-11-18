@@ -9,7 +9,7 @@ import org.springframework.boot.logging.LogLevel;
  * Properties are represented as non-static fields. Categories can be done by nesting the properties in static nested classes.
  */
 
-@Config(name="Main", configPath = "main.yml")
+@Config(name = "Main", configPath = "main.yml")
 @SuppressWarnings("unused")
 public class MainConfig {
     private final Database database;
@@ -30,7 +30,7 @@ public class MainConfig {
     @ConfigNode(name = "Database.databaseName")
     @SuppressWarnings("unused")
     public String getMongoDatabase() {
-        return database.database;
+        return database.databaseName;
     }
 
     @ConfigNode(name = "Logging.logLevel")
@@ -50,11 +50,11 @@ public class MainConfig {
         /**
          * MongoDB Database name.
          */
-        private final String database;
+        private final String databaseName;
 
         Database() {
             mongoDBURL = "";
-            database = "MealTigerDB";
+            databaseName = "MealTigerDB";
         }
 
     }
