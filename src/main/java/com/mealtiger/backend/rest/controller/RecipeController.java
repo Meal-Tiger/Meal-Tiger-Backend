@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class RecipeController {
 
             return assemblePaginatedResult(page);
         } catch (Exception e) {
-            return null;
+            return Collections.emptyMap();
         }
     }
 
@@ -75,7 +76,7 @@ public class RecipeController {
 
             return assemblePaginatedResult(page);
         } catch (Exception e) {
-            return null;
+            return Collections.emptyMap();
         }
     }
 
@@ -176,7 +177,7 @@ public class RecipeController {
 
         Map<String, Object> response;
 
-        if (recipes.size() != 0) {
+        if (!recipes.isEmpty()) {
             response = new HashMap<>();
             response.put("recipes", recipes);
             response.put("currentPage", page.getNumber());
