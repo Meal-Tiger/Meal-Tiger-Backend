@@ -1,7 +1,7 @@
 package com.mealtiger.backend.configuration;
 
-import com.mealtiger.backend.configuration.exceptions.ConfigLoadingException;
 import com.mealtiger.backend.configuration.annotations.Config;
+import com.mealtiger.backend.configuration.exceptions.ConfigLoadingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;

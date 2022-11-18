@@ -5,12 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 
 import java.util.Properties;
 
@@ -39,22 +38,22 @@ public class BackendApplication implements CommandLineRunner {
         }
     }
 
-	@Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				Configurator configurator = new Configurator();
-				String allowedOrigins;
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                Configurator configurator = new Configurator();
+                String allowedOrigins;
 
-				allowedOrigins = configurator.getString("Main.REST.corsAllowedOrigins");
+                allowedOrigins = configurator.getString("Main.REST.corsAllowedOrigins");
 
-				String[] allowedOriginsArray = allowedOrigins.split(",");
+                String[] allowedOriginsArray = allowedOrigins.split(",");
 
-				registry.addMapping("/recipes").allowedOrigins(allowedOriginsArray);
-			}
-		};
-	}
+                registry.addMapping("/recipes").allowedOrigins(allowedOriginsArray);
+            }
+        };
+    }
 
     /**
      * Run method of the application. Is run when the application is started.
