@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -51,6 +50,7 @@ public class BackendApplication implements CommandLineRunner {
                 String[] allowedOriginsArray = allowedOrigins.split(",");
 
                 registry.addMapping("/recipes").allowedOrigins(allowedOriginsArray);
+                registry.addMapping("/recipes/**").allowedOrigins(allowedOriginsArray);
             }
         };
     }
