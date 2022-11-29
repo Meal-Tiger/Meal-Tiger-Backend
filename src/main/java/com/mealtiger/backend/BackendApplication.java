@@ -17,7 +17,7 @@ import java.util.Properties;
  *
  * @author Lucca Greschner, Sebastian Maier
  */
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
+@SpringBootApplication
 public class BackendApplication implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(BackendApplication.class);
