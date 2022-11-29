@@ -5,7 +5,7 @@ package com.mealtiger.backend.configuration.exceptions;
  *
  * @author Lucca Greschner
  */
-public class NoSuchPropertyException extends Exception {
+public class NoSuchPropertyException extends RuntimeException {
     public NoSuchPropertyException(String property) {
         super("Could not find the following property: " + property);
     }

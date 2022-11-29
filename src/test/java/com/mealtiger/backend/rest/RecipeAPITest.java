@@ -38,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         classes = {BackendApplication.class}
 )
 @AutoConfigureMockMvc
-public class RecipeAPITest {
+class RecipeAPITest {
 
     @Autowired
     private MockMvc mvc;

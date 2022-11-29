@@ -1,6 +1,7 @@
 package com.mealtiger.backend.configuration;
 
 import com.mealtiger.backend.configuration.annotations.Config;
+import com.mealtiger.backend.configuration.exceptions.ConfigLoadingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
@@ -42,7 +43,7 @@ public class ConfigLoader {
      */
     Object loadConfig(Class<?> configClass) throws IOException {
         if (!configClass.isAnnotationPresent(Config.class)) {
-            throw new RuntimeException("Not a config!");
+            throw new ConfigLoadingException(configClass.getSimpleName() + " is not a config!");
         }
 
         Config annotation = configClass.getAnnotation(Config.class);
@@ -58,7 +59,7 @@ public class ConfigLoader {
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
                      InvocationTargetException e) {
                 log.error("Could not create new config. Aborting...");
-                throw new RuntimeException(e);
+                throw new ConfigLoadingException(e);
             }
 
             try (PrintWriter out = new PrintWriter(file)) {

@@ -32,7 +32,7 @@ public class MainConfig {
     @ConfigNode(name = "Database.databaseName", envKey = "DB")
     @SuppressWarnings("unused")
     public String getMongoDatabase() {
-        return database.database;
+        return database.databaseName;
     }
 
     @ConfigNode(name = "Logging.logLevel", envKey = "LOGLEVEL")
@@ -57,11 +57,11 @@ public class MainConfig {
         /**
          * MongoDB Database name.
          */
-        private final String database;
+        private final String databaseName;
 
         Database() {
             mongoDBURL = "";
-            database = "MealTigerDB";
+            databaseName = "MealTigerDB";
         }
 
     }

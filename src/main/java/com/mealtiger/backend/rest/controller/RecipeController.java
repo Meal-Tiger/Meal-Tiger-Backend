@@ -4,13 +4,13 @@ import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.database.repository.RecipeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +25,16 @@ public class RecipeController {
 
     private static final Logger log = LoggerFactory.getLogger(RecipeController.class);
 
-    @Autowired
-    private RecipeRepository recipeRepository;
+    private final RecipeRepository recipeRepository;
+
+    /**
+     * This constructor is called by the Spring Boot Framework to inject dependencies.
+     *
+     * @param recipeRepository Automatically injected.
+     */
+    public RecipeController(RecipeRepository recipeRepository) {
+        this.recipeRepository = recipeRepository;
+    }
 
     /**
      * Gets recipes from Database and Returns them sorted and paginated.
@@ -44,7 +52,7 @@ public class RecipeController {
 
             return assemblePaginatedResult(page);
         } catch (Exception e) {
-            return null;
+            return Collections.emptyMap();
         }
     }
 
@@ -68,7 +76,7 @@ public class RecipeController {
 
             return assemblePaginatedResult(page);
         } catch (Exception e) {
-            return null;
+            return Collections.emptyMap();
         }
     }
 
@@ -169,7 +177,7 @@ public class RecipeController {
 
         Map<String, Object> response;
 
-        if (recipes.size() != 0) {
+        if (!recipes.isEmpty()) {
             response = new HashMap<>();
             response.put("recipes", recipes);
             response.put("currentPage", page.getNumber());
