@@ -1,6 +1,7 @@
 package com.mealtiger.backend.rest.controller;
 
 import com.mealtiger.backend.database.model.recipe.Recipe;
+import com.mealtiger.backend.database.model.recipe.RecipeDTO;
 import com.mealtiger.backend.database.repository.RecipeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This acts as the controller-part for our REST API.
@@ -27,6 +29,24 @@ public class RecipeController {
 
     private final RecipeRepository recipeRepository;
 
+    public Page<RecipeDTO> getAllRecipe() {
+        return (Page<RecipeDTO>) ((Page<Recipe>) recipeRepository
+                .findAll())
+                .stream()
+                .map(this::convertToRecipeDTO)
+                .collect(Collectors.toList());
+    }
+    private RecipeDTO convertToRecipeDTO(Recipe recipe) {
+        RecipeDTO RecipeDTO = new RecipeDTO();
+        RecipeDTO.setId(Recipe.getId());
+        RecipeDTO.setTitle(Recipe.getTitle());
+        RecipeDTO.setTime(Recipe.getTime());
+        RecipeDTO.setDescription(Recipe.getDescription());
+        RecipeDTO.setIngredients(Recipe.getIngredients());
+        RecipeDTO.setDifficulty(Recipe.getDifficulty());
+        RecipeDTO.setDifficulty(Recipe.getRating());
+        return RecipeDTO;
+    }
     /**
      * This constructor is called by the Spring Boot Framework to inject dependencies.
      *

@@ -16,14 +16,14 @@ import java.util.Arrays;
 @Document(collection = "recipe")
 public class Recipe {
     @Id
-    private String id;
+    private static String id;
     @Indexed(direction = IndexDirection.ASCENDING)
-    private String title;
-    private Ingredient[] ingredients;
-    private String description;
-    private double difficulty;
-    private double rating;
-    private int time;
+    private static String title;
+    private static Ingredient[] ingredients;
+    private static String description;
+    private static double difficulty;
+    private static double rating;
+    private static int time;
 
     public Recipe(String title, Ingredient[] ingredients, String description, double difficulty, double rating, int time) {
         this.title = title;
@@ -34,7 +34,8 @@ public class Recipe {
         this.time = time;
     }
 
-    public Ingredient[] getIngredients() {
+
+    public static Ingredient[] getIngredients() {
         return ingredients;
     }
 
@@ -42,7 +43,7 @@ public class Recipe {
         this.ingredients = ingredients;
     }
 
-    public String getDescription() {
+    public static String getDescription() {
         return description;
     }
 
@@ -50,7 +51,7 @@ public class Recipe {
         this.description = description;
     }
 
-    public double getDifficulty() {
+    public static double getDifficulty() {
         return difficulty;
     }
 
@@ -58,7 +59,7 @@ public class Recipe {
         this.difficulty = difficulty;
     }
 
-    public double getRating() {
+    public static double getRating() {
         return rating;
     }
 
@@ -66,7 +67,7 @@ public class Recipe {
         this.rating = rating;
     }
 
-    public int getTime() {
+    public static int getTime() {
         return time;
     }
 
@@ -74,7 +75,7 @@ public class Recipe {
         this.time = time;
     }
 
-    public String getTitle() {
+    public static String getTitle() {
         return title;
     }
 
@@ -82,7 +83,7 @@ public class Recipe {
         this.title = title;
     }
 
-    public String getId() {
+    public static String getId() {
         return id;
     }
 
