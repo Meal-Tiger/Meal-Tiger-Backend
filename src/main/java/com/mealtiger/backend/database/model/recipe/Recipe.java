@@ -138,15 +138,15 @@ public class Recipe {
 
     // DTO Methods
 
-    public RecipeDTO toDTO(Recipe recipe) {
+    public RecipeDTO toDTO() {
         RecipeDTO RecipeDTO = new RecipeDTO();
-        RecipeDTO.setId(recipe.getId());
-        RecipeDTO.setTitle(recipe.getTitle());
-        RecipeDTO.setTime(recipe.getTime());
-        RecipeDTO.setDescription(recipe.getDescription());
-        RecipeDTO.setIngredients(recipe.getIngredients());
-        RecipeDTO.setDifficulty(recipe.getDifficulty());
-        RecipeDTO.setDifficulty(recipe.getRating());
+        RecipeDTO.setId(this.getId());
+        RecipeDTO.setTitle(this.getTitle());
+        RecipeDTO.setTime(this.getTime());
+        RecipeDTO.setDescription(this.getDescription());
+        RecipeDTO.setIngredients(this.getIngredients());
+        RecipeDTO.setDifficulty(this.getDifficulty());
+        RecipeDTO.setRating(this.getRating());
         return RecipeDTO;
     }
 

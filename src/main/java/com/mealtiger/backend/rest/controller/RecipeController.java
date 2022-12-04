@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * This acts as the controller-part for our REST API.
@@ -49,7 +48,7 @@ public class RecipeController {
             Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
             Page<Recipe> recipePage = recipeRepository.findAll(paging);
 
-            return assemblePaginatedResult(recipePage.map(recipe1 -> recipe1.toDTO(recipe1)));
+            return assemblePaginatedResult(recipePage.map(recipe1 -> recipe1.toDTO()));
         } catch (Exception e) {
             return Collections.emptyMap();
         }
@@ -73,7 +72,7 @@ public class RecipeController {
             Page<Recipe> page;
             page = recipeRepository.findRecipesByTitleContainingIgnoreCase(query, paging);
 
-            return assemblePaginatedResult(page.map(recipe1 -> recipe1.toDTO(recipe1)));
+            return assemblePaginatedResult(page.map(recipe1 -> recipe1.toDTO()));
         } catch (Exception e) {
             return Collections.emptyMap();
         }
@@ -99,7 +98,7 @@ public class RecipeController {
     public RecipeDTO getRecipe(String id) {
         log.trace("Getting recipe with id {} from repository.", id);
         Recipe recipe = recipeRepository.findById(id).orElse(null);
-        return recipe.toDTO(recipe);
+        return recipe != null ? recipe.toDTO(): null;
     }
 
     /**
