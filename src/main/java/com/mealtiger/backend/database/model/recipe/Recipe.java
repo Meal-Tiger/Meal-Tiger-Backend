@@ -16,14 +16,14 @@ import java.util.Arrays;
 @Document(collection = "recipe")
 public class Recipe {
     @Id
-    private static String id;
+    private String id;
     @Indexed(direction = IndexDirection.ASCENDING)
-    private static String title;
-    private static Ingredient[] ingredients;
-    private static String description;
-    private static double difficulty;
-    private static double rating;
-    private static int time;
+    private String title;
+    private Ingredient[] ingredients;
+    private String description;
+    private double difficulty;
+    private double rating;
+    private int time;
 
     public Recipe(String title, Ingredient[] ingredients, String description, double difficulty, double rating, int time) {
         this.title = title;
@@ -35,7 +35,7 @@ public class Recipe {
     }
 
 
-    public static Ingredient[] getIngredients() {
+    public Ingredient[] getIngredients() {
         return ingredients;
     }
 
@@ -43,7 +43,7 @@ public class Recipe {
         this.ingredients = ingredients;
     }
 
-    public static String getDescription() {
+    public String getDescription() {
         return description;
     }
 
@@ -51,7 +51,7 @@ public class Recipe {
         this.description = description;
     }
 
-    public static double getDifficulty() {
+    public double getDifficulty() {
         return difficulty;
     }
 
@@ -59,7 +59,7 @@ public class Recipe {
         this.difficulty = difficulty;
     }
 
-    public static double getRating() {
+    public double getRating() {
         return rating;
     }
 
@@ -67,7 +67,7 @@ public class Recipe {
         this.rating = rating;
     }
 
-    public static int getTime() {
+    public int getTime() {
         return time;
     }
 
@@ -75,7 +75,7 @@ public class Recipe {
         this.time = time;
     }
 
-    public static String getTitle() {
+    public String getTitle() {
         return title;
     }
 
@@ -83,7 +83,7 @@ public class Recipe {
         this.title = title;
     }
 
-    public static String getId() {
+    public String getId() {
         return id;
     }
 
@@ -134,5 +134,30 @@ public class Recipe {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + getTime();
         return result;
+    }
+
+    // DTO Methods
+
+    public RecipeDTO toDTO(Recipe recipe) {
+        RecipeDTO RecipeDTO = new RecipeDTO();
+        RecipeDTO.setId(recipe.getId());
+        RecipeDTO.setTitle(recipe.getTitle());
+        RecipeDTO.setTime(recipe.getTime());
+        RecipeDTO.setDescription(recipe.getDescription());
+        RecipeDTO.setIngredients(recipe.getIngredients());
+        RecipeDTO.setDifficulty(recipe.getDifficulty());
+        RecipeDTO.setDifficulty(recipe.getRating());
+        return RecipeDTO;
+    }
+
+    public static Recipe fromDTO(RecipeDTO dto) {
+        return new Recipe(
+                dto.getTitle(),
+                dto.getIngredients(),
+                dto.getDescription(),
+                dto.getDifficulty(),
+                dto.getRating(),
+                dto.getTime()
+        );
     }
 }

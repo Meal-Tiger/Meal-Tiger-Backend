@@ -4,18 +4,17 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 
-import java.util.Arrays;
-
 public class RecipeDTO {
-        @Id
-        private String id;
-        @Indexed(direction = IndexDirection.ASCENDING)
-        private String title;
-        private Ingredient[] ingredients;
-        private String description;
-        private double difficulty;
-        private double rating;
+    @Id
+    private String id;
+    @Indexed(direction = IndexDirection.ASCENDING)
+    private String title;
+    private Ingredient[] ingredients;
+    private String description;
+    private double difficulty;
+    private double rating;
     private int time;
+
 
     public void setId(String id) {
         this.id = id;
@@ -44,36 +43,38 @@ public class RecipeDTO {
     public void setTime(int time) {
         this.time = time;
     }
-        public Ingredient[] getIngredients() {
-            return ingredients;
-        }
 
-        public String getDescription() {
-            return description;
-        }
+    public Ingredient[] getIngredients() {
+        return ingredients;
+    }
 
-
-        public double getDifficulty() {
-            return difficulty;
-        }
+    public String getDescription() {
+        return description;
+    }
 
 
-        public double getRating() {
-            return rating;
-        }
+    public double getDifficulty() {
+        return difficulty;
+    }
 
 
-        public int getTime() {
-            return time;
-        }
+    public double getRating() {
+        return rating;
+    }
 
 
-        public String getTitle() {
-            return title;
-        }
+    public int getTime() {
+        return time;
+    }
 
 
-        public String getId() {
-            return id;
-        }
+    public String getTitle() {
+        return title;
+    }
+
+
+    public String getId() {
+        return id;
+    }
+
 }

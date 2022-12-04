@@ -5,10 +5,7 @@ import com.mealtiger.backend.database.model.recipe.RecipeDTO;
 import com.mealtiger.backend.database.repository.RecipeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -29,24 +26,6 @@ public class RecipeController {
 
     private final RecipeRepository recipeRepository;
 
-    public Page<RecipeDTO> getAllRecipe() {
-        return (Page<RecipeDTO>) ((Page<Recipe>) recipeRepository
-                .findAll())
-                .stream()
-                .map(this::convertToRecipeDTO)
-                .collect(Collectors.toList());
-    }
-    private RecipeDTO convertToRecipeDTO(Recipe recipe) {
-        RecipeDTO RecipeDTO = new RecipeDTO();
-        RecipeDTO.setId(Recipe.getId());
-        RecipeDTO.setTitle(Recipe.getTitle());
-        RecipeDTO.setTime(Recipe.getTime());
-        RecipeDTO.setDescription(Recipe.getDescription());
-        RecipeDTO.setIngredients(Recipe.getIngredients());
-        RecipeDTO.setDifficulty(Recipe.getDifficulty());
-        RecipeDTO.setDifficulty(Recipe.getRating());
-        return RecipeDTO;
-    }
     /**
      * This constructor is called by the Spring Boot Framework to inject dependencies.
      *
@@ -68,9 +47,9 @@ public class RecipeController {
         log.trace("Getting recipes from repository.");
         try {
             Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
-            Page<Recipe> page = recipeRepository.findAll(paging);
+            Page<Recipe> recipePage = recipeRepository.findAll(paging);
 
-            return assemblePaginatedResult(page);
+            return assemblePaginatedResult(recipePage.map(recipe1 -> recipe1.toDTO(recipe1)));
         } catch (Exception e) {
             return Collections.emptyMap();
         }
@@ -83,7 +62,7 @@ public class RecipeController {
      * @param pageNumber int of Page we are on.
      * @param size       int of Page size.
      * @param sort       string to sort after.
-     * @return sorted and paginated recipes from the repository as an map.
+     * @return sorted and paginated recipes from the repository as a map.
      */
     public Map<String, Object> getRecipePageByTitleQuery(int pageNumber, int size, String sort, String query) {
         log.trace("Getting recipes from repository.");
@@ -94,7 +73,7 @@ public class RecipeController {
             Page<Recipe> page;
             page = recipeRepository.findRecipesByTitleContainingIgnoreCase(query, paging);
 
-            return assemblePaginatedResult(page);
+            return assemblePaginatedResult(page.map(recipe1 -> recipe1.toDTO(recipe1)));
         } catch (Exception e) {
             return Collections.emptyMap();
         }
@@ -103,9 +82,10 @@ public class RecipeController {
     /**
      * This saves a recipe to the repository
      *
-     * @param recipe Recipe to be saved.
+     * @param recipeDTO Recipe to be saved.
      */
-    public void saveRecipe(Recipe recipe) {
+    public void saveRecipe(RecipeDTO recipeDTO) {
+        Recipe recipe = Recipe.fromDTO(recipeDTO);
         log.trace("Saving recipe {} to repository!", recipe);
         recipeRepository.save(recipe);
     }
@@ -116,19 +96,21 @@ public class RecipeController {
      * @param id ID of the recipe to get.
      * @return Recipe requested.
      */
-    public Recipe getRecipe(String id) {
+    public RecipeDTO getRecipe(String id) {
         log.trace("Getting recipe with id {} from repository.", id);
-        return recipeRepository.findById(id).orElse(null);
+        Recipe recipe = recipeRepository.findById(id).orElse(null);
+        return recipe.toDTO(recipe);
     }
 
     /**
      * Replaces recipe in repository with new recipe.
      *
      * @param id     ID of the repository to be replaced.
-     * @param recipe Recipe to replace the old recipe.
+     * @param recipeDTO Recipe to replace the old recipe.
      * @return Whether it was successful or not.
      */
-    public boolean replaceRecipe(String id, Recipe recipe) {
+    public boolean replaceRecipe(String id, RecipeDTO recipeDTO) {
+        Recipe recipe = Recipe.fromDTO(recipeDTO);
         log.trace("Replacing recipe with id {} in repository with {}.", id, recipe);
         Recipe oldRecipe = recipeRepository.findById(id).orElse(null);
 
@@ -160,16 +142,16 @@ public class RecipeController {
         if (returnValue) {
             recipeRepository.deleteById(id);
         }
-
         return returnValue;
     }
 
     /**
      * Checks if a recipe is valid or not.
      *
-     * @param recipe Recipe to check.
+     * @param recipeDTO Recipe to check.
      */
-    public boolean checkValidity(Recipe recipe) {
+    public boolean checkValidity(RecipeDTO recipeDTO) {
+        Recipe recipe = Recipe.fromDTO(recipeDTO);
         try {
             boolean correctRating = recipe.getRating() <= 5 && recipe.getRating() > 0;
             boolean correctDifficulty = recipe.getDifficulty() <= 3 && recipe.getDifficulty() > 0;
@@ -192,8 +174,8 @@ public class RecipeController {
      * @param page Page to be used for assembling the result.
      * @return Map that contains the entries 'recipes', 'currentPage', 'totalItems', 'totalPages'.
      */
-    private Map<String, Object> assemblePaginatedResult(Page<Recipe> page) {
-        List<Recipe> recipes = page.getContent();
+    private Map<String, Object> assemblePaginatedResult(Page<RecipeDTO> page) {
+        List<RecipeDTO> recipes = page.getContent();
 
         Map<String, Object> response;
 
@@ -206,7 +188,6 @@ public class RecipeController {
         } else {
             response = null;
         }
-
         return response;
     }
 }
