@@ -51,6 +51,7 @@ public class BackendApplication implements CommandLineRunner {
                 String[] allowedOriginsArray = allowedOrigins.split(",");
 
                 registry.addMapping("/recipes").allowedOrigins(allowedOriginsArray);
+                registry.addMapping("/recipes/**").allowedOrigins(allowedOriginsArray);
             }
         };
     }
