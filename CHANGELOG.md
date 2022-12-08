@@ -16,3 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - REST Endpoint "/recipes" with the methods "GET, POST" implemented
 - Pagination with GET endpoint on "/recipes"
 - Parameterized REST Endpoint "/recipes/{id}" with the methods "GET, PUT, DELETE"
+
+
+## [1.0.0-alpha] - 2022-12-08
+
+### Fixed
+
+- DTOs are used to prevent malicious attacks on the REST API.
+- CORS is now also implemented for the endpoint "/recipes/**"
