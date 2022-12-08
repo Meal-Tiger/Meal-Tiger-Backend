@@ -34,6 +34,7 @@ public class Recipe {
         this.time = time;
     }
 
+
     public Ingredient[] getIngredients() {
         return ingredients;
     }
@@ -133,5 +134,30 @@ public class Recipe {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + getTime();
         return result;
+    }
+
+    // DTO Methods
+
+    public RecipeDTO toDTO() {
+        RecipeDTO RecipeDTO = new RecipeDTO();
+        RecipeDTO.setId(this.getId());
+        RecipeDTO.setTitle(this.getTitle());
+        RecipeDTO.setTime(this.getTime());
+        RecipeDTO.setDescription(this.getDescription());
+        RecipeDTO.setIngredients(this.getIngredients());
+        RecipeDTO.setDifficulty(this.getDifficulty());
+        RecipeDTO.setRating(this.getRating());
+        return RecipeDTO;
+    }
+
+    public static Recipe fromDTO(RecipeDTO dto) {
+        return new Recipe(
+                dto.getTitle(),
+                dto.getIngredients(),
+                dto.getDescription(),
+                dto.getDifficulty(),
+                dto.getRating(),
+                dto.getTime()
+        );
     }
 }

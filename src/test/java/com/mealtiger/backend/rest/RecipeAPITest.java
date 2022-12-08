@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mealtiger.backend.BackendApplication;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.database.model.recipe.Recipe;
+import com.mealtiger.backend.database.model.recipe.RecipeDTO;
 import com.mealtiger.backend.database.repository.RecipeRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +60,7 @@ class RecipeAPITest {
      */
     @Test
     void getRecipesDefaultTest() throws Exception {
-        Recipe[] testRecipes = {
+        RecipeDTO[] testRecipes = {
                 new Recipe(
                         "Gebrannte Mandeln",
                         new Ingredient[]{
@@ -70,7 +71,7 @@ class RecipeAPITest {
                         3,
                         5,
                         15
-                ),
+                ).toDTO(),
                 new Recipe(
                         "Gebratene Cashewkerne",
                         new Ingredient[]{
@@ -81,7 +82,7 @@ class RecipeAPITest {
                         3,
                         5,
                         15
-                ),
+                ).toDTO(),
                 new Recipe(
                         "Toast Hawaii",
                         new Ingredient[]{
@@ -94,11 +95,9 @@ class RecipeAPITest {
                         1,
                         4,
                         15
-                ),
+                ).toDTO(),
         };
-
-        recipeRepository.saveAll(Arrays.asList(testRecipes));
-
+        recipeRepository.saveAll((Arrays.stream(testRecipes).map(DTO -> Recipe.fromDTO(DTO)).toList()));
         Pageable paging = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "title"));
 
         Map<String, Object> expectedAnswer = new HashMap<>();
