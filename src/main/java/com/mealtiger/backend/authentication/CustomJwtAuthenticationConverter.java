@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 
 /**
  * This custom JWT authentication converter guarantees that Spring recognizes roles set in keycloak.
+ *
+ * @author Lucca Greschner
  */
 public class CustomJwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 

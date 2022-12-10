@@ -37,8 +37,21 @@ public class AuthenticationConfig {
     }
 
     static class OIDC {
+        /**
+         * Defines whether OIDC authentication shall be used. This setting should be set to true for production
+         * use. However, it may be useful for debugging purposes
+         */
         private final boolean enableOIDCAuthentication;
+
+        /**
+         * URL of the OIDC authentication provider. In the case of keycloak:
+         * "https://{HOSTNAME}/realms/master"
+         */
         private final String authenticationProviderURL;
+
+        /**
+         * ID of the client used to validate JWTs
+         */
         private final String clientID;
 
         OIDC() {

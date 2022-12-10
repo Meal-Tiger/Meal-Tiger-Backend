@@ -12,12 +12,18 @@ import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Configuration for Spring Security
+ *
+ * @author Lucca Greschner
  */
 @Configuration
 public class AuthenticationConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticationConfiguration.class);
 
+    /**
+     * This security filter chain provides authentication through JWTs which is coordinated through a Keycloak Authentication Provider
+     * @param http Automatically injected by spring
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         Configurator configurator = new Configurator();
@@ -44,7 +50,7 @@ public class AuthenticationConfiguration {
                     );
         }
 
-        //TODO: Figure out what CSRF is and configure postman to cope with it.
+        //CSRF protection is not needed as we are using HTTP Bearer authentication
         http.csrf().disable();
         http.cors();
 
