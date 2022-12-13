@@ -26,7 +26,7 @@ public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
         Configurator configurator = new Configurator();
         String databaseName;
 
-        databaseName = configurator.getString("Main.Database.databaseName");
+        databaseName = configurator.getString("Database.databaseName");
 
         return databaseName;
     }
@@ -42,7 +42,7 @@ public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
 
 
         String mongoDBConnectionString;
-        mongoDBConnectionString = configurator.getString("Main.Database.mongoDBURL");
+        mongoDBConnectionString = configurator.getString("Database.mongoDBURL");
 
         ConnectionString connectionString = new ConnectionString(mongoDBConnectionString);
         MongoClientSettings mongoClientSettings = MongoClientSettings.builder()

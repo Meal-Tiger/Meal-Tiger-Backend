@@ -26,8 +26,8 @@ public class BackendApplication implements CommandLineRunner {
         Configurator configurator = new Configurator();
         Properties springProperties = configurator.getSpringProperties();
 
-        if (configurator.getString("Main.Database.mongoDBURL").length() == 0) {
-            log.info("Database connection string is not defined. Please use the config file main.yml to configure!");
+        if (configurator.getString("Database.mongoDBURL").length() == 0) {
+            log.info("Database connection string is not defined. Please use the config file database.yml to configure!");
         } else {
             log.debug("Starting application with custom properties: {}!", springProperties);
             new SpringApplicationBuilder(BackendApplication.class)
@@ -45,7 +45,7 @@ public class BackendApplication implements CommandLineRunner {
                 Configurator configurator = new Configurator();
                 String allowedOrigins;
 
-                allowedOrigins = configurator.getString("Main.REST.corsAllowedOrigins");
+                allowedOrigins = configurator.getString("REST.corsAllowedOrigins");
 
                 String[] allowedOriginsArray = allowedOrigins.split(",");
 
