@@ -80,6 +80,9 @@ public class Configurator {
         String logLevel = getString("Main.Logging.logLevel");
         properties.put("logging.level.root", logLevel);
 
+        properties.put("spring.main.banner-mode", "off");
+        properties.put("spring.autoconfigure.exclude", "org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration");
+
         log.debug("Handing over spring properties: {}!", properties);
 
         return properties;
@@ -88,7 +91,7 @@ public class Configurator {
     // CONFIG QUERYING
 
     /**
-     * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
+     * @param property Property string to get from configs. Example: Database.mongoDBURL
      * @return Object that corresponds to the property string
      */
     private Object getProperty(String property) throws NoSuchConfigException {
@@ -150,7 +153,7 @@ public class Configurator {
     /**
      * Used to get a boolean from a config file.
      *
-     * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
+     * @param property Property string to get from configs. Example: Database.mongoDBURL
      * @return Boolean saved at the given property descriptor.
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
@@ -167,7 +170,7 @@ public class Configurator {
     /**
      * Used to get a String from a config file.
      *
-     * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
+     * @param property Property string to get from configs. Example: Database.mongoDBURL
      * @return Boolean saved at the given property descriptor.
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
@@ -184,7 +187,7 @@ public class Configurator {
     /**
      * Used to get an integer from a config file.
      *
-     * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
+     * @param property Property string to get from configs. Example: Database.mongoDBURL
      * @return Boolean saved at the given property descriptor.
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
@@ -201,7 +204,7 @@ public class Configurator {
     /**
      * Used to get a double from a config file.
      *
-     * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
+     * @param property Property string to get from configs. Example: Database.mongoDBURL
      * @return Boolean saved at the given property descriptor.
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */

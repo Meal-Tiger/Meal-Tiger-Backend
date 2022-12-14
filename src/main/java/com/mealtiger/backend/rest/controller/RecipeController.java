@@ -48,7 +48,7 @@ public class RecipeController {
             Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
             Page<Recipe> recipePage = recipeRepository.findAll(paging);
 
-            return assemblePaginatedResult(recipePage.map(recipe1 -> recipe1.toDTO()));
+            return assemblePaginatedResult(recipePage.map(Recipe::toDTO));
         } catch (Exception e) {
             return Collections.emptyMap();
         }
@@ -72,7 +72,7 @@ public class RecipeController {
             Page<Recipe> page;
             page = recipeRepository.findRecipesByTitleContainingIgnoreCase(query, paging);
 
-            return assemblePaginatedResult(page.map(recipe1 -> recipe1.toDTO()));
+            return assemblePaginatedResult(page.map(Recipe::toDTO));
         } catch (Exception e) {
             return Collections.emptyMap();
         }
