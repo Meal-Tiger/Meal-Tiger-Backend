@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class RecipeTest {
+class RecipeTest {
     /**
      * Tests if Recipe converted to DTO is equal to RecipeDTO.
      */
