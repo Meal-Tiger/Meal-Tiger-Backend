@@ -1,4 +1,4 @@
-package com.mealtiger.backend.database.repository.api;
+package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.database.model.recipe.RecipeDTO;
 import com.mealtiger.backend.rest.controller.RecipeController;
