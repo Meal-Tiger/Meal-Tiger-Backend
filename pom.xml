@@ -45,6 +45,18 @@
             <version>1.33</version>
         </dependency>
 
+        <!-- Scrimage for WebP Support -->
+        <dependency>
+            <groupId>com.sksamuel.scrimage</groupId>
+            <artifactId>scrimage-core</artifactId>
+            <version>4.0.32</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sksamuel.scrimage</groupId>
+            <artifactId>scrimage-webp</artifactId>
+            <version>4.0.32</version>
+        </dependency>
+
         <!-- Testing dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
