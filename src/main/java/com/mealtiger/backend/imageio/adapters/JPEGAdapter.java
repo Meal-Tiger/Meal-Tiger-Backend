@@ -2,14 +2,13 @@ package com.mealtiger.backend.imageio.adapters;
 
 import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.configuration.exceptions.InvalidConfigPropertyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,14 +20,25 @@ import java.io.IOException;
  */
 public class JPEGAdapter implements ImageAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(JPEGAdapter.class);
 
     private final BufferedImage input;
     private final ImageWriter imageWriter;
     private final ImageWriteParam params;
 
-    JPEGAdapter(BufferedImage image) throws IOException {
-        input = image;
+    JPEGAdapter(BufferedImage image) {
+        if (image.getColorModel().hasAlpha()) {
+            // Remove alpha channel
+            BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics2D = newImage.createGraphics();
+            graphics2D.fillRect(0,0, image.getWidth(), image.getHeight());
+            graphics2D.drawImage(image, 0, 0, null);
+            graphics2D.dispose();
+
+            input = newImage;
+        } else {
+            input = image;
+        }
+
         imageWriter = ImageIO.getImageWritersByFormatName("jpg").next();
 
         Configurator configurator = new Configurator();
