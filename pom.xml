@@ -45,7 +45,34 @@
             <version>1.33</version>
         </dependency>
 
-        <!-- Scrimage for WebP Support -->
+        <!-- TwelveMonkeys for enhanced ImageIO import capabilities -->
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-core</artifactId>
+            <version>3.9.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-jpeg</artifactId>
+            <version>3.9.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-tiff</artifactId>
+            <version>3.9.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-webp</artifactId>
+            <version>3.9.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-bmp</artifactId>
+            <version>3.9.4</version>
+        </dependency>
+
+        <!-- Scrimage for WebP Export Support -->
         <dependency>
             <groupId>com.sksamuel.scrimage</groupId>
             <artifactId>scrimage-core</artifactId>
