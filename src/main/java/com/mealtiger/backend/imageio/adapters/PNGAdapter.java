@@ -2,8 +2,6 @@ package com.mealtiger.backend.imageio.adapters;
 
 import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.configuration.exceptions.InvalidConfigPropertyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -21,13 +19,11 @@ import java.io.IOException;
  */
 public class PNGAdapter implements ImageAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(PNGAdapter.class);
-
     private final BufferedImage input;
     private final ImageWriter imageWriter;
     private final ImageWriteParam params;
 
-    PNGAdapter(BufferedImage image) throws IOException {
+    PNGAdapter(BufferedImage image) {
         input = image;
         imageWriter = ImageIO.getImageWritersByFormatName("png").next();
 

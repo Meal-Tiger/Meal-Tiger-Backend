@@ -2,8 +2,6 @@ package com.mealtiger.backend.imageio.adapters;
 
 import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.configuration.exceptions.InvalidConfigPropertyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -13,7 +11,6 @@ import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * This is a Java class which converts BufferedImages to Bitmap.
@@ -22,14 +19,12 @@ import java.util.Arrays;
  */
 public class BitmapAdapter implements ImageAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(BitmapAdapter.class);
-
     private final BufferedImage input;
     private final ImageWriter imageWriter;
 
     private final ImageWriteParam params;
 
-    BitmapAdapter(BufferedImage image) throws IOException {
+    BitmapAdapter(BufferedImage image) {
         input = image;
         imageWriter = ImageIO.getImageWritersByFormatName("bmp").next();
 
@@ -44,7 +39,6 @@ public class BitmapAdapter implements ImageAdapter {
         String compressionType = configurator.getString("Image.BMP.compressionType");
 
         params = imageWriter.getDefaultWriteParam();
-        log.warn(Arrays.toString(params.getCompressionTypes()));
         params.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
         params.setCompressionType(compressionType);
         params.setCompressionQuality(((float) compressionQuality)/100);
