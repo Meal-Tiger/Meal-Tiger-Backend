@@ -45,7 +45,28 @@ public class ImageConfig {
             stringBuilder.append("bmp,");
         }
         if (webp.enabled) {
-            stringBuilder.append("webp,");
+            stringBuilder.append("webp");
+        }
+        return stringBuilder.toString();
+    }
+
+    @ConfigNode(name = "servedImageMediaTypes")
+    public String getServedImageMediaTypes() {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (png.enabled) {
+            stringBuilder.append("image/png;q=").append(png.qualityWeighting).append(",");
+        }
+        if (jpeg.enabled) {
+            stringBuilder.append("image/jpeg;q=").append(jpeg.qualityWeighting).append(",");
+        }
+        if (gif.enabled) {
+            stringBuilder.append("image/gif;q=").append(gif.qualityWeighting).append(",");
+        }
+        if (bmp.enabled) {
+            stringBuilder.append("image/bmp;q=").append(bmp.qualityWeighting).append(",");
+        }
+        if (webp.enabled) {
+            stringBuilder.append("image/webp;q=").append(webp.qualityWeighting);
         }
         return stringBuilder.toString();
     }
@@ -88,30 +109,36 @@ public class ImageConfig {
      static class PNG {
         private final boolean enabled;
         private final double compressionQuality;
-        
+        private final double qualityWeighting;
+
         private PNG() {
             enabled = false;
             compressionQuality = 75;
+            qualityWeighting = 0.8;
         }
     }
 
     static class JPEG {
         private final boolean enabled;
         private final double compressionQuality;
+        private final double qualityWeighting;
 
         private JPEG() {
             enabled = true;
             compressionQuality = 75;
+            qualityWeighting = 0.9;
         }
     }
 
     static class GIF {
         private final boolean enabled;
         private final double compressionQuality;
+        private final double qualityWeighting;
 
         private GIF() {
             enabled = false;
             compressionQuality = 75;
+            qualityWeighting = 0.7;
         }
     }
 
@@ -119,22 +146,26 @@ public class ImageConfig {
         private final boolean enabled;
         private final double compressionQuality;
         private final String compressionType;
+        private final double qualityWeighting;
 
         private BMP() {
             enabled = false;
             compressionQuality = 75;
             //BI_RGB, BI_RLE8, BI_RLE4, BI_BITFIELDS, BI_JPEG, BI_PNG
             compressionType = "BI_RGB";
+            qualityWeighting = 0.5;
         }
     }
 
     static class WebP {
         private final boolean enabled;
         private final String compressionType;
+        private final double qualityWeighting;
 
         private WebP() {
             enabled = true;
             compressionType = "DEFAULT";
+            qualityWeighting = 1.0;
         }
     }
 }
