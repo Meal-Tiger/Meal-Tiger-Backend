@@ -1,4 +1,4 @@
-package com.mealtiger.backend.imageio.adapters;
+package com.mealtiger.backend.imageio;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

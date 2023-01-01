@@ -21,7 +21,7 @@ public class GIFAdapter implements ImageAdapter{
     private final ImageWriter imageWriter;
     private final ImageWriteParam params;
 
-    GIFAdapter() {
+    public GIFAdapter() {
         imageWriter = ImageIO.getImageWritersByFormatName("gif").next();
 
         Configurator configurator = new Configurator();

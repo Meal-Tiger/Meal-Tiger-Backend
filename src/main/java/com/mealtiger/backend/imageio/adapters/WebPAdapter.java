@@ -13,6 +13,7 @@ import java.io.IOException;
  * @author Sebastian Maier, Lucca Greschner, Kay Knöpfle
  */
 public class WebPAdapter implements ImageAdapter {
+
     @Override
     public byte[] convert(BufferedImage input) throws IllegalStateException, IllegalArgumentException, IOException {
         PNGAdapter pngAdapter = new PNGAdapter();

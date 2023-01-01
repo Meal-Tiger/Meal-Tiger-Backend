@@ -1,5 +1,6 @@
-package com.mealtiger.backend.imageio.adapters;
+package com.mealtiger.backend.imageio;
 
+import com.mealtiger.backend.imageio.adapters.*;
 import org.springframework.beans.factory.FactoryBean;
 
 import java.util.Objects;

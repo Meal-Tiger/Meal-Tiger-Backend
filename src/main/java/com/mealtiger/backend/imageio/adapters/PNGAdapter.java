@@ -21,7 +21,7 @@ public class PNGAdapter implements ImageAdapter {
     private final ImageWriter imageWriter;
     private final ImageWriteParam params;
 
-    PNGAdapter() {
+    public PNGAdapter() {
         imageWriter = ImageIO.getImageWritersByFormatName("png").next();
 
 

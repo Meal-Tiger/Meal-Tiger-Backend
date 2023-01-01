@@ -22,7 +22,7 @@ public class JPEGAdapter implements ImageAdapter {
     private final ImageWriter imageWriter;
     private final ImageWriteParam params;
 
-    JPEGAdapter() {
+    public JPEGAdapter() {
         imageWriter = ImageIO.getImageWritersByFormatName("jpg").next();
 
         Configurator configurator = new Configurator();
