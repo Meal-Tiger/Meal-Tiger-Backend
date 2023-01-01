@@ -20,10 +20,7 @@ import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
@@ -154,7 +151,7 @@ public class ImageAPI {
                     .contentLength(path.toFile().length())
                     .contentType(type)
                     .body(resource);
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException | NoSuchFileException e) {
             log.debug("File {} not found!", path);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (IOException e) {
