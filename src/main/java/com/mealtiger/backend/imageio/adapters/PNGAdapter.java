@@ -18,13 +18,10 @@ import java.io.IOException;
  * @author Sebastian Maier, Lucca Greschner
  */
 public class PNGAdapter implements ImageAdapter {
-
-    private final BufferedImage input;
     private final ImageWriter imageWriter;
     private final ImageWriteParam params;
 
-    PNGAdapter(BufferedImage image) {
-        input = image;
+    PNGAdapter() {
         imageWriter = ImageIO.getImageWritersByFormatName("png").next();
 
 
@@ -41,7 +38,8 @@ public class PNGAdapter implements ImageAdapter {
         params.setCompressionQuality(((float) compressionQuality) / 100);
     }
 
-    public byte[] convert() throws IllegalStateException, IllegalArgumentException, IOException {
+    @Override
+    public byte[] convert(BufferedImage input) throws IllegalStateException, IllegalArgumentException, IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(outputStream)) {
             imageWriter.setOutput(imageOutputStream);

@@ -1,7 +1,7 @@
 package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.configuration.Configurator;
-import com.mealtiger.backend.imageio.ImageIOFacade;
+import com.mealtiger.backend.rest.controller.ImageIOController;
 import com.mealtiger.backend.rest.exceptions.UploadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,10 +47,12 @@ public class ImageAPI {
     private static final MediaType IMAGE_BMP = new MediaType("image", "bmp");
 
     private final Configurator configurator;
+    private final ImageIOController controller;
     private final Path imageRootPath;
 
-    public ImageAPI(Configurator configurator) {
+    public ImageAPI(Configurator configurator, ImageIOController controller) {
         this.configurator = configurator;
+        this.controller = controller;
         this.imageRootPath = Path.of(configurator.getString("Image.imagePath"));
     }
 
@@ -64,8 +66,7 @@ public class ImageAPI {
             UUID uuid = UUID.randomUUID();
             try (InputStream inputStream = file.getInputStream()) {
                 BufferedImage image = ImageIO.read(inputStream);
-                ImageIOFacade imageIOFacade = new ImageIOFacade();
-                imageIOFacade.saveImage(image, String.valueOf(uuid));
+                controller.saveImage(image, String.valueOf(uuid));
             } catch (IOException e) {
                 throw new UploadException("Could not open uploaded file " + file.getName());
             } finally {
@@ -84,8 +85,7 @@ public class ImageAPI {
 
         try (InputStream inputStream = file.getInputStream()) {
             BufferedImage image = ImageIO.read(inputStream);
-            ImageIOFacade imageIOFacade = new ImageIOFacade();
-            imageIOFacade.saveImage(image, String.valueOf(uuid));
+            controller.saveImage(image, String.valueOf(uuid));
         } catch (IOException e) {
             throw new UploadException("Could not open uploaded file " + file.getName() + ". Reason: " + e.getMessage());
         }

@@ -1,30 +1,43 @@
 package com.mealtiger.backend.imageio.adapters;
 
-import java.awt.image.BufferedImage;
+import org.springframework.beans.factory.FactoryBean;
+
+import java.util.Objects;
 
 /**
- * This class is a factory which provides Adapters that convert images into desired types.
+ * This class is a factory bean which provides Adapters that convert images into desired types.
  */
-public class ImageAdapterFactory {
+public class ImageAdapterFactory implements FactoryBean<ImageAdapter> {
 
-    private final ImageAdapter outputAdapter;
+    private final String format;
 
-    public ImageAdapterFactory(String format, BufferedImage input) {
+    ImageAdapterFactory(String format) {
+        this.format = format;
+    }
+
+    @Override
+    public ImageAdapter getObject() {
         ImageAdapter chosenAdapter;
 
         switch (format) {
-            case "jpg" -> chosenAdapter = new JPEGAdapter(input);
-            case "png" -> chosenAdapter = new PNGAdapter(input);
-            case "webp" -> chosenAdapter = new WebPAdapter(input);
-            case "gif" -> chosenAdapter = new GIFAdapter(input);
-            case "bmp" -> chosenAdapter = new BitmapAdapter(input);
+            case "jpeg" -> chosenAdapter = new JPEGAdapter();
+            case "png" -> chosenAdapter = new PNGAdapter();
+            case "webp" -> chosenAdapter = new WebPAdapter();
+            case "gif" -> chosenAdapter = new GIFAdapter();
+            case "bmp" -> chosenAdapter = new BitmapAdapter();
             default -> throw new IllegalArgumentException(format + " is not a legal option for ImageAdapterFactory!");
         }
 
-        outputAdapter = chosenAdapter;
+        return chosenAdapter;
     }
 
-    public ImageAdapter getInstance() {
-        return outputAdapter;
+    @Override
+    public Class<?> getObjectType() {
+        return Objects.requireNonNull(getObject()).getClass();
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return false;
     }
 }

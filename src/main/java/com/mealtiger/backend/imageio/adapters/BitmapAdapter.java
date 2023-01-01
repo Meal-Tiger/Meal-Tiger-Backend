@@ -18,14 +18,11 @@ import java.io.IOException;
  * @author Sebastian Maier, Lucca Greschner
  */
 public class BitmapAdapter implements ImageAdapter {
-
-    private final BufferedImage input;
     private final ImageWriter imageWriter;
 
     private final ImageWriteParam params;
 
-    BitmapAdapter(BufferedImage image) {
-        input = image;
+    BitmapAdapter() {
         imageWriter = ImageIO.getImageWritersByFormatName("bmp").next();
 
         Configurator configurator = new Configurator();
@@ -44,7 +41,7 @@ public class BitmapAdapter implements ImageAdapter {
         params.setCompressionQuality(((float) compressionQuality)/100);
     }
 
-    public byte[] convert() throws IllegalStateException, IllegalArgumentException, IOException {
+    public byte[] convert(BufferedImage input) throws IllegalStateException, IllegalArgumentException, IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(outputStream)) {
             imageWriter.setOutput(imageOutputStream);

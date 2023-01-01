@@ -19,26 +19,10 @@ import java.io.IOException;
  * @author Sebastian Maier, Lucca Greschner
  */
 public class JPEGAdapter implements ImageAdapter {
-
-
-    private final BufferedImage input;
     private final ImageWriter imageWriter;
     private final ImageWriteParam params;
 
-    JPEGAdapter(BufferedImage image) {
-        if (image.getColorModel().hasAlpha()) {
-            // Remove alpha channel
-            BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-            Graphics2D graphics2D = newImage.createGraphics();
-            graphics2D.fillRect(0,0, image.getWidth(), image.getHeight());
-            graphics2D.drawImage(image, 0, 0, null);
-            graphics2D.dispose();
-
-            input = newImage;
-        } else {
-            input = image;
-        }
-
+    JPEGAdapter() {
         imageWriter = ImageIO.getImageWritersByFormatName("jpg").next();
 
         Configurator configurator = new Configurator();
@@ -54,7 +38,22 @@ public class JPEGAdapter implements ImageAdapter {
         params.setCompressionQuality(((float) compressionQuality)/100);
     }
 
-    public byte[] convert() throws IllegalStateException, IllegalArgumentException, IOException {
+    @Override
+    public byte[] convert(BufferedImage image) throws IllegalStateException, IllegalArgumentException, IOException {
+        BufferedImage input;
+        if (image.getColorModel().hasAlpha()) {
+            // Remove alpha channel
+            BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics2D = newImage.createGraphics();
+            graphics2D.fillRect(0,0, image.getWidth(), image.getHeight());
+            graphics2D.drawImage(image, 0, 0, null);
+            graphics2D.dispose();
+
+            input = newImage;
+        } else {
+            input = image;
+        }
+
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
              ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(outputStream)) {
             imageWriter.setOutput(imageOutputStream);

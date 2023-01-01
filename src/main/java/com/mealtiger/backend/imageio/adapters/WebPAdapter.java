@@ -13,17 +13,10 @@ import java.io.IOException;
  * @author Sebastian Maier, Lucca Greschner, Kay Knöpfle
  */
 public class WebPAdapter implements ImageAdapter {
-
-
-    private final BufferedImage input;
-
-    WebPAdapter(BufferedImage image) {
-        input = image;
-    }
-
-    public byte[] convert() throws IllegalStateException, IllegalArgumentException, IOException {
-        PNGAdapter pngAdapter = new PNGAdapter(input);
-        ImmutableImage image = ImmutableImage.loader().fromBytes(pngAdapter.convert());
+    @Override
+    public byte[] convert(BufferedImage input) throws IllegalStateException, IllegalArgumentException, IOException {
+        PNGAdapter pngAdapter = new PNGAdapter();
+        ImmutableImage image = ImmutableImage.loader().fromBytes(pngAdapter.convert(input));
 
         Configurator configurator = new Configurator();
         String compressionType = configurator.getString("Image.WebP.compressionType");
