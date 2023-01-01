@@ -18,22 +18,25 @@ import java.util.List;
 @Service
 public class ImageIOController {
 
+    private final Configurator configurator;
+
     private final ImageAdapter bitmapAdapter;
     private final ImageAdapter gifAdapter;
     private final ImageAdapter jpegAdapter;
     private final ImageAdapter pngAdapter;
     private final ImageAdapter webPAdapter;
 
-    public ImageIOController(ImageAdapter bitmapAdapter, ImageAdapter gifAdapter, ImageAdapter jpegAdapter, ImageAdapter pngAdapter, ImageAdapter webPAdapter) {
+    public ImageIOController(ImageAdapter bitmapAdapter, ImageAdapter gifAdapter, ImageAdapter jpegAdapter, ImageAdapter pngAdapter, ImageAdapter webPAdapter, Configurator configurator) {
         this.bitmapAdapter = bitmapAdapter;
         this.gifAdapter = gifAdapter;
         this.jpegAdapter = jpegAdapter;
         this.pngAdapter = pngAdapter;
         this.webPAdapter = webPAdapter;
+
+        this.configurator = configurator;
     }
 
     public void saveImage(BufferedImage image, String uuid) throws IOException {
-        Configurator configurator = new Configurator();
         String servedFormats = configurator.getString("Image.servedImageFormats");
         List<String> servedFormatsSplitted = List.of(servedFormats.split(","));
 
