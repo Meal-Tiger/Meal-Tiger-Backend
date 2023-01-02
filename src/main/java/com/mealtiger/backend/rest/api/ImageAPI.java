@@ -141,7 +141,13 @@ public class ImageAPI {
         log.debug("Deleting image with uuid {}!", uuid);
 
         Path path = imageRootPath.resolve(uuid);
-        deleteFile(path);
+        try {
+            deleteFile(path);
+        } catch (FileNotFoundException | NoSuchFileException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
 
         return ResponseEntity.ok(null);
     }
