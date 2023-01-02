@@ -13,6 +13,7 @@ import com.mealtiger.backend.configuration.annotations.ConfigNode;
 public class ImageConfig {
 
     private final String imagePath;
+    private final String maxFileSize;
     
     private final PNG png;
     private final JPEG jpeg;
@@ -27,6 +28,12 @@ public class ImageConfig {
         bmp = new BMP();
         webp = new WebP();
         imagePath = "images/";
+        maxFileSize = "5MB";
+    }
+
+    @ConfigNode(name = "maxFileSize", envKey = "MAX_IMAGE_FILE_SIZE")
+    public String getMaxFileSize() {
+        return maxFileSize;
     }
 
     @ConfigNode(name = "servedImageFormats")
