@@ -3,6 +3,7 @@ package com.mealtiger.backend.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mealtiger.backend.BackendApplication;
+import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.database.model.recipe.RecipeDTO;
@@ -20,9 +21,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -47,10 +52,16 @@ class RecipeAPITest {
     @Autowired
     private RecipeRepository recipeRepository;
 
+    @Autowired
+    private Configurator configurator;
+
     @BeforeEach
     @AfterEach
-    void beforeAfterEach() {
+    void beforeAfterEach() throws IOException {
         recipeRepository.deleteAll();
+        if(Files.exists(Path.of(configurator.getString("Image.imagePath")))) {
+            Helper.deleteFile(Path.of(configurator.getString("Image.imagePath")));
+        }
     }
 
     // POSITIVE TESTS
@@ -70,7 +81,8 @@ class RecipeAPITest {
                         "TestDescription",
                         3,
                         5,
-                        15
+                        15,
+                        new UUID[]{UUID.randomUUID()}
                 ).toDTO(),
                 new Recipe(
                         "Gebratene Cashewkerne",
@@ -81,7 +93,8 @@ class RecipeAPITest {
                         "TestDescription",
                         3,
                         5,
-                        15
+                        15,
+                        new UUID[]{UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()}
                 ).toDTO(),
                 new Recipe(
                         "Toast Hawaii",
@@ -97,7 +110,7 @@ class RecipeAPITest {
                         15
                 ).toDTO(),
         };
-        recipeRepository.saveAll((Arrays.stream(testRecipes).map(DTO -> Recipe.fromDTO(DTO)).toList()));
+        recipeRepository.saveAll((Arrays.stream(testRecipes).map(Recipe::fromDTO).toList()));
         Pageable paging = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "title"));
 
         Map<String, Object> expectedAnswer = new HashMap<>();
@@ -141,7 +154,8 @@ class RecipeAPITest {
                         "TestDescription",
                         3,
                         5,
-                        15
+                        15,
+                        new UUID[]{UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()}
                 ),
                 new Recipe(
                         "Toast Hawaii",
@@ -176,7 +190,8 @@ class RecipeAPITest {
                         "TestDescription",
                         3,
                         5,
-                        15
+                        15,
+                        new UUID[]{UUID.randomUUID(), UUID.randomUUID()}
                 ),
                 new Recipe(
                         "Toast Hawaii",
@@ -211,7 +226,8 @@ class RecipeAPITest {
                         "TestDescription",
                         3,
                         5,
-                        15
+                        15,
+                        new UUID[]{UUID.randomUUID()}
                 ),
                 new Recipe(
                         "Toast Hawaii",
@@ -502,6 +518,37 @@ class RecipeAPITest {
         assertEquals(1, recipeRepository.findAll().size());
         assertEquals(testRecipe, recipeRepository.findAll().get(0));
 
+    }
+
+    /**
+     * Tests posting a recipe with an image.
+     */
+    @Test
+    void postRecipeWithImageTest() throws Exception {
+        UUID imageUUID = UUID.fromString("af7c1fe6-d669-414e-b066-e9733f0de7a8");
+
+        Files.createDirectories(Path.of(configurator.getString("Image.imagePath"), imageUUID.toString()));
+
+        Recipe testRecipe = new Recipe(
+                "Gebrannte Mandeln",
+                new Ingredient[]{
+                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                        new Ingredient(200, "Gramm", "Zucker")
+                },
+                "TestDescription",
+                2.8,
+                4.3,
+                15,
+                new UUID[]{imageUUID}
+        );
+
+        mvc.perform(post("/recipes")
+                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        assertEquals(1, recipeRepository.findAll().size());
+        assertEquals(testRecipe, recipeRepository.findAll().get(0));
     }
 
     /**
@@ -912,6 +959,28 @@ class RecipeAPITest {
                 3,
                 5,
                 0
+        );
+
+        mvc.perform(post("/recipes")
+                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        assertTrue(recipeRepository.findAll().isEmpty());
+
+        // Non-existent image
+
+        testRecipe = new Recipe(
+                "Gebrannte Mandeln",
+                new Ingredient[]{
+                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                        new Ingredient(200, "Gramm", "Zucker")
+                },
+                "TestDescription",
+                3,
+                5,
+                0,
+                new UUID[]{UUID.randomUUID()}
         );
 
         mvc.perform(post("/recipes")

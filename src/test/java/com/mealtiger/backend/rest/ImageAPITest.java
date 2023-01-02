@@ -22,11 +22,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -61,7 +58,7 @@ class ImageAPITest {
     @AfterEach
     void beforeAfterEach() throws IOException {
         if(Files.exists(Path.of(configurator.getString("Image.imagePath")))) {
-            deleteFile(Path.of(configurator.getString("Image.imagePath")));
+            Helper.deleteFile(Path.of(configurator.getString("Image.imagePath")));
         }
     }
 
@@ -378,32 +375,6 @@ class ImageAPITest {
                 new File(Objects.requireNonNull(ImageAPITest.class.getClassLoader().getResource("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.png")).getFile()),
                 new File(Objects.requireNonNull(ImageAPITest.class.getClassLoader().getResource("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.tiff")).getFile()),
                 new File(Objects.requireNonNull(ImageAPITest.class.getClassLoader().getResource("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.webp")).getFile())
-        );
-    }
-
-    /**
-     * Deletes a file. If the given path is a directory it is deleted recursively.
-     * @param path Path to be deleted.
-     * @throws IOException Thrown whenever a file cannot be deleted.
-     */
-    private void deleteFile(Path path) throws IOException {
-        Files.walkFileTree(path,
-                new SimpleFileVisitor<>() {
-                    @Override
-                    public FileVisitResult postVisitDirectory(
-                            Path dir, IOException exc) throws IOException {
-                        Files.delete(dir);
-                        return FileVisitResult.CONTINUE;
-                    }
-
-                    @Override
-                    public FileVisitResult visitFile(
-                            Path file, BasicFileAttributes attrs)
-                            throws IOException {
-                        Files.delete(file);
-                        return FileVisitResult.CONTINUE;
-                    }
-                }
         );
     }
 
