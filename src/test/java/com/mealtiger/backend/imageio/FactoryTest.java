@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.annotation.Resource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class FactoryTest {
@@ -59,6 +60,15 @@ class FactoryTest {
         assertEquals(jpegAdapter.getClass(), JPEGAdapter.class);
         assertEquals(pngAdapter.getClass(), PNGAdapter.class);
         assertEquals(webPAdapter.getClass(), WebPAdapter.class);
+    }
+
+    // NEGATIVE TESTS
+
+    @Test
+    void illegalArgumentTest() {
+        ImageAdapterFactory imageAdapterFactory = new ImageAdapterFactory("random");
+        assertThrows(IllegalArgumentException.class, imageAdapterFactory::getObject);
+        assertThrows(IllegalArgumentException.class, imageAdapterFactory::getObjectType);
     }
 
 }
