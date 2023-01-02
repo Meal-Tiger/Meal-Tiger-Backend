@@ -121,7 +121,7 @@ public class ImageAPI {
         }
 
         if (bestSuitedMediaType.isCompatibleWith(IMAGE_JPEG)) {
-            return getImageFromDisk(imageRootPath.resolve(uuid).resolve("image.jpg"), IMAGE_JPEG);
+            return getImageFromDisk(imageRootPath.resolve(uuid).resolve("image.jpeg"), IMAGE_JPEG);
         }
 
         if (bestSuitedMediaType.isCompatibleWith(IMAGE_GIF)) {
