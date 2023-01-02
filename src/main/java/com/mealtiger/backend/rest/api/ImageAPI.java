@@ -63,6 +63,13 @@ public class ImageAPI {
             UUID uuid = UUID.randomUUID();
             try (InputStream inputStream = file.getInputStream()) {
                 BufferedImage image = ImageIO.read(inputStream);
+                if (image == null) {
+                    // Image format is not supported!
+                    for (UUID alreadySavedUUID : uuids) {
+                        deleteImage(alreadySavedUUID.toString());
+                    }
+                    return ResponseEntity.badRequest().build();
+                }
                 controller.saveImage(image, String.valueOf(uuid));
             } catch (IOException e) {
                 throw new UploadException("Could not open uploaded file " + file.getName());
@@ -82,6 +89,10 @@ public class ImageAPI {
 
         try (InputStream inputStream = file.getInputStream()) {
             BufferedImage image = ImageIO.read(inputStream);
+            if (image == null) {
+                // Image format is not supported!
+                return ResponseEntity.badRequest().build();
+            }
             controller.saveImage(image, String.valueOf(uuid));
         } catch (IOException e) {
             throw new UploadException("Could not open uploaded file " + file.getName() + ". Reason: " + e.getMessage());
