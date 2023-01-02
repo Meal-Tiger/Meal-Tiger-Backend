@@ -4,6 +4,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+import java.util.UUID;
+
 public class RecipeDTO {
     @Id
     private String id;
@@ -14,6 +16,7 @@ public class RecipeDTO {
     private double difficulty;
     private double rating;
     private int time;
+    private UUID[] images;
 
 
     public void setId(String id) {
@@ -44,6 +47,10 @@ public class RecipeDTO {
         this.time = time;
     }
 
+    public void setImages(UUID[] images) {
+        this.images = images;
+    }
+
     public Ingredient[] getIngredients() {
         return ingredients;
     }
@@ -52,29 +59,28 @@ public class RecipeDTO {
         return description;
     }
 
-
     public double getDifficulty() {
         return difficulty;
     }
-
 
     public double getRating() {
         return rating;
     }
 
-
     public int getTime() {
         return time;
     }
-
 
     public String getTitle() {
         return title;
     }
 
-
     public String getId() {
         return id;
+    }
+
+    public UUID[] getImages() {
+        return images;
     }
 
 }

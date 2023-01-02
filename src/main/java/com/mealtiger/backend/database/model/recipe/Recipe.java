@@ -1,11 +1,14 @@
 package com.mealtiger.backend.database.model.recipe;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceCreator;
 import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * This class serves as a model for the recipes stored in database.
@@ -24,6 +27,18 @@ public class Recipe {
     private double difficulty;
     private double rating;
     private int time;
+    private UUID[] images;
+
+    @PersistenceCreator
+    public Recipe(String title, Ingredient[] ingredients, String description, double difficulty, double rating, int time, UUID[] images) {
+        this.title = title;
+        this.ingredients = ingredients;
+        this.description = description;
+        this.difficulty = difficulty;
+        this.rating = rating;
+        this.time = time;
+        this.images = Objects.requireNonNullElseGet(images, () -> new UUID[0]);
+    }
 
     public Recipe(String title, Ingredient[] ingredients, String description, double difficulty, double rating, int time) {
         this.title = title;
@@ -32,6 +47,7 @@ public class Recipe {
         this.difficulty = difficulty;
         this.rating = rating;
         this.time = time;
+        this.images = new UUID[0];
     }
 
 
@@ -91,6 +107,14 @@ public class Recipe {
         this.id = id;
     }
 
+    public UUID[] getImages() {
+        return images;
+    }
+
+    public void setImages(UUID[] images) {
+        this.images = images;
+    }
+
     @Override
     public String toString() {
         return "Recipe{" +
@@ -101,6 +125,7 @@ public class Recipe {
                 ", difficulty=" + difficulty +
                 ", rating=" + rating +
                 ", time=" + time +
+                ", images=" + Arrays.toString(images) +
                 '}';
     }
 
@@ -139,15 +164,16 @@ public class Recipe {
     // DTO Methods
 
     public RecipeDTO toDTO() {
-        RecipeDTO RecipeDTO = new RecipeDTO();
-        RecipeDTO.setId(this.getId());
-        RecipeDTO.setTitle(this.getTitle());
-        RecipeDTO.setTime(this.getTime());
-        RecipeDTO.setDescription(this.getDescription());
-        RecipeDTO.setIngredients(this.getIngredients());
-        RecipeDTO.setDifficulty(this.getDifficulty());
-        RecipeDTO.setRating(this.getRating());
-        return RecipeDTO;
+        RecipeDTO recipeDTO = new RecipeDTO();
+        recipeDTO.setId(this.getId());
+        recipeDTO.setTitle(this.getTitle());
+        recipeDTO.setTime(this.getTime());
+        recipeDTO.setDescription(this.getDescription());
+        recipeDTO.setIngredients(this.getIngredients());
+        recipeDTO.setDifficulty(this.getDifficulty());
+        recipeDTO.setRating(this.getRating());
+        recipeDTO.setImages(this.images);
+        return recipeDTO;
     }
 
     public static Recipe fromDTO(RecipeDTO dto) {
@@ -157,7 +183,8 @@ public class Recipe {
                 dto.getDescription(),
                 dto.getDifficulty(),
                 dto.getRating(),
-                dto.getTime()
+                dto.getTime(),
+                dto.getImages()
         );
     }
 }
