@@ -33,8 +33,7 @@ import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -142,6 +141,154 @@ class ImageAPITest {
     }
 
     @Test
+    void getImageAcceptHeaderTest() throws Exception {
+        when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
+        when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
+
+        MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+
+        File inputFile = fileStream().toList().get(0);
+        MockMultipartFile file;
+
+        try (InputStream inputStream = new FileInputStream(inputFile)) {
+            byte[] input = inputStream.readAllBytes();
+            file = new MockMultipartFile("file", input);
+        }
+
+        MvcResult result = mvc.perform(multipart("/image")
+                        .file(file)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(matchesPattern("\\\"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}\\\"")))
+                .andReturn();
+
+        String uuid = result.getResponse().getContentAsString().substring(1,37);
+
+        mvc.perform(get("/image/" + uuid)
+                        .header("Accept", "image/webp"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("image/webp"));
+
+        mvc.perform(get("/image/" + uuid)
+                        .header("Accept", "image/png"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("image/png"));
+
+        mvc.perform(get("/image/" + uuid)
+                        .header("Accept", "image/gif"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("image/gif"));
+
+        mvc.perform(get("/image/" + uuid)
+                        .header("Accept", "image/bmp"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("image/bmp"));
+
+        mvc.perform(get("/image/" + uuid)
+                        .header("Accept", "image/jpeg"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("image/jpeg"));
+
+        mvc.perform(get("/image/" + uuid)
+                        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/jpeg,*/*;q=0.8"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("image/jpeg"));
+
+        mvc.perform(get("/image/" + uuid)
+                        .header("Accept", "image/jpeg;q=0.9,image/png;q=0.8;*/*;q=0.7"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("image/jpeg"));
+
+        mvc.perform(get("/image/" + uuid)
+                        .header("Accept", "image/webp;q=0.9,image/jpeg;q=0.8;*/*;q=0.7"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("image/webp"));
+    }
+
+    @Test
+    void deleteImageTest() throws Exception {
+        when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
+        when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
+
+        MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+
+        File inputFile = fileStream().toList().get(0);
+        MockMultipartFile file;
+
+        try (InputStream inputStream = new FileInputStream(inputFile)) {
+            byte[] input = inputStream.readAllBytes();
+            file = new MockMultipartFile("file", input);
+        }
+
+        MvcResult result = mvc.perform(multipart("/image")
+                        .file(file)
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(matchesPattern("\\\"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}\\\"")))
+                .andReturn();
+
+        String uuid = result.getResponse().getContentAsString().substring(1,37);
+
+        mvc.perform(delete("/image/" + uuid))
+                .andExpect(status().isOk());
+    }
+
+    // NEGATIVE TESTS
+
+    @Test
+    void postImageUnsupportedType() throws Exception {
+        when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
+        when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
+
+        MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+
+        File inputFile = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.pdf")).getFile());
+
+        MockMultipartFile file;
+
+        try (InputStream inputStream = new FileInputStream(inputFile)) {
+            byte[] input = inputStream.readAllBytes();
+            file = new MockMultipartFile("file", input);
+        }
+
+        mvc.perform(multipart("/image")
+                        .file(file)
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void postImagesUnsupportedType() throws Exception {
+        when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
+        when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
+
+        MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+
+        MockMultipartFile file1;
+        MockMultipartFile file2;
+
+        File inputFile1 = fileStream().toList().get(0);
+        File inputFile2 = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.pdf")).getFile());
+
+        try (InputStream inputStream1 = new FileInputStream(inputFile1);
+             InputStream inputStream2 = new FileInputStream(inputFile2)) {
+            byte[] input1 = inputStream1.readAllBytes();
+            file1 = new MockMultipartFile("files", input1);
+
+            byte[] input2 = inputStream2.readAllBytes();
+            file2 = new MockMultipartFile("files", input2);
+        }
+
+        mvc.perform(multipart("/images")
+                        .file(file1)
+                        .file(file2)
+                )
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void getImageNotFoundTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
@@ -167,6 +314,16 @@ class ImageAPITest {
         mvc.perform(get("/image/" + uuid)
                         .header("Accept", "image/bmp"))
                 .andExpect(status().isNotAcceptable());
+    }
+
+    @Test
+    void deleteImageNotFoundTest() throws Exception {
+        MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+
+        String uuid = UUID.randomUUID().toString();
+
+        mvc.perform(delete("/image/" + uuid))
+                .andExpect(status().isNotFound());
     }
 
     static Stream<File> fileStream() {
