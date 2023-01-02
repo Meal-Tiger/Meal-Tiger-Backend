@@ -13,12 +13,21 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * This test tests the class GIFAdapter.
+ *
+ * @author Sebastian Maier, Lucca Greschner
+ */
 @SpringBootTest
 class GIFAdapterTest {
 
     @Autowired
     private ImageAdapter gifAdapter;
 
+    /**
+     * Tests conversion of bitmap images
+     * @param image Bitmap image gathered from the method source.
+     */
     @ParameterizedTest
     @MethodSource("com.mealtiger.backend.imageio.ImageSource#bitmapImageStream")
     void bitmapConversionTest(BufferedImage image) throws IOException {
@@ -30,6 +39,10 @@ class GIFAdapterTest {
         }
     }
 
+    /**
+     * Tests conversion of jpeg images
+     * @param image JPEG image gathered from the method source.
+     */
     @ParameterizedTest
     @MethodSource("com.mealtiger.backend.imageio.ImageSource#jpegImageStream")
     void jpegConversionTest(BufferedImage image) throws IOException {
@@ -41,6 +54,10 @@ class GIFAdapterTest {
         }
     }
 
+    /**
+     * Tests conversion of png images
+     * @param image PNG image gathered from the method source.
+     */
     @ParameterizedTest
     @MethodSource("com.mealtiger.backend.imageio.ImageSource#pngImageStream")
     void pngConversionTest(BufferedImage image) throws IOException {
@@ -52,6 +69,10 @@ class GIFAdapterTest {
         }
     }
 
+    /**
+     * Tests conversion of gif images
+     * @param image GIF image gathered from the method source.
+     */
     @ParameterizedTest
     @MethodSource("com.mealtiger.backend.imageio.ImageSource#gifImageStream")
     void gifConversionTest(BufferedImage image) throws IOException {
@@ -63,6 +84,10 @@ class GIFAdapterTest {
         }
     }
 
+    /**
+     * Tests conversion of lossy webp images
+     * @param image WebP image gathered from the method source.
+     */
     @ParameterizedTest
     @MethodSource("com.mealtiger.backend.imageio.ImageSource#lossyWebPImageStream")
     void lossyWebPConversionTest(BufferedImage image) throws IOException {
@@ -74,6 +99,10 @@ class GIFAdapterTest {
         }
     }
 
+    /**
+     * Tests conversion of lossless webp images
+     * @param image WebP image gathered from the method source.
+     */
     @ParameterizedTest
     @MethodSource("com.mealtiger.backend.imageio.ImageSource#losslessWebPImageStream")
     void losslessWebPConversionTest(BufferedImage image) throws IOException {
@@ -85,6 +114,10 @@ class GIFAdapterTest {
         }
     }
 
+    /**
+     * Tests conversion of tiff images
+     * @param image TIFF image gathered from the method source.
+     */
     @ParameterizedTest
     @MethodSource("com.mealtiger.backend.imageio.ImageSource#tiffImageStream")
     void tiffConversionTest(BufferedImage image) throws IOException {

@@ -10,6 +10,9 @@ import javax.annotation.Resource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+/**
+ * This class tests the ImageAdapterFactory.
+ */
 @SpringBootTest
 class FactoryTest {
 
@@ -43,7 +46,9 @@ class FactoryTest {
     @Resource(name = "&webPAdapter")
     private ImageAdapterFactory webPAdapterFactory;
 
-
+    /**
+     * Tests whether the correct ImageAdapters-Classes are returned using the getObjectType method.
+     */
     @Test
     void objectTypeTest() {
         assertEquals(bitmapAdapterFactory.getObjectType(), BitmapAdapter.class);
@@ -53,6 +58,9 @@ class FactoryTest {
         assertEquals(webPAdapterFactory.getObjectType(), WebPAdapter.class);
     }
 
+    /**
+     * Tests whether the correct ImageAdapters are injected into the fields above.
+     */
     @Test
     void objectTest() {
         assertEquals(bitmapAdapter.getClass(), BitmapAdapter.class);
@@ -64,6 +72,9 @@ class FactoryTest {
 
     // NEGATIVE TESTS
 
+    /**
+     * Tests whether an IllegalArgumentException is thrown when a wrong format is given.
+     */
     @Test
     void illegalArgumentTest() {
         ImageAdapterFactory imageAdapterFactory = new ImageAdapterFactory("random");

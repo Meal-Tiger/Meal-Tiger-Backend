@@ -37,6 +37,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration tests for ImageAPI.
+ *
+ * @author Sebastian Maier, Lucca Greschner
+ */
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
         classes = {BackendApplication.class}
@@ -49,6 +54,9 @@ class ImageAPITest {
     @MockBean(answer = Answers.CALLS_REAL_METHODS)
     private Configurator configurator;
 
+    /**
+     * Deletes all images created in tests.
+     */
     @BeforeEach
     @AfterEach
     void beforeAfterEach() throws IOException {
@@ -57,6 +65,10 @@ class ImageAPITest {
         }
     }
 
+    /**
+     * Tests posting single images.
+     * @param inputFile image file provided by method source.
+     */
     @ParameterizedTest
     @MethodSource("fileStream")
     void postImageTest(File inputFile) throws Exception {
@@ -80,6 +92,9 @@ class ImageAPITest {
                 .andExpect(content().string(matchesPattern("\\\"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}\\\"")));
     }
 
+    /**
+     * Tests posting multiple images.
+     */
     @Test
     void postImagesTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
@@ -110,6 +125,9 @@ class ImageAPITest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
+    /**
+     * Tests getting images.
+     */
     @Test
     void getImageTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
@@ -140,6 +158,9 @@ class ImageAPITest {
                 .andExpect(status().isOk());
     }
 
+    /**
+     * Tests getting images using different accept headers.
+     */
     @Test
     void getImageAcceptHeaderTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
@@ -206,6 +227,9 @@ class ImageAPITest {
                 .andExpect(content().contentType("image/webp"));
     }
 
+    /**
+     * Tests deleting images.
+     */
     @Test
     void deleteImageTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
@@ -237,6 +261,9 @@ class ImageAPITest {
 
     // NEGATIVE TESTS
 
+    /**
+     * Tests posting a single file of unsupported type. In this case a PDF-Document.
+     */
     @Test
     void postImageUnsupportedType() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
@@ -259,6 +286,9 @@ class ImageAPITest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Tests posting multiple files with one of unsupported type. In this case a PDF-Document.
+     */
     @Test
     void postImagesUnsupportedType() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
@@ -288,6 +318,9 @@ class ImageAPITest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Tests whether not found (404) is returned when an image does not exist.
+     */
     @Test
     void getImageNotFoundTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
@@ -302,6 +335,9 @@ class ImageAPITest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Tests whether not acceptable (406) is returned when an image type is not served.
+     */
     @Test
     void getImageNotAcceptableTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
@@ -316,6 +352,9 @@ class ImageAPITest {
                 .andExpect(status().isNotAcceptable());
     }
 
+    /**
+     * Tests deleting an image that doesn't exist.
+     */
     @Test
     void deleteImageNotFoundTest() throws Exception {
         MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -326,6 +365,10 @@ class ImageAPITest {
                 .andExpect(status().isNotFound());
     }
 
+    /**
+     * Provides a stream of image files.
+     * @return Stream containing the image test files.
+     */
     static Stream<File> fileStream() {
         return Stream.of(
                 new File(Objects.requireNonNull(ImageAPITest.class.getClassLoader().getResource("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.bmp")).getFile()),

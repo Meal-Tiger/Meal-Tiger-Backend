@@ -9,6 +9,10 @@ import java.util.stream.Stream;
 @SuppressWarnings("unused")
 public class ImageSource {
 
+    /**
+     * Provides a stream of bitmap test images.
+     * @return Stream containing BufferedImages of bitmap test images.
+     */
     static Stream<BufferedImage> bitmapImageStream() throws IOException {
         return Stream.of(
                 ImageIO.read(Objects.requireNonNull(ImageSource.class.getClassLoader().getResourceAsStream("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.bmp"))),
@@ -18,6 +22,10 @@ public class ImageSource {
         );
     }
 
+    /**
+     * Provides a stream of jpeg test images.
+     * @return Stream containing BufferedImages of jpeg test images.
+     */
     static Stream<BufferedImage> jpegImageStream() throws IOException {
         return Stream.of(
                 ImageIO.read(Objects.requireNonNull(ImageSource.class.getClassLoader().getResourceAsStream("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.jpg"))),
@@ -26,6 +34,10 @@ public class ImageSource {
         );
     }
 
+    /**
+     * Provides a stream of png test images.
+     * @return Stream containing BufferedImages of png test images.
+     */
     static Stream<BufferedImage> pngImageStream() throws IOException {
         return Stream.of(
                 ImageIO.read(Objects.requireNonNull(ImageSource.class.getClassLoader().getResourceAsStream("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.png"))),
@@ -35,6 +47,10 @@ public class ImageSource {
         );
     }
 
+    /**
+     * Provides a stream of gif test images.
+     * @return Stream containing BufferedImages of gif test images.
+     */
     static Stream<BufferedImage> gifImageStream() throws IOException {
         return Stream.of(
                 ImageIO.read(Objects.requireNonNull(ImageSource.class.getClassLoader().getResourceAsStream("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.gif"))),
@@ -44,6 +60,10 @@ public class ImageSource {
         );
     }
 
+    /**
+     * Provides a stream of lossy webp test images.
+     * @return Stream containing BufferedImages of lossy webp test images.
+     */
     static Stream<BufferedImage> lossyWebPImageStream() throws IOException {
         return Stream.of(
                 ImageIO.read(Objects.requireNonNull(ImageSource.class.getClassLoader().getResourceAsStream("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.webp"))),
@@ -53,6 +73,10 @@ public class ImageSource {
         );
     }
 
+    /**
+     * Provides a stream of lossless webp test images.
+     * @return Stream containing BufferedImages of lossless webp test images.
+     */
     static Stream<BufferedImage> losslessWebPImageStream() throws IOException {
         return Stream.of(
                 ImageIO.read(Objects.requireNonNull(ImageSource.class.getClassLoader().getResourceAsStream("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.lossless.webp"))),
@@ -62,6 +86,10 @@ public class ImageSource {
         );
     }
 
+    /**
+     * Provides a stream of tiff test images.
+     * @return Stream containing BufferedImages of tiff test images.
+     */
     static Stream<BufferedImage> tiffImageStream() throws IOException {
         return Stream.of(
                 ImageIO.read(Objects.requireNonNull(ImageSource.class.getClassLoader().getResourceAsStream("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.tiff"))),

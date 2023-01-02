@@ -8,7 +8,11 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
+/**
+ * This class tests the methods to convert a Recipe to RecipeDTO and vice versa.
+ *
+ * @author Sebastian Maier
+ */
 class RecipeTest {
     /**
      * Tests if Recipe converted to DTO is equal to RecipeDTO.
