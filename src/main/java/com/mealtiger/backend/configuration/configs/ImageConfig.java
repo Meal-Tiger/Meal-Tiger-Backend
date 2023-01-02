@@ -108,7 +108,7 @@ public class ImageConfig {
         return webp.compressionType;
     }
 
-    @ConfigNode(name = "imagePath")
+    @ConfigNode(name = "imagePath", envKey = "IMAGE_PATH")
     public String getImagePath() {
         return imagePath;
     }
