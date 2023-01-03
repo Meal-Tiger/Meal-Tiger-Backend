@@ -55,8 +55,7 @@ public class AuthenticationConfig {
         private final String clientID;
 
         OIDC() {
-            //TODO: Set the default to true once implemented in frontend!
-            this.enableOIDCAuthentication = false;
+            this.enableOIDCAuthentication = true;
 
             this.authenticationProviderURL = "";
 
