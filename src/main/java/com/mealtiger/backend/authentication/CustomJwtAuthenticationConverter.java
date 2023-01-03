@@ -34,7 +34,7 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
      */
     private static Collection<? extends GrantedAuthority> extractResourceRoles(final Jwt jwt) {
         Configurator configurator = new Configurator();
-        String clientID = configurator.getString("Authentication.OIDC.authenticationProviderURL");
+        String clientID = configurator.getString("Authentication.OIDC.clientID");
 
         log.trace("Got client id {} from configuration!", clientID);
 
