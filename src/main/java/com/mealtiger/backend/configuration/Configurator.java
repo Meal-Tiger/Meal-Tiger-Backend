@@ -9,6 +9,7 @@ import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.util.AnnotatedTypeScanner;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -24,6 +25,7 @@ import java.util.Set;
  *
  * @author Lucca Greschner
  */
+@Service
 public class Configurator {
 
     private static final Logger log = LoggerFactory.getLogger(Configurator.class);
@@ -82,6 +84,10 @@ public class Configurator {
 
         properties.put("spring.main.banner-mode", "off");
         properties.put("spring.autoconfigure.exclude", "org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration");
+
+        String maxFileSize = getString("Image.maxFileSize");
+        properties.put("spring.servlet.multipart.max-file-size", maxFileSize);
+        properties.put("spring.servlet.multipart.max-request-size", maxFileSize);
 
         log.debug("Handing over spring properties: {}!", properties);
 
