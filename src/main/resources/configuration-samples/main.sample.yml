@@ -1,0 +1,5 @@
+!!com.mealtiger.backend.configuration.configs.MainConfig
+# Settings regarding logging
+logging:
+  # Log level - Possible values: TRACE, DEBUG, INFO, WARN, ERROR
+  logLevel: INFO

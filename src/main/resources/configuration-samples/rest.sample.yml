@@ -1,0 +1,3 @@
+!!com.mealtiger.backend.configuration.configs.RestConfig
+# Allowed CORS Origins
+corsOrigins: '*'
