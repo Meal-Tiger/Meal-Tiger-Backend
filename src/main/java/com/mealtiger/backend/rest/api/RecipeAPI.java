@@ -1,10 +1,13 @@
 package com.mealtiger.backend.rest.api;
 
+import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.database.model.recipe.RecipeDTO;
 import com.mealtiger.backend.rest.controller.RecipeController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -83,6 +86,10 @@ public class RecipeAPI {
             log.debug("Replacing user given id with null!");
             recipeDTO.setId(null);
         }
+
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        recipeDTO.setUserId(userId);
+
         recipeController.saveRecipe(recipeDTO);
 
         return ResponseEntity.ok().build();
@@ -122,6 +129,20 @@ public class RecipeAPI {
             return ResponseEntity.badRequest().body("Invalid recipe sent!");
         }
 
+        if (!recipeController.doesRecipeExist(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Configurator configurator = new Configurator();
+        String adminRole = configurator.getString("Authentication.OIDC.adminRole");
+
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(adminRole));
+
+        if (!recipeController.isUserRecipeOwner(id, userId) && !isAdmin) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         return recipeController.replaceRecipe(id, recipeDTO) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
@@ -134,6 +155,20 @@ public class RecipeAPI {
     @DeleteMapping("/recipes/{id}")
     public ResponseEntity<Void> deleteRecipe(@PathVariable(value = "id") String id) {
         log.debug("Deleting recipe with id {}!", id);
+
+        if (!recipeController.doesRecipeExist(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Configurator configurator = new Configurator();
+        String adminRole = configurator.getString("Authentication.OIDC.adminRole");
+
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(adminRole));
+
+        if (!recipeController.isUserRecipeOwner(id, userId) && !isAdmin) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         return recipeController.deleteRecipe(id) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }

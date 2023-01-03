@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
@@ -46,6 +47,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class RecipeAPITest {
 
+    private static final String MOCK_USER_ID = "123e4567-e89b-12d3-a456-42661417400";
+
     @Autowired
     private MockMvc mvc;
 
@@ -65,6 +68,8 @@ class RecipeAPITest {
     }
 
     // POSITIVE TESTS
+
+    // GET TESTS
 
     /**
      * Tests getting recipes with default paging parameters.
@@ -494,107 +499,6 @@ class RecipeAPITest {
     }
 
     /**
-     * Tests posting a recipe.
-     */
-    @Test
-    void postRecipeTest() throws Exception {
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                2.8,
-                4.3,
-                15
-        );
-
-        mvc.perform(post("/recipes")
-                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-        assertEquals(1, recipeRepository.findAll().size());
-        assertEquals(testRecipe, recipeRepository.findAll().get(0));
-
-    }
-
-    /**
-     * Tests posting a recipe with an image.
-     */
-    @Test
-    void postRecipeWithImageTest() throws Exception {
-        UUID imageUUID = UUID.fromString("af7c1fe6-d669-414e-b066-e9733f0de7a8");
-
-        Files.createDirectories(Path.of(configurator.getString("Image.imagePath"), imageUUID.toString()));
-
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                2.8,
-                4.3,
-                15,
-                new UUID[]{imageUUID}
-        );
-
-        mvc.perform(post("/recipes")
-                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-        assertEquals(1, recipeRepository.findAll().size());
-        assertEquals(testRecipe, recipeRepository.findAll().get(0));
-    }
-
-    /**
-     * Testing replacing a recipe
-     */
-    @Test
-    void putRecipeTest() throws Exception {
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                15
-        );
-
-        recipeRepository.save(testRecipe);
-
-        String id = recipeRepository.findAll().get(0).getId();
-
-        testRecipe = new Recipe(
-                "Toast Hawaii",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Schinken"),
-                        new Ingredient(10, "Scheiben", "Toastbrot"),
-                        new Ingredient(10, "Scheiben", "Ananas"),
-                        new Ingredient(10, "Scheiben", "Schmelzkäse")
-                },
-                "TestDescription",
-                1,
-                4,
-                30
-        );
-
-        mvc.perform(put("/recipes/" + id)
-                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-        assertEquals(testRecipe, recipeRepository.findAll().get(0));
-    }
-
-    /**
      * Testing getting a single recipe
      */
     @Test
@@ -620,35 +524,6 @@ class RecipeAPITest {
         mvc.perform(get("/recipes/" + id))
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writer().writeValueAsString(testRecipe)));
-    }
-
-    /**
-     * Testing deleting a recipe
-     */
-    @Test
-    void deleteRecipeTest() throws Exception {
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                15
-        );
-
-        recipeRepository.save(testRecipe);
-
-        String id = recipeRepository.findAll().get(0).getId();
-
-        assertFalse(recipeRepository.findAll().isEmpty());
-
-        mvc.perform(delete("/recipes/" + id))
-                .andExpect(status().isOk());
-
-        assertTrue(recipeRepository.findAll().isEmpty());
     }
 
     /**
@@ -716,7 +591,190 @@ class RecipeAPITest {
 
     }
 
+    // POST TESTS
+
+    /**
+     * Tests posting a recipe.
+     */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
+    @Test
+    void postRecipeTest() throws Exception {
+        Recipe testRecipe = new Recipe(
+                "Gebrannte Mandeln",
+                MOCK_USER_ID,
+                new Ingredient[]{
+                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                        new Ingredient(200, "Gramm", "Zucker")
+                },
+                "TestDescription",
+                2.8,
+                4.3,
+                15,
+                new UUID[]{}
+        );
+
+        mvc.perform(post("/recipes")
+                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        assertEquals(1, recipeRepository.findAll().size());
+        assertEquals(testRecipe, recipeRepository.findAll().get(0));
+
+    }
+
+    /**
+     * Tests posting a recipe with an image.
+     */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
+    @Test
+    void postRecipeWithImageTest() throws Exception {
+        UUID imageUUID = UUID.fromString("af7c1fe6-d669-414e-b066-e9733f0de7a8");
+
+        Files.createDirectories(Path.of(configurator.getString("Image.imagePath"), imageUUID.toString()));
+
+        Recipe testRecipe = new Recipe(
+                "Gebrannte Mandeln",
+                MOCK_USER_ID,
+                new Ingredient[]{
+                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                        new Ingredient(200, "Gramm", "Zucker")
+                },
+                "TestDescription",
+                2.8,
+                4.3,
+                15,
+                new UUID[]{imageUUID}
+        );
+
+        mvc.perform(post("/recipes")
+                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        assertEquals(1, recipeRepository.findAll().size());
+        assertEquals(testRecipe, recipeRepository.findAll().get(0));
+    }
+
+    /**
+     * Tests posting a recipe with an id given - it should be overridden.
+     */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
+    @Test
+    void postRecipeWithIDTest() throws Exception {
+        Recipe testRecipe = new Recipe(
+                "Gebrannte Mandeln",
+                MOCK_USER_ID,
+                new Ingredient[]{
+                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                        new Ingredient(200, "Gramm", "Zucker")
+                },
+                "TestDescription",
+                2.8,
+                4.3,
+                15,
+                new UUID[]{}
+        );
+
+        testRecipe.setId("1234567890");
+
+        mvc.perform(post("/recipes")
+                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        assertEquals(1, recipeRepository.findAll().size());
+        assertEquals(testRecipe, recipeRepository.findAll().get(0));
+        assertNotEquals(testRecipe.getId(), recipeRepository.findAll().get(0).getId());
+    }
+
+    // PUT TESTS
+
+    /**
+     * Testing replacing a recipe
+     */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
+    @Test
+    void putRecipeTest() throws Exception {
+        Recipe testRecipe = new Recipe(
+                "Gebrannte Mandeln",
+                MOCK_USER_ID,
+                new Ingredient[]{
+                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                        new Ingredient(200, "Gramm", "Zucker")
+                },
+                "TestDescription",
+                3,
+                5,
+                15,
+                new UUID[]{}
+        );
+
+        recipeRepository.save(testRecipe);
+
+        String id = recipeRepository.findAll().get(0).getId();
+
+        testRecipe = new Recipe(
+                "Toast Hawaii",
+                MOCK_USER_ID,
+                new Ingredient[]{
+                        new Ingredient(500, "Gramm", "Schinken"),
+                        new Ingredient(10, "Scheiben", "Toastbrot"),
+                        new Ingredient(10, "Scheiben", "Ananas"),
+                        new Ingredient(10, "Scheiben", "Schmelzkäse")
+                },
+                "TestDescription",
+                1,
+                4,
+                30,
+                new UUID[]{}
+        );
+
+        mvc.perform(put("/recipes/" + id)
+                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        assertEquals(testRecipe, recipeRepository.findAll().get(0));
+    }
+
+    // DELETE TESTS
+
+    /**
+     * Testing deleting a recipe
+     */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
+    @Test
+    void deleteRecipeTest() throws Exception {
+        Recipe testRecipe = new Recipe(
+                "Gebrannte Mandeln",
+                MOCK_USER_ID,
+                new Ingredient[]{
+                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                        new Ingredient(200, "Gramm", "Zucker")
+                },
+                "TestDescription",
+                3,
+                5,
+                15,
+                new UUID[]{}
+        );
+
+        recipeRepository.save(testRecipe);
+
+        String id = recipeRepository.findAll().get(0).getId();
+
+        assertFalse(recipeRepository.findAll().isEmpty());
+
+        mvc.perform(delete("/recipes/" + id))
+                .andExpect(status().isOk());
+
+        assertTrue(recipeRepository.findAll().isEmpty());
+    }
+
     // NEGATIVE TESTS
+
+    // GET TESTS
 
     @Test
     void negative_404_getPaginationTest() throws Exception {
@@ -773,32 +831,12 @@ class RecipeAPITest {
                 .andExpect(status().isNotFound());
     }
 
-    /**
-     * Testing a 404 error on a wrong ID.
-     */
-    @Test
-    void negative_404_putTest() throws Exception {
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                15
-        );
-
-        mvc.perform(put("/recipes/someRandomID")
-                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
-    }
+    // POST TESTS
 
     /**
      * Testing a 400 error on a wrong recipe object.
      */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void negative_400_postTest() throws Exception {
         // Wrong title
@@ -989,6 +1027,105 @@ class RecipeAPITest {
                 .andExpect(status().isBadRequest());
 
         assertTrue(recipeRepository.findAll().isEmpty());
+    }
+
+    // PUT TESTS
+
+    /**
+     * Testing a 404 error on a wrong ID.
+     */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
+    @Test
+    void negative_404_putTest() throws Exception {
+        Recipe testRecipe = new Recipe(
+                "Gebrannte Mandeln",
+                new Ingredient[]{
+                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                        new Ingredient(200, "Gramm", "Zucker")
+                },
+                "TestDescription",
+                3,
+                5,
+                15
+        );
+
+        mvc.perform(put("/recipes/someRandomID")
+                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    /**
+     * Testing a 401 error on a wrong user id.
+     */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
+    @Test
+    void negative_401_putTest() throws Exception {
+        Recipe testRecipe = new Recipe(
+                "Gebrannte Mandeln",
+                "22ec6016-8b9b-11ed-a1eb-0242ac120002",
+                new Ingredient[]{
+                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                        new Ingredient(200, "Gramm", "Zucker")
+                },
+                "TestDescription",
+                3,
+                5,
+                15,
+                new UUID[]{}
+        );
+
+        recipeRepository.save(testRecipe);
+
+        String id = recipeRepository.findAll().get(0).getId();
+
+        mvc.perform(put("/recipes/" + id)
+                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    // DELETE TESTS
+
+    /**
+     * Testing a 404 error on a wrong ID.
+     */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
+    @Test
+    void negative_404_deleteTest() throws Exception {
+        mvc.perform(delete("/recipes/someRandomID")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    /**
+     * Testing a 401 error on a wrong user id.
+     */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
+    @Test
+    void negative_401_deleteTest() throws Exception {
+        Recipe testRecipe = new Recipe(
+                "Gebrannte Mandeln",
+                "22ec6016-8b9b-11ed-a1eb-0242ac120002",
+                new Ingredient[]{
+                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                        new Ingredient(200, "Gramm", "Zucker")
+                },
+                "TestDescription",
+                3,
+                5,
+                15,
+                new UUID[]{}
+        );
+
+        recipeRepository.save(testRecipe);
+
+        String id = recipeRepository.findAll().get(0).getId();
+
+        mvc.perform(delete("/recipes/" + id)
+                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
     }
 
 }
