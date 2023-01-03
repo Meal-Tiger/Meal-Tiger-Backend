@@ -24,5 +24,6 @@ jobs:
       - name: Build and test with Maven
         run: mvn package --file pom.xml
         env:
+          OIDC_AUTHENTICATION_PROVIDER_URL: https://example.org/
           DBURL: mongodb://localhost:27017
           LOGLEVEL: debug
