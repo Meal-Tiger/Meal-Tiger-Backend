@@ -25,4 +25,9 @@ public @interface Config {
      * Represents the path the config file is located at.
      */
     String configPath();
+
+    /**
+     * Path to the sample configuration file, if existent
+     */
+    String sampleConfig() default "";
 }

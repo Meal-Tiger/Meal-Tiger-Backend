@@ -19,7 +19,7 @@ public class MainConfig {
         logging = new Logging();
     }
 
-    @ConfigNode(name = "Logging.logLevel", envKey = "LOGLEVEL")
+    @ConfigNode(name = "Logging.logLevel", envKey = "LOGLEVEL", springProperties = "logging.level.root")
     @SuppressWarnings("unused")
     public String getLogLevel() {
         return logging.logLevel;

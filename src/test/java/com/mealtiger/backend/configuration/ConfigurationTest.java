@@ -39,6 +39,13 @@ class ConfigurationTest {
 
     }
 
+    @Test
+    void springPropertiesTest() {
+        Configurator configurator = new Configurator();
+
+        assertEquals("testValue", configurator.getSpringProperties().getProperty("some.sample.property"));
+    }
+
     // NEGATIVE TESTS
 
     @Test

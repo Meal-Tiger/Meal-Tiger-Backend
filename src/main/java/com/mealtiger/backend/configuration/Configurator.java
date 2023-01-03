@@ -77,8 +77,29 @@ public class Configurator {
     public Properties getSpringProperties() {
         Properties properties = new Properties();
 
-        String logLevel = getString("Main.Logging.logLevel");
-        properties.put("logging.level.root", logLevel);
+        for (Object config : loadedConfigs.values()) {
+            Method[] configMethods = config.getClass().getMethods();
+
+            for (Method method : configMethods) {
+                if (method.isAnnotationPresent(ConfigNode.class)) {
+                    String[] propertyKeys = method.getAnnotation(ConfigNode.class).springProperties();
+                    String property = method.getAnnotation(ConfigNode.class).name();
+
+                    Object returnValue;
+
+                    try {
+                        returnValue = method.invoke(config);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new ConfigPropertyException(property);
+                    }
+
+                    for (String propertyKey : propertyKeys) {
+                        properties.put(propertyKey, returnValue);
+                    }
+
+                }
+            }
+        }
 
         properties.put("spring.main.banner-mode", "off");
         properties.put("spring.autoconfigure.exclude", "org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration");
