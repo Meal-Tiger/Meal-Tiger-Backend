@@ -35,4 +35,22 @@ public class ImageMetadata {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ImageMetadata that = (ImageMetadata) o;
+
+        if (!getUuid().equals(that.getUuid())) return false;
+        return getUserId().equals(that.getUserId());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getUuid().hashCode();
+        result = 31 * result + getUserId().hashCode();
+        return result;
+    }
 }
