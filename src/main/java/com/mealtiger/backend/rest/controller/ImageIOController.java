@@ -170,6 +170,14 @@ public class ImageIOController {
         return ResponseEntity.ok(null);
     }
 
+    /**
+     * @param uuid UUID of the image to be looked up.
+     * @return True if the image exists in the database, false if not.
+     */
+    public boolean doesImageExist(String uuid) {
+        return imageMetadataRepository.existsById(uuid);
+    }
+
     // HELPER METHODS
 
     /**
@@ -249,9 +257,5 @@ public class ImageIOController {
                     }
                 }
         );
-    }
-
-    public boolean doesImageExist(String uuid) {
-        return imageMetadataRepository.existsById(uuid);
     }
 }
