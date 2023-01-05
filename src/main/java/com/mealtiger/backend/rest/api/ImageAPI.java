@@ -41,6 +41,12 @@ public class ImageAPI {
         this.configurator = configurator;
     }
 
+    /**
+     * Post multiple images to be saved.
+     * @param files Images to be saved.
+     * @return ResponseEntity with UUID of newly created Image.
+     * @throws UploadException Whenever a problem while uploading occurs.
+     */
     @PostMapping(value = "/images")
     public ResponseEntity<List<UUID>> postMultipleImages(@RequestParam("files") MultipartFile[] files) throws UploadException {
         log.debug("Uploading multiple images!");
@@ -71,6 +77,12 @@ public class ImageAPI {
         return ResponseEntity.status(HttpStatus.CREATED).body(uuids);
     }
 
+    /**
+     * Post image to be saved.
+     * @param file Image to be saved.
+     * @return ResponseEntity with UUID of newly created Image.
+     * @throws UploadException Whenever a problem while uploading occurs.
+     */
     @PostMapping(value = "/image")
     public ResponseEntity<UUID> postImage(@RequestParam("file") MultipartFile file) throws UploadException {
         log.debug("Uploading a single image!");
@@ -93,12 +105,23 @@ public class ImageAPI {
         return ResponseEntity.status(HttpStatus.CREATED).body(uuid);
     }
 
+    /**
+     * Gets a saved image with the correct media type.
+     * @param uuid UUID of the requested image
+     * @param acceptHeader Accept header of the request
+     * @return ResponseEntity with the Resource as payload.
+     * @throws HttpMediaTypeNotAcceptableException Whenever a suitable image media type cannot be served.
+     */
     @GetMapping(value = "/image/{uuid}")
     public ResponseEntity<Resource> getImage(@PathVariable(value = "uuid") String uuid, @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) {
         List<MediaType> acceptedMediaTypeList = MediaType.parseMediaTypes(acceptHeader);
         return controller.getBestSuitedImage(uuid, acceptedMediaTypeList);
     }
 
+    /**
+     * Deletes saved image.
+     * @param uuid UUID of the requested image
+     */
     @DeleteMapping("/image/{uuid}")
     public ResponseEntity<Void> deleteImage(@PathVariable(value = "uuid") String uuid) {
         if (!controller.doesImageExist(uuid)) {
