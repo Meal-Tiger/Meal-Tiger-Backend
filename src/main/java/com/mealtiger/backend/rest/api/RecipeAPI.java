@@ -22,13 +22,15 @@ public class RecipeAPI {
 
     private static final Logger log = LoggerFactory.getLogger(RecipeAPI.class);
     private final RecipeController recipeController;
+    private final Configurator configurator;
 
     /**
      * This constructor is called by the Spring Boot Framework to inject dependencies.
      *
      * @param recipeController Automatically injected.
      */
-    public RecipeAPI(RecipeController recipeController) {
+    public RecipeAPI(RecipeController recipeController, Configurator configurator) {
+        this.configurator = configurator;
         this.recipeController = recipeController;
     }
 
@@ -133,14 +135,13 @@ public class RecipeAPI {
             return ResponseEntity.notFound().build();
         }
 
-        Configurator configurator = new Configurator();
         String adminRole = configurator.getString("Authentication.OIDC.adminRole");
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(adminRole));
 
         if (!recipeController.isUserRecipeOwner(id, userId) && !isAdmin) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         return recipeController.replaceRecipe(id, recipeDTO) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
@@ -160,14 +161,13 @@ public class RecipeAPI {
             return ResponseEntity.notFound().build();
         }
 
-        Configurator configurator = new Configurator();
         String adminRole = configurator.getString("Authentication.OIDC.adminRole");
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(adminRole));
 
         if (!recipeController.isUserRecipeOwner(id, userId) && !isAdmin) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         return recipeController.deleteRecipe(id) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();

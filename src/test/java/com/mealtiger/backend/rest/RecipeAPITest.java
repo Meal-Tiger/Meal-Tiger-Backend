@@ -1056,11 +1056,11 @@ class RecipeAPITest {
     }
 
     /**
-     * Testing a 401 error on a wrong user id.
+     * Testing a 403 error on a wrong user id.
      */
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
-    void negative_401_putTest() throws Exception {
+    void negative_403_putTest() throws Exception {
         Recipe testRecipe = new Recipe(
                 "Gebrannte Mandeln",
                 "22ec6016-8b9b-11ed-a1eb-0242ac120002",
@@ -1082,7 +1082,7 @@ class RecipeAPITest {
         mvc.perform(put("/recipes/" + id)
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     // DELETE TESTS
@@ -1099,11 +1099,11 @@ class RecipeAPITest {
     }
 
     /**
-     * Testing a 401 error on a wrong user id.
+     * Testing a 403 error on a wrong user id.
      */
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
-    void negative_401_deleteTest() throws Exception {
+    void negative_403_deleteTest() throws Exception {
         Recipe testRecipe = new Recipe(
                 "Gebrannte Mandeln",
                 "22ec6016-8b9b-11ed-a1eb-0242ac120002",
@@ -1125,7 +1125,7 @@ class RecipeAPITest {
         mvc.perform(delete("/recipes/" + id)
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
 }

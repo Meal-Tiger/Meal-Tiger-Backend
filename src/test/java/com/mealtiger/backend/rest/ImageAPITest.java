@@ -341,7 +341,7 @@ class ImageAPITest {
      */
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
-    void negative_401_deleteImageTest() throws Exception {
+    void negative_403_deleteImageTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
 
@@ -352,7 +352,7 @@ class ImageAPITest {
         saveImage(inputFile, SAMPLE_IMAGE_UUID, SAMPLE_OTHER_USER_UUID);
 
         mvc.perform(delete("/image/" + SAMPLE_IMAGE_UUID))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     /**
