@@ -1,8 +1,5 @@
-package com.mealtiger.backend.model.recipe;
+package com.mealtiger.backend.database.model.recipe;
 
-import com.mealtiger.backend.database.model.recipe.Ingredient;
-import com.mealtiger.backend.database.model.recipe.Recipe;
-import com.mealtiger.backend.database.model.recipe.RecipeDTO;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;

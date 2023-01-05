@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 /**
@@ -77,12 +78,8 @@ public class RecipeAPI {
      *               HTTP Status 200 if adding recipe was successful, HTTP Status 500 on error/exception.
      */
     @PostMapping("/recipes")
-    public ResponseEntity<String> postRecipe(@RequestBody RecipeDTO recipeDTO) {
+    public ResponseEntity<String> postRecipe(@Valid @RequestBody RecipeDTO recipeDTO) {
         log.debug("Recipe posted: {}", recipeDTO);
-        if (!recipeController.checkValidity(recipeDTO)) {
-            log.debug("Bad request on posting recipe!");
-            return ResponseEntity.badRequest().body("Invalid recipe sent!");
-        }
 
         if (recipeDTO.getId() != null) {
             log.debug("Replacing user given id with null!");
