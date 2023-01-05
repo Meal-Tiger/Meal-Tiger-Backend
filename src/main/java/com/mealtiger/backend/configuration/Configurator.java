@@ -9,6 +9,7 @@ import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.util.AnnotatedTypeScanner;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -21,6 +22,7 @@ import java.util.*;
  *
  * @author Lucca Greschner
  */
+@Component
 public class Configurator {
 
     private static final Logger log = LoggerFactory.getLogger(Configurator.class);

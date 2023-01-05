@@ -18,12 +18,17 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories(basePackages = "com.mealtiger.backend.database.repository")
 public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
 
+    private final Configurator configurator;
+
+    public MongoClientConfiguration(Configurator configurator) {
+        this.configurator = configurator;
+    }
+
     /**
      * @return Database Name
      */
     @Override
     protected String getDatabaseName() {
-        Configurator configurator = new Configurator();
         String databaseName;
 
         databaseName = configurator.getString("Database.databaseName");
@@ -38,9 +43,6 @@ public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
      */
     @Override
     public MongoClient mongoClient() {
-        Configurator configurator = new Configurator();
-
-
         String mongoDBConnectionString;
         mongoDBConnectionString = configurator.getString("Database.mongoDBURL");
 
