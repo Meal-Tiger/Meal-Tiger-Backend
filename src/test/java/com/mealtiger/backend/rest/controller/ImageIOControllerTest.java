@@ -191,17 +191,23 @@ class ImageIOControllerTest {
         ImageIOController controller = new ImageIOController(bitmapAdapter, gifAdapter, jpegAdapter, pngAdapter, webPAdapter, configurator, imageMetadataRepository);
 
         when(imageMetadataRepository.findById(SAMPLE_IMAGE_ID)).thenReturn(Optional.of(new ImageMetadata(SAMPLE_IMAGE_ID, SAMPLE_USER_ID)));
-        assertEquals(ResponseEntity.ok(null), controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID));
+        assertEquals(ResponseEntity.ok(null), controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID, false));
 
         // UNAUTHORIZED
 
+        createTestImages();
+
         when(imageMetadataRepository.findById(SAMPLE_IMAGE_ID)).thenReturn(Optional.of(new ImageMetadata(SAMPLE_IMAGE_ID, "6809c76b-5a48-44fe-85bf-d44cef12a828")));
-        assertEquals(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(), controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID));
+        assertEquals(ResponseEntity.status(HttpStatus.FORBIDDEN).build(), controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID, false));
+
+        // UNAUTHORIZED BUT ADMIN
+        when(imageMetadataRepository.findById(SAMPLE_IMAGE_ID)).thenReturn(Optional.of(new ImageMetadata(SAMPLE_IMAGE_ID, "6809c76b-5a48-44fe-85bf-d44cef12a828")));
+        assertEquals(ResponseEntity.ok(null), controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID, true));
 
         // NOT FOUND
 
         when(imageMetadataRepository.findById(SAMPLE_IMAGE_ID)).thenReturn(Optional.of(new ImageMetadata("6809c76b-5a48-44fe-85bf-d44cef12a828", SAMPLE_USER_ID)));
-        assertEquals(ResponseEntity.status(HttpStatus.NOT_FOUND).build(), controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID));
+        assertEquals(ResponseEntity.status(HttpStatus.NOT_FOUND).build(), controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID, false));
     }
 
     /**

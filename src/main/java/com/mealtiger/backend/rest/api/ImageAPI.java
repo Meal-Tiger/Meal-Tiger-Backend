@@ -1,5 +1,6 @@
 package com.mealtiger.backend.rest.api;
 
+import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.rest.controller.ImageIOController;
 import com.mealtiger.backend.rest.exceptions.UploadException;
 import org.slf4j.Logger;
@@ -32,9 +33,11 @@ public class ImageAPI {
 
     private static final Logger log = LoggerFactory.getLogger(ImageAPI.class);
     private final ImageIOController controller;
+    private final Configurator configurator;
 
-    public ImageAPI(ImageIOController controller) {
+    public ImageAPI(ImageIOController controller, Configurator configurator) {
         this.controller = controller;
+        this.configurator = configurator;
     }
 
     @PostMapping(value = "/images")
@@ -101,10 +104,13 @@ public class ImageAPI {
             return ResponseEntity.notFound().build();
         }
 
+        String adminRole = configurator.getString("Authentication.OIDC.adminRole");
+
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(adminRole));
 
         log.debug("Deleting image with uuid {}!", uuid);
 
-        return controller.deleteImage(uuid, userId);
+        return controller.deleteImage(uuid, userId, isAdmin);
     }
 }

@@ -144,7 +144,7 @@ public class ImageIOController {
         return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
     }
 
-    public ResponseEntity<Void> deleteImage(String uuid, String userId) {
+    public ResponseEntity<Void> deleteImage(String uuid, String userId, boolean isAdmin) {
 
         ImageMetadata imageMetadata = imageMetadataRepository.findById(uuid).orElse(null);
 
@@ -152,8 +152,8 @@ public class ImageIOController {
             return ResponseEntity.internalServerError().build();
         }
 
-        if (!imageMetadata.getUserId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (!imageMetadata.getUserId().equals(userId) && !isAdmin) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         Path path = imageRootPath.resolve(uuid);
