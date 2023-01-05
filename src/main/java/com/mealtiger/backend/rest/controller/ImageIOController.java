@@ -4,6 +4,8 @@ import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.database.model.image_metadata.ImageMetadata;
 import com.mealtiger.backend.database.repository.ImageMetadataRepository;
 import com.mealtiger.backend.imageio.adapters.ImageAdapter;
+import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
+import com.mealtiger.backend.rest.error_handling.exceptions.ImageFormatNotServedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
@@ -12,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MimeType;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -111,13 +115,14 @@ public class ImageIOController {
         imageMetadataRepository.save(new ImageMetadata(uuid, userId));
     }
 
-    public ResponseEntity<Resource> getBestSuitedImage(String uuid, List<MediaType> acceptedMediaTypes) {
+    public ResponseEntity<Resource> getBestSuitedImage(String uuid, List<MediaType> acceptedMediaTypes) throws HttpMediaTypeNotAcceptableException {
         List<MediaType> servedMediaTypeList = MediaType.parseMediaTypes(configurator.getString("Image.servedImageMediaTypes"));
 
         MediaType bestSuitedMediaType = findBestMatch(acceptedMediaTypes, servedMediaTypeList);
 
         if (bestSuitedMediaType == null) {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+            throw new HttpMediaTypeNotAcceptableException("Only the following image types are served: "
+                    + servedMediaTypeList.stream().map(MimeType::getSubtype).reduce((a,b) -> a + ", " + b).orElse(null));
         }
 
         if (bestSuitedMediaType.isCompatibleWith(IMAGE_WEBP)) {
@@ -141,7 +146,8 @@ public class ImageIOController {
         }
 
         // Never reached
-        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+        throw new ImageFormatNotServedException("Only the following image types are served: "
+                + servedMediaTypeList.stream().map(MimeType::getSubtype).reduce((a,b) -> a + ", " + b).orElse(null));
     }
 
     public ResponseEntity<Void> deleteImage(String uuid, String userId, boolean isAdmin) {
@@ -160,14 +166,14 @@ public class ImageIOController {
         try {
             deleteFile(path);
         } catch (FileNotFoundException | NoSuchFileException e) {
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException("Image with id " + uuid + " not found!");
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
         }
 
         imageMetadataRepository.deleteById(uuid);
 
-        return ResponseEntity.ok(null);
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -196,7 +202,7 @@ public class ImageIOController {
                     .body(resource);
         } catch (FileNotFoundException | NoSuchFileException e) {
             log.debug("File {} not found!", path);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            throw new EntityNotFoundException("Image of MediaType" + type + " not found!");
         } catch (IOException e) {
             log.error("Error upon downloading file {}: {}", imageRootPath, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

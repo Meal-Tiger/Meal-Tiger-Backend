@@ -2,6 +2,8 @@ package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.rest.controller.ImageIOController;
+import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
+import com.mealtiger.backend.rest.error_handling.exceptions.InvalidRequestFormatException;
 import com.mealtiger.backend.rest.exceptions.UploadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,7 +67,7 @@ public class ImageAPI {
                     for (UUID alreadySavedUUID : uuids) {
                         deleteImage(alreadySavedUUID.toString());
                     }
-                    return ResponseEntity.badRequest().build();
+                    throw new InvalidRequestFormatException("Image format not supported!");
                 }
                 controller.saveImage(image, String.valueOf(uuid), userId);
             } catch (IOException e) {
@@ -95,7 +98,7 @@ public class ImageAPI {
             BufferedImage image = ImageIO.read(inputStream);
             if (image == null) {
                 // Image format is not supported!
-                return ResponseEntity.badRequest().build();
+                throw new InvalidRequestFormatException("Image format not supported!");
             }
             controller.saveImage(image, String.valueOf(uuid), userId);
         } catch (IOException e) {
@@ -113,7 +116,7 @@ public class ImageAPI {
      * @throws HttpMediaTypeNotAcceptableException Whenever a suitable image media type cannot be served.
      */
     @GetMapping(value = "/image/{uuid}")
-    public ResponseEntity<Resource> getImage(@PathVariable(value = "uuid") String uuid, @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) {
+    public ResponseEntity<Resource> getImage(@PathVariable(value = "uuid") String uuid, @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws HttpMediaTypeNotAcceptableException {
         List<MediaType> acceptedMediaTypeList = MediaType.parseMediaTypes(acceptHeader);
         return controller.getBestSuitedImage(uuid, acceptedMediaTypeList);
     }
@@ -125,7 +128,7 @@ public class ImageAPI {
     @DeleteMapping("/image/{uuid}")
     public ResponseEntity<Void> deleteImage(@PathVariable(value = "uuid") String uuid) {
         if (!controller.doesImageExist(uuid)) {
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException("Image " + uuid + " does not exist!");
         }
 
         String adminRole = configurator.getString("Authentication.OIDC.adminRole");

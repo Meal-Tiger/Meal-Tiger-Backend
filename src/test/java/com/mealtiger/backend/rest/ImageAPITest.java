@@ -35,8 +35,7 @@ import java.util.stream.Stream;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Integration tests for ImageAPI.
@@ -238,7 +237,7 @@ class ImageAPITest {
         String uuid = result.getResponse().getContentAsString().substring(1,37);
 
         mvc.perform(delete("/image/" + uuid))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     // NEGATIVE TESTS
@@ -266,7 +265,11 @@ class ImageAPITest {
         mvc.perform(multipart("/image")
                         .file(file)
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/image"));
     }
 
     /**
@@ -299,7 +302,11 @@ class ImageAPITest {
                         .file(file1)
                         .file(file2)
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/images"));
     }
 
     /**
@@ -316,7 +323,11 @@ class ImageAPITest {
 
         mvc.perform(get("/image/" + uuid)
                         .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/image/" + uuid));
     }
 
     /**
@@ -333,7 +344,11 @@ class ImageAPITest {
 
         mvc.perform(get("/image/" + uuid)
                         .header("Accept", "image/bmp"))
-                .andExpect(status().isNotAcceptable());
+                .andExpect(status().isNotAcceptable())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(406))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/image/" + uuid));
     }
 
     /**
@@ -365,7 +380,11 @@ class ImageAPITest {
         String uuid = UUID.randomUUID().toString();
 
         mvc.perform(delete("/image/" + uuid))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/image/" + uuid));
     }
 
     /**
