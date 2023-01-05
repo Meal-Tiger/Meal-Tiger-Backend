@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -67,7 +68,7 @@ public class ImageAPI {
             }
         }
 
-        return ResponseEntity.ok(uuids);
+        return ResponseEntity.status(HttpStatus.CREATED).body(uuids);
     }
 
     @PostMapping(value = "/image")
@@ -89,7 +90,7 @@ public class ImageAPI {
             throw new UploadException("Could not open uploaded file " + file.getName() + ". Reason: " + e.getMessage());
         }
 
-        return ResponseEntity.ok(uuid);
+        return ResponseEntity.status(HttpStatus.CREATED).body(uuid);
     }
 
     @GetMapping(value = "/image/{uuid}")

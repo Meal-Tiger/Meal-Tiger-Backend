@@ -96,7 +96,7 @@ class ImageAPITest {
         mvc.perform(multipart("/image")
                 .file(file)
         )
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(matchesPattern("\\\"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}\\\"")));
     }
@@ -131,7 +131,7 @@ class ImageAPITest {
                         .file(file1)
                         .file(file2)
                 )
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
@@ -230,7 +230,7 @@ class ImageAPITest {
         MvcResult result = mvc.perform(multipart("/image")
                         .file(file)
                 )
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(matchesPattern("\\\"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}\\\"")))
                 .andReturn();

@@ -94,7 +94,7 @@ public class RecipeAPI {
 
         recipeController.saveRecipe(recipeDTO);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**

@@ -650,7 +650,7 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         assertEquals(1, recipeRepository.findAll().size());
         assertEquals(testRecipe, recipeRepository.findAll().get(0));
@@ -681,7 +681,7 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         assertEquals(1, recipeRepository.findAll().size());
         assertEquals(testRecipe, recipeRepository.findAll().get(0));
