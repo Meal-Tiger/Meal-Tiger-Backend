@@ -2,15 +2,19 @@ package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.rest.controller.ImageIOController;
+import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
+import com.mealtiger.backend.rest.error_handling.exceptions.InvalidRequestFormatException;
 import com.mealtiger.backend.rest.exceptions.UploadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,6 +44,12 @@ public class ImageAPI {
         this.configurator = configurator;
     }
 
+    /**
+     * Post multiple images to be saved.
+     * @param files Images to be saved.
+     * @return ResponseEntity with UUID of newly created Image.
+     * @throws UploadException Whenever a problem while uploading occurs.
+     */
     @PostMapping(value = "/images")
     public ResponseEntity<List<UUID>> postMultipleImages(@RequestParam("files") MultipartFile[] files) throws UploadException {
         log.debug("Uploading multiple images!");
@@ -57,7 +67,7 @@ public class ImageAPI {
                     for (UUID alreadySavedUUID : uuids) {
                         deleteImage(alreadySavedUUID.toString());
                     }
-                    return ResponseEntity.badRequest().build();
+                    throw new InvalidRequestFormatException("Image format not supported!");
                 }
                 controller.saveImage(image, String.valueOf(uuid), userId);
             } catch (IOException e) {
@@ -67,9 +77,15 @@ public class ImageAPI {
             }
         }
 
-        return ResponseEntity.ok(uuids);
+        return ResponseEntity.status(HttpStatus.CREATED).body(uuids);
     }
 
+    /**
+     * Post image to be saved.
+     * @param file Image to be saved.
+     * @return ResponseEntity with UUID of newly created Image.
+     * @throws UploadException Whenever a problem while uploading occurs.
+     */
     @PostMapping(value = "/image")
     public ResponseEntity<UUID> postImage(@RequestParam("file") MultipartFile file) throws UploadException {
         log.debug("Uploading a single image!");
@@ -82,26 +98,37 @@ public class ImageAPI {
             BufferedImage image = ImageIO.read(inputStream);
             if (image == null) {
                 // Image format is not supported!
-                return ResponseEntity.badRequest().build();
+                throw new InvalidRequestFormatException("Image format not supported!");
             }
             controller.saveImage(image, String.valueOf(uuid), userId);
         } catch (IOException e) {
             throw new UploadException("Could not open uploaded file " + file.getName() + ". Reason: " + e.getMessage());
         }
 
-        return ResponseEntity.ok(uuid);
+        return ResponseEntity.status(HttpStatus.CREATED).body(uuid);
     }
 
+    /**
+     * Gets a saved image with the correct media type.
+     * @param uuid UUID of the requested image
+     * @param acceptHeader Accept header of the request
+     * @return ResponseEntity with the Resource as payload.
+     * @throws HttpMediaTypeNotAcceptableException Whenever a suitable image media type cannot be served.
+     */
     @GetMapping(value = "/image/{uuid}")
-    public ResponseEntity<Resource> getImage(@PathVariable(value = "uuid") String uuid, @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) {
+    public ResponseEntity<Resource> getImage(@PathVariable(value = "uuid") String uuid, @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws HttpMediaTypeNotAcceptableException {
         List<MediaType> acceptedMediaTypeList = MediaType.parseMediaTypes(acceptHeader);
         return controller.getBestSuitedImage(uuid, acceptedMediaTypeList);
     }
 
+    /**
+     * Deletes saved image.
+     * @param uuid UUID of the requested image
+     */
     @DeleteMapping("/image/{uuid}")
     public ResponseEntity<Void> deleteImage(@PathVariable(value = "uuid") String uuid) {
         if (!controller.doesImageExist(uuid)) {
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException("Image " + uuid + " does not exist!");
         }
 
         String adminRole = configurator.getString("Authentication.OIDC.adminRole");

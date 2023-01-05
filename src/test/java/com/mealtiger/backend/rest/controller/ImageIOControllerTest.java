@@ -5,6 +5,7 @@ import com.mealtiger.backend.database.model.image_metadata.ImageMetadata;
 import com.mealtiger.backend.database.repository.ImageMetadataRepository;
 import com.mealtiger.backend.imageio.adapters.*;
 import com.mealtiger.backend.rest.Helper;
+import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -93,7 +95,7 @@ class ImageIOControllerTest {
      * Tests getting the best suited image mediatypes with only one given accepted mediatype.
      */
     @Test
-    void getBestSuitedImageTest() throws IOException {
+    void getBestSuitedImageTest() throws IOException, HttpMediaTypeNotAcceptableException {
         when(configurator.getString("Image.imagePath")).thenReturn("testImages/");
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
 
@@ -106,15 +108,15 @@ class ImageIOControllerTest {
         assertEquals("PNG", getResourceAsString(controller, List.of(MediaType.IMAGE_PNG)));
         assertEquals("WEBP", getResourceAsString(controller, List.of(MediaType.valueOf("image/webp"))));
 
-        assertEquals(ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build(), controller.getBestSuitedImage(SAMPLE_IMAGE_ID, List.of(MediaType.TEXT_HTML)));
-        assertEquals(ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build(), controller.getBestSuitedImage(SAMPLE_IMAGE_ID, List.of(MediaType.valueOf("image/tiff"))));
+        assertThrowsExactly(HttpMediaTypeNotAcceptableException.class, () -> controller.getBestSuitedImage(SAMPLE_IMAGE_ID, List.of(MediaType.TEXT_HTML)));
+        assertThrowsExactly(HttpMediaTypeNotAcceptableException.class, () -> controller.getBestSuitedImage(SAMPLE_IMAGE_ID, List.of(MediaType.valueOf("image/tiff"))));
     }
 
     /**
      * Tests getting the best suited image mediatype with the Chrome/Safari accept header.
      */
     @Test
-    void chromeSafariAcceptHeaderTest() throws IOException {
+    void chromeSafariAcceptHeaderTest() throws IOException, HttpMediaTypeNotAcceptableException {
         when(configurator.getString("Image.imagePath")).thenReturn("testImages/");
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
 
@@ -137,7 +139,7 @@ class ImageIOControllerTest {
      * Tests getting the best suited image mediatype with the Internet Explorer accept header.
      */
     @Test
-    void internetExplorerAcceptHeaderTest() throws IOException {
+    void internetExplorerAcceptHeaderTest() throws IOException, HttpMediaTypeNotAcceptableException {
         when(configurator.getString("Image.imagePath")).thenReturn("testImages/");
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
 
@@ -160,7 +162,7 @@ class ImageIOControllerTest {
      * Tests getting the best suited image mediatype with the Firefox accept header.
      */
     @Test
-    void firefoxAcceptHeaderTest() throws IOException {
+    void firefoxAcceptHeaderTest() throws IOException, HttpMediaTypeNotAcceptableException {
         when(configurator.getString("Image.imagePath")).thenReturn("testImages/");
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
 
@@ -191,7 +193,7 @@ class ImageIOControllerTest {
         ImageIOController controller = new ImageIOController(bitmapAdapter, gifAdapter, jpegAdapter, pngAdapter, webPAdapter, configurator, imageMetadataRepository);
 
         when(imageMetadataRepository.findById(SAMPLE_IMAGE_ID)).thenReturn(Optional.of(new ImageMetadata(SAMPLE_IMAGE_ID, SAMPLE_USER_ID)));
-        assertEquals(ResponseEntity.ok(null), controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID, false));
+        assertEquals(ResponseEntity.noContent().build(), controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID, false));
 
         // UNAUTHORIZED
 
@@ -202,12 +204,12 @@ class ImageIOControllerTest {
 
         // UNAUTHORIZED BUT ADMIN
         when(imageMetadataRepository.findById(SAMPLE_IMAGE_ID)).thenReturn(Optional.of(new ImageMetadata(SAMPLE_IMAGE_ID, "6809c76b-5a48-44fe-85bf-d44cef12a828")));
-        assertEquals(ResponseEntity.ok(null), controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID, true));
+        assertEquals(ResponseEntity.noContent().build(), controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID, true));
 
         // NOT FOUND
 
         when(imageMetadataRepository.findById(SAMPLE_IMAGE_ID)).thenReturn(Optional.of(new ImageMetadata("6809c76b-5a48-44fe-85bf-d44cef12a828", SAMPLE_USER_ID)));
-        assertEquals(ResponseEntity.status(HttpStatus.NOT_FOUND).build(), controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID, false));
+        assertThrowsExactly(EntityNotFoundException.class, () -> controller.deleteImage(SAMPLE_IMAGE_ID, SAMPLE_USER_ID, false));
     }
 
     /**
@@ -275,7 +277,7 @@ class ImageIOControllerTest {
      * @param acceptedMediaTypes MediaTypes accepted.
      * @return Content as a string (Attention: Only up to 16 Bytes/characters!).
      */
-    private String getResourceAsString(ImageIOController controller, List<MediaType> acceptedMediaTypes) throws IOException {
+    private String getResourceAsString(ImageIOController controller, List<MediaType> acceptedMediaTypes) throws IOException, HttpMediaTypeNotAcceptableException {
         String result;
 
         try (ReadableByteChannel channel = Objects.requireNonNull(controller.getBestSuitedImage(SAMPLE_IMAGE_ID, acceptedMediaTypes).getBody()).readableChannel()) {

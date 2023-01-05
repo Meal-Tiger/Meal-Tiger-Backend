@@ -32,8 +32,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 /**
@@ -616,7 +615,7 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         assertEquals(1, recipeRepository.findAll().size());
         assertEquals(testRecipe, recipeRepository.findAll().get(0));
@@ -650,7 +649,7 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         assertEquals(1, recipeRepository.findAll().size());
         assertEquals(testRecipe, recipeRepository.findAll().get(0));
@@ -681,7 +680,7 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         assertEquals(1, recipeRepository.findAll().size());
         assertEquals(testRecipe, recipeRepository.findAll().get(0));
@@ -733,7 +732,7 @@ class RecipeAPITest {
         mvc.perform(put("/recipes/" + id)
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         assertEquals(testRecipe, recipeRepository.findAll().get(0));
     }
@@ -767,7 +766,7 @@ class RecipeAPITest {
         assertFalse(recipeRepository.findAll().isEmpty());
 
         mvc.perform(delete("/recipes/" + id))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         assertTrue(recipeRepository.findAll().isEmpty());
     }
@@ -819,7 +818,11 @@ class RecipeAPITest {
         recipeRepository.saveAll(Arrays.asList(testRecipes));
 
         mvc.perform(get("/recipes?page=15"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes?page=15"));
     }
 
     /**
@@ -828,7 +831,11 @@ class RecipeAPITest {
     @Test
     void negative_404_getSingleTest() throws Exception {
         mvc.perform(get("/recipes/someRandomID"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes/someRandomID"));
     }
 
     // POST TESTS
@@ -856,7 +863,11 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes"));
 
         assertTrue(recipeRepository.findAll().isEmpty());
 
@@ -874,7 +885,11 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes"));
 
         assertTrue(recipeRepository.findAll().isEmpty());
 
@@ -896,7 +911,11 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes"));
 
         assertTrue(recipeRepository.findAll().isEmpty());
 
@@ -917,7 +936,11 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes"));
 
         assertTrue(recipeRepository.findAll().isEmpty());
 
@@ -939,7 +962,11 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes"));
 
         assertTrue(recipeRepository.findAll().isEmpty());
 
@@ -960,7 +987,11 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes"));
 
         assertTrue(recipeRepository.findAll().isEmpty());
 
@@ -981,7 +1012,11 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes"));
 
         assertTrue(recipeRepository.findAll().isEmpty());
 
@@ -1002,7 +1037,11 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes"));
 
         assertTrue(recipeRepository.findAll().isEmpty());
 
@@ -1024,7 +1063,11 @@ class RecipeAPITest {
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes"));
 
         assertTrue(recipeRepository.findAll().isEmpty());
     }
@@ -1052,7 +1095,11 @@ class RecipeAPITest {
         mvc.perform(put("/recipes/someRandomID")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes/someRandomID"));
     }
 
     /**
@@ -1095,7 +1142,11 @@ class RecipeAPITest {
     void negative_404_deleteTest() throws Exception {
         mvc.perform(delete("/recipes/someRandomID")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes/someRandomID"));
     }
 
     /**
