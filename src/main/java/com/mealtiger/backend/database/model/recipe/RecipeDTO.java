@@ -1,16 +1,12 @@
 package com.mealtiger.backend.database.model.recipe;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.IndexDirection;
-import org.springframework.data.mongodb.core.index.Indexed;
-
 import java.util.UUID;
 
 public class RecipeDTO {
-    @Id
+
     private String id;
-    @Indexed(direction = IndexDirection.ASCENDING)
     private String title;
+    private String userId;
     private Ingredient[] ingredients;
     private String description;
     private double difficulty;
@@ -25,6 +21,10 @@ public class RecipeDTO {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public void setIngredients(Ingredient[] ingredients) {
@@ -73,6 +73,10 @@ public class RecipeDTO {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getUserId() {
+        return userId;
     }
 
     public String getId() {

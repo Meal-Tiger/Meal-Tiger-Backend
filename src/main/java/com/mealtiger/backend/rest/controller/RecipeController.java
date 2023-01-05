@@ -130,6 +130,24 @@ public class RecipeController {
     }
 
     /**
+     * This method checks whether a user owns a certain recipe.
+     * @param id ID of the recipe.
+     * @param userId User ID to check against.
+     * @return True if the user owns the recipe, false otherwise.
+     */
+    public boolean isUserRecipeOwner(String id, String userId) {
+        RecipeDTO recipe = getRecipe(id);
+        return recipe.getUserId().equals(userId);
+    }
+
+    /**
+     * This method Returns whether the Recipe does exit or not.
+     */
+    public boolean doesRecipeExist(String id) {
+        return recipeRepository.existsById(id);
+    }
+
+    /**
      * Deletes recipe.
      *
      * @param id ID of the requested recipe.

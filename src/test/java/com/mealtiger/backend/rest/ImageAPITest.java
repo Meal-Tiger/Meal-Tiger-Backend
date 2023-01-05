@@ -2,6 +2,7 @@ package com.mealtiger.backend.rest;
 
 import com.mealtiger.backend.BackendApplication;
 import com.mealtiger.backend.configuration.Configurator;
+import com.mealtiger.backend.rest.controller.ImageIOController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,11 +14,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,8 +49,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 class ImageAPITest {
 
+    private static final String SAMPLE_IMAGE_UUID = "22ec6016-8b9b-11ed-a1eb-0242ac120002";
+    private static final String SAMPLE_USER_UUID = "123e4567-e89b-12d3-a456-42661417400";
+    private static final String SAMPLE_OTHER_USER_UUID = "22ec6016-8b9b-11ed-a1eb-0242ac120002";
+
     @Autowired
     private WebApplicationContext webApplicationContext;
+
+    @Autowired
+    private ImageIOController imageIOController;
 
     @MockBean(answer = Answers.CALLS_REAL_METHODS)
     private Configurator configurator;
@@ -66,6 +77,7 @@ class ImageAPITest {
      * Tests posting single images.
      * @param inputFile image file provided by method source.
      */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @ParameterizedTest
     @MethodSource("fileStream")
     void postImageTest(File inputFile) throws Exception {
@@ -92,6 +104,7 @@ class ImageAPITest {
     /**
      * Tests posting multiple images.
      */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void postImagesTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
@@ -133,24 +146,9 @@ class ImageAPITest {
         MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         File inputFile = fileStream().toList().get(0);
-        MockMultipartFile file;
+        saveImage(inputFile, SAMPLE_IMAGE_UUID, SAMPLE_USER_UUID);
 
-        try (InputStream inputStream = new FileInputStream(inputFile)) {
-            byte[] input = inputStream.readAllBytes();
-            file = new MockMultipartFile("file", input);
-        }
-
-        MvcResult result = mvc.perform(multipart("/image")
-                        .file(file)
-                )
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(matchesPattern("\\\"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}\\\"")))
-                .andReturn();
-
-        String uuid = result.getResponse().getContentAsString().substring(1,37);
-
-        mvc.perform(get("/image/" + uuid)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
                         .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"))
                 .andExpect(status().isOk());
     }
@@ -158,6 +156,7 @@ class ImageAPITest {
     /**
      * Tests getting images using different accept headers.
      */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void getImageAcceptHeaderTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
@@ -166,59 +165,44 @@ class ImageAPITest {
         MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         File inputFile = fileStream().toList().get(0);
-        MockMultipartFile file;
+        saveImage(inputFile, SAMPLE_IMAGE_UUID, SAMPLE_USER_UUID);
 
-        try (InputStream inputStream = new FileInputStream(inputFile)) {
-            byte[] input = inputStream.readAllBytes();
-            file = new MockMultipartFile("file", input);
-        }
-
-        MvcResult result = mvc.perform(multipart("/image")
-                        .file(file)
-                )
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(matchesPattern("\\\"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}\\\"")))
-                .andReturn();
-
-        String uuid = result.getResponse().getContentAsString().substring(1,37);
-
-        mvc.perform(get("/image/" + uuid)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
                         .header("Accept", "image/webp"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/webp"));
 
-        mvc.perform(get("/image/" + uuid)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
                         .header("Accept", "image/png"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/png"));
 
-        mvc.perform(get("/image/" + uuid)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
                         .header("Accept", "image/gif"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/gif"));
 
-        mvc.perform(get("/image/" + uuid)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
                         .header("Accept", "image/bmp"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/bmp"));
 
-        mvc.perform(get("/image/" + uuid)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
                         .header("Accept", "image/jpeg"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/jpeg"));
 
-        mvc.perform(get("/image/" + uuid)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
                         .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/jpeg,*/*;q=0.8"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/jpeg"));
 
-        mvc.perform(get("/image/" + uuid)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
                         .header("Accept", "image/jpeg;q=0.9,image/png;q=0.8;*/*;q=0.7"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/jpeg"));
 
-        mvc.perform(get("/image/" + uuid)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
                         .header("Accept", "image/webp;q=0.9,image/jpeg;q=0.8;*/*;q=0.7"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/webp"));
@@ -227,6 +211,7 @@ class ImageAPITest {
     /**
      * Tests deleting images.
      */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void deleteImageTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
@@ -261,8 +246,9 @@ class ImageAPITest {
     /**
      * Tests posting a single file of unsupported type. In this case a PDF-Document.
      */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
-    void postImageUnsupportedType() throws Exception {
+    void negative_400_postImageUnsupportedTypeTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
 
@@ -286,8 +272,9 @@ class ImageAPITest {
     /**
      * Tests posting multiple files with one of unsupported type. In this case a PDF-Document.
      */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
-    void postImagesUnsupportedType() throws Exception {
+    void negative_400_postImagesUnsupportedTypeTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
 
@@ -319,7 +306,7 @@ class ImageAPITest {
      * Tests whether not found (404) is returned when an image does not exist.
      */
     @Test
-    void getImageNotFoundTest() throws Exception {
+    void negative_404_getImageTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
 
@@ -336,7 +323,7 @@ class ImageAPITest {
      * Tests whether not acceptable (406) is returned when an image type is not served.
      */
     @Test
-    void getImageNotAcceptableTest() throws Exception {
+    void negative_406_getImageTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
 
@@ -350,10 +337,29 @@ class ImageAPITest {
     }
 
     /**
+     * Tests deleting a foreign image.
+     */
+    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
+    @Test
+    void negative_403_deleteImageTest() throws Exception {
+        when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
+        when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
+
+        MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+
+        File inputFile = fileStream().toList().get(0);
+
+        saveImage(inputFile, SAMPLE_IMAGE_UUID, SAMPLE_OTHER_USER_UUID);
+
+        mvc.perform(delete("/image/" + SAMPLE_IMAGE_UUID))
+                .andExpect(status().isForbidden());
+    }
+
+    /**
      * Tests deleting an image that doesn't exist.
      */
     @Test
-    void deleteImageNotFoundTest() throws Exception {
+    void negative_404_deleteImageTest() throws Exception {
         MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         String uuid = UUID.randomUUID().toString();
@@ -376,6 +382,19 @@ class ImageAPITest {
                 new File(Objects.requireNonNull(ImageAPITest.class.getClassLoader().getResource("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.tiff")).getFile()),
                 new File(Objects.requireNonNull(ImageAPITest.class.getClassLoader().getResource("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.webp")).getFile())
         );
+    }
+
+    // HELPER METHODS
+
+    /**
+     * Saves an image.
+     * @param file Image file to be saved.
+     * @param uuid UUID of the image.
+     * @param userId UserID of the creating user.
+     */
+    private void saveImage(File file, String uuid, String userId) throws IOException {
+        BufferedImage image = ImageIO.read(file);
+        imageIOController.saveImage(image, uuid, userId);
     }
 
 }

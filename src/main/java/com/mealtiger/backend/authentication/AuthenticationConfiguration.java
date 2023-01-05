@@ -45,8 +45,8 @@ public class AuthenticationConfiguration {
                             .antMatchers(HttpMethod.DELETE, recipes).authenticated())
                     .oauth2ResourceServer(oauth2ResourceServer ->
                             oauth2ResourceServer
-                                    .jwt(jwt -> jwt.decoder(JwtDecoders.fromIssuerLocation(jwtIssuerURL)))
-                                    .jwt().jwtAuthenticationConverter(new CustomJwtAuthenticationConverter())
+                                    .jwt(jwt -> jwt.decoder(JwtDecoders.fromIssuerLocation(jwtIssuerURL))
+                                            .jwtAuthenticationConverter(new CustomJwtAuthenticationConverter()))
                     );
         }
 

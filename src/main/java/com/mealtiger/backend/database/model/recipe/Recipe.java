@@ -22,6 +22,7 @@ public class Recipe {
     private String id;
     @Indexed(direction = IndexDirection.ASCENDING)
     private String title;
+    private String userId;
     private Ingredient[] ingredients;
     private String description;
     private double difficulty;
@@ -30,6 +31,17 @@ public class Recipe {
     private UUID[] images;
 
     @PersistenceCreator
+    public Recipe(String title, String userId, Ingredient[] ingredients, String description, double difficulty, double rating, int time, UUID[] images) {
+        this.title = title;
+        this.userId = userId;
+        this.ingredients = ingredients;
+        this.description = description;
+        this.difficulty = difficulty;
+        this.rating = rating;
+        this.time = time;
+        this.images = Objects.requireNonNullElseGet(images, () -> new UUID[0]);
+    }
+
     public Recipe(String title, Ingredient[] ingredients, String description, double difficulty, double rating, int time, UUID[] images) {
         this.title = title;
         this.ingredients = ingredients;
@@ -37,7 +49,8 @@ public class Recipe {
         this.difficulty = difficulty;
         this.rating = rating;
         this.time = time;
-        this.images = Objects.requireNonNullElseGet(images, () -> new UUID[0]);
+        this.images = images;
+        this.userId = "";
     }
 
     public Recipe(String title, Ingredient[] ingredients, String description, double difficulty, double rating, int time) {
@@ -48,6 +61,7 @@ public class Recipe {
         this.rating = rating;
         this.time = time;
         this.images = new UUID[0];
+        this.userId = "";
     }
 
 
@@ -99,6 +113,14 @@ public class Recipe {
         this.title = title;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public String getId() {
         return id;
     }
@@ -120,6 +142,7 @@ public class Recipe {
         return "Recipe{" +
                 "id='" + id + '\'' +
                 ", title='" + title + '\'' +
+                ", author='" + userId + '\'' +
                 ", ingredients=" + Arrays.toString(ingredients) +
                 ", description='" + description + '\'' +
                 ", difficulty=" + difficulty +
@@ -136,21 +159,22 @@ public class Recipe {
 
         Recipe recipe = (Recipe) o;
 
-        if (getDifficulty() != recipe.getDifficulty()) return false;
-        if (getRating() != recipe.getRating()) return false;
-        if (getTitle() != null ? !getTitle().equals(recipe.getTitle()) : recipe.getTitle() != null) return false;
+        if (Double.compare(recipe.getDifficulty(), getDifficulty()) != 0) return false;
+        if (Double.compare(recipe.getRating(), getRating()) != 0) return false;
+        if (getTime() != recipe.getTime()) return false;
+        if (!getTitle().equals(recipe.getTitle())) return false;
+        if (!getUserId().equals(recipe.getUserId())) return false;
         if (!Arrays.equals(getIngredients(), recipe.getIngredients())) return false;
-        if (getDescription() != null ? !getDescription().equals(recipe.getDescription()) : recipe.getDescription() != null)
-            return false;
-        return (getTime() == recipe.getTime());
+        if (!getDescription().equals(recipe.getDescription())) return false;
+        return Arrays.equals(getImages(), recipe.getImages());
     }
 
     @Override
     public int hashCode() {
         int result;
         long temp;
-        result = getId().hashCode();
-        result = 31 * result + getTitle().hashCode();
+        result = getTitle().hashCode();
+        result = 31 * result + getUserId().hashCode();
         result = 31 * result + Arrays.hashCode(getIngredients());
         result = 31 * result + getDescription().hashCode();
         temp = Double.doubleToLongBits(getDifficulty());
@@ -158,6 +182,7 @@ public class Recipe {
         temp = Double.doubleToLongBits(getRating());
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + getTime();
+        result = 31 * result + Arrays.hashCode(getImages());
         return result;
     }
 
@@ -166,6 +191,7 @@ public class Recipe {
     public RecipeDTO toDTO() {
         RecipeDTO recipeDTO = new RecipeDTO();
         recipeDTO.setId(this.getId());
+        recipeDTO.setUserId(this.getUserId());
         recipeDTO.setTitle(this.getTitle());
         recipeDTO.setTime(this.getTime());
         recipeDTO.setDescription(this.getDescription());
@@ -179,6 +205,7 @@ public class Recipe {
     public static Recipe fromDTO(RecipeDTO dto) {
         return new Recipe(
                 dto.getTitle(),
+                dto.getUserId(),
                 dto.getIngredients(),
                 dto.getDescription(),
                 dto.getDifficulty(),
