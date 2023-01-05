@@ -15,4 +15,9 @@ public class TestConfig {
     public String getSampleSpringPropertyNode() {
         return "testValue";
     }
+
+    @ConfigNode(name = "Sample.Env.Node", envKey = "TEST_VARIABLE")
+    public String getSampleEnvNode() {
+        return "testValue that should not be retrieved!";
+    }
 }

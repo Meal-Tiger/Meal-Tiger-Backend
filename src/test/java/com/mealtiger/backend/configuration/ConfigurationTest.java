@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,6 +38,15 @@ class ConfigurationTest {
 
         assertEquals("I'm a sample!", output);
 
+    }
+
+    @Test
+    void environmentVariableTest() {
+        Map<String, String> environmentVariables = new HashMap<>();
+        environmentVariables.put("TEST_VARIABLE", "testValue");
+        Configurator configurator = new Configurator(environmentVariables);
+
+        assertEquals("testValue", configurator.getString("Test.Sample.Env.Node"));
     }
 
     @Test
