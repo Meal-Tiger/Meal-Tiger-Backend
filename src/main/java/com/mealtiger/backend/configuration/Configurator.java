@@ -53,8 +53,9 @@ public class Configurator {
                 log.error("IO Error when trying to load configs. Check the permissions on the config files!");
                 throw new ConfigLoadingException(e);
             }
-            Configurator.environmentVariables.putAll(environmentVariables);
         }
+
+        Configurator.environmentVariables.putAll(environmentVariables);
     }
 
     // APPLICATION SETUP
