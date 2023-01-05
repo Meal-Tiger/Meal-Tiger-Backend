@@ -9,7 +9,7 @@ import com.mealtiger.backend.configuration.annotations.ConfigNode;
  *
  * @see com.mealtiger.backend.configuration.Configurator
  */
-@Config(name = "Database", configPath = "database.yml")
+@Config(name = "Database", configPath = "database.yml", sampleConfig = "configuration-samples/database.sample.yml")
 @SuppressWarnings("unused")
 public class DatabaseConfig {
     /**

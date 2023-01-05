@@ -8,9 +8,7 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 
@@ -53,20 +51,33 @@ public class ConfigLoader {
 
             log.info("Creating new config file {} in the working directory.", file.getName());
 
-            Object newConfig;
-            try {
-                newConfig = configClass.getConstructor().newInstance();
-            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
-                     InvocationTargetException e) {
-                log.error("Could not create new config. Aborting...");
-                throw new ConfigLoadingException(e);
-            }
+            if (!annotation.sampleConfig().isEmpty()) {
+                String sampleConfigPath = annotation.sampleConfig();
 
-            try (PrintWriter out = new PrintWriter(file)) {
-                yaml.dump(newConfig, out);
-            }
+                try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(sampleConfigPath);
+                     FileWriter fileWriter = new FileWriter(file)) {
+                    assert inputStream != null;
+                    String sampleConfigString = new String(inputStream.readAllBytes());
+                    fileWriter.write(sampleConfigString);
 
-            return newConfig;
+                    return yaml.load(sampleConfigString);
+                }
+            } else {
+                Object newConfig;
+                try {
+                    newConfig = configClass.getConstructor().newInstance();
+                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                         InvocationTargetException e) {
+                    log.error("Could not create new config. Aborting...");
+                    throw new ConfigLoadingException(e);
+                }
+
+                try (PrintWriter out = new PrintWriter(file)) {
+                    yaml.dump(newConfig, out);
+                }
+
+                return newConfig;
+            }
 
         } else {
 

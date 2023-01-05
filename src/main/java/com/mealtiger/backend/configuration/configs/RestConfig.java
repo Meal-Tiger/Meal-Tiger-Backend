@@ -9,7 +9,7 @@ import com.mealtiger.backend.configuration.annotations.ConfigNode;
  *
  * @see com.mealtiger.backend.configuration.Configurator
  */
-@Config(name = "REST", configPath = "rest.yml")
+@Config(name = "REST", configPath = "rest.yml", sampleConfig = "configuration-samples/rest.sample.yml")
 @SuppressWarnings("unused")
 public class RestConfig {
 
