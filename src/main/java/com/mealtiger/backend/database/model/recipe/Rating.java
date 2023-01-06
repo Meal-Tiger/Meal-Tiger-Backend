@@ -22,4 +22,30 @@ public class Rating {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Rating rating = (Rating) o;
+
+        if (getRatingValue() != rating.getRatingValue()) return false;
+        return getUserId().equals(rating.getUserId());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getRatingValue();
+        result = 31 * result + getUserId().hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Rating{" +
+                "ratingValue=" + ratingValue +
+                ", userId='" + userId + '\'' +
+                '}';
+    }
 }
