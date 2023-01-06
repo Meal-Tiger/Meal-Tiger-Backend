@@ -1,8 +1,11 @@
 package com.mealtiger.backend.rest.controller;
 
+import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
-import com.mealtiger.backend.database.model.recipe.RecipeDTO;
+import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
+import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.database.repository.RecipeRepository;
+import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -11,10 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This acts as the controller-part for our REST API.
@@ -51,7 +51,7 @@ public class RecipeController {
             Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
             Page<Recipe> recipePage = recipeRepository.findAll(paging);
 
-            return assemblePaginatedResult(recipePage.map(Recipe::toDTO));
+            return assemblePaginatedResult(recipePage.map(Recipe::toResponse));
         } catch (Exception e) {
             return Collections.emptyMap();
         }
@@ -75,7 +75,7 @@ public class RecipeController {
             Page<Recipe> page;
             page = recipeRepository.findRecipesByTitleContainingIgnoreCase(query, paging);
 
-            return assemblePaginatedResult(page.map(Recipe::toDTO));
+            return assemblePaginatedResult(page.map(Recipe::toResponse));
         } catch (Exception e) {
             return Collections.emptyMap();
         }
@@ -84,10 +84,10 @@ public class RecipeController {
     /**
      * This saves a recipe to the repository
      *
-     * @param recipeDTO Recipe to be saved.
+     * @param recipeRequest Recipe to be saved.
      */
-    public void saveRecipe(RecipeDTO recipeDTO) {
-        Recipe recipe = Recipe.fromDTO(recipeDTO);
+    public void saveRecipe(RecipeRequest recipeRequest) {
+        Recipe recipe = Recipe.fromRequest(recipeRequest);
         log.trace("Saving recipe {} to repository!", recipe);
         recipeRepository.save(recipe);
     }
@@ -98,31 +98,31 @@ public class RecipeController {
      * @param id ID of the recipe to get.
      * @return Recipe requested.
      */
-    public RecipeDTO getRecipe(String id) {
+    public RecipeResponse getRecipe(String id) {
         log.trace("Getting recipe with id {} from repository.", id);
-        Recipe recipe = recipeRepository.findById(id).orElse(null);
-        return recipe != null ? recipe.toDTO(): null;
+        Recipe recipe = getRecipeFromRepository(id);
+        return recipe != null ? recipe.toResponse(): null;
     }
 
     /**
      * Replaces recipe in repository with new recipe.
      *
      * @param id     ID of the repository to be replaced.
-     * @param recipeDTO Recipe to replace the old recipe.
+     * @param recipeRequest Recipe to replace the old recipe.
      * @return Whether it was successful or not.
      */
-    public boolean replaceRecipe(String id, RecipeDTO recipeDTO) {
-        Recipe recipe = Recipe.fromDTO(recipeDTO);
+    public boolean replaceRecipe(String id, RecipeRequest recipeRequest) {
+        Recipe recipe = Recipe.fromRequest(recipeRequest);
         log.trace("Replacing recipe with id {} in repository with {}.", id, recipe);
-        Recipe oldRecipe = recipeRepository.findById(id).orElse(null);
+        Recipe oldRecipe = getRecipeFromRepository(id);
 
         if (oldRecipe != null) {
             oldRecipe.setTitle(recipe.getTitle());
             oldRecipe.setDescription(recipe.getDescription());
             oldRecipe.setIngredients(recipe.getIngredients());
             oldRecipe.setDifficulty(recipe.getDifficulty());
-            oldRecipe.setRating(recipe.getRating());
             oldRecipe.setTime(recipe.getTime());
+            oldRecipe.setImages(recipe.getImages());
 
             recipeRepository.deleteById(oldRecipe.getId());
             recipeRepository.save(oldRecipe);
@@ -139,7 +139,7 @@ public class RecipeController {
      * @return True if the user owns the recipe, false otherwise.
      */
     public boolean isUserRecipeOwner(String id, String userId) {
-        RecipeDTO recipe = getRecipe(id);
+        RecipeResponse recipe = getRecipe(id);
         return recipe.getUserId().equals(userId);
     }
 
@@ -165,7 +165,73 @@ public class RecipeController {
         return returnValue;
     }
 
+    // RATINGS
+
+    /**
+     * Checks if a user has already rated a recipe.
+     * @param recipeId ID of the recipe to check.
+     * @param userId UserID of the user to check.
+     * @return True, if the user has already rated the recipe. False, if not.
+     */
+    public boolean doesRatingExist(String recipeId, String userId) {
+        Recipe recipe = getRecipeFromRepository(recipeId);
+        return Arrays.stream(recipe.getRatings()).anyMatch(rating -> rating.getUserId().equals(userId));
+    }
+
+    /**
+     * Adds a rating to a recipe.
+     * @param recipeId Recipe to add the rating to
+     * @param userId UserId of the user who rated the recipe.
+     * @param ratingValue Rating the user gave.
+     */
+    public void addRating(String recipeId, String userId, int ratingValue) {
+        Recipe recipe = getRecipeFromRepository(recipeId);
+        Rating rating = new Rating(ratingValue, userId);
+
+        List<Rating> allRatings = new ArrayList<>(Arrays.stream(recipe.getRatings()).toList());
+        allRatings.add(rating);
+
+        recipe.setRatings(allRatings.toArray(new Rating[0]));
+
+        recipeRepository.save(recipe);
+    }
+
+    /**
+     * Updates an existent rating.
+     * @param recipeId Recipe to update the rating on.
+     * @param userId UserId of the user that has rated
+     * @param ratingValue Value user has rated.
+     */
+    public void updateRating(String recipeId, String userId, int ratingValue) {
+        deleteRating(recipeId, userId);
+        addRating(recipeId, userId, ratingValue);
+    }
+
+    /**
+     * Delete rating from recipe.
+     * @param recipeId Id of the recipe to delete rating from.
+     * @param userId UserId of the creator of the rating.
+     */
+    public void deleteRating(String recipeId, String userId) {
+        Recipe recipe = getRecipeFromRepository(recipeId);
+
+        List<Rating> allRatings = new ArrayList<>(Arrays.stream(recipe.getRatings()).toList());
+        allRatings.removeIf(r -> r.getUserId().equals(userId));
+        recipe.setRatings(allRatings.toArray(new Rating[0]));
+
+        recipeRepository.save(recipe);
+    }
+
     // PRIVATE HELPER METHODS
+
+    /**
+     * Gets a recipe from repository by its id.
+     * @param recipeId Id of recipe to get.
+     * @return Recipe
+     */
+    private Recipe getRecipeFromRepository(String recipeId) {
+        return recipeRepository.findById(recipeId).orElseThrow(() -> new EntityNotFoundException("Recipe " + recipeId + " does not exist!"));
+    }
 
     /**
      * This method assembles a map that contains all needed information for a stateless implementation in the frontend application from a page.
@@ -173,8 +239,8 @@ public class RecipeController {
      * @param page Page to be used for assembling the result.
      * @return Map that contains the entries 'recipes', 'currentPage', 'totalItems', 'totalPages'.
      */
-    private Map<String, Object> assemblePaginatedResult(Page<RecipeDTO> page) {
-        List<RecipeDTO> recipes = page.getContent();
+    private Map<String, Object> assemblePaginatedResult(Page<RecipeResponse> page) {
+        List<RecipeResponse> recipes = page.getContent();
 
         Map<String, Object> response;
 

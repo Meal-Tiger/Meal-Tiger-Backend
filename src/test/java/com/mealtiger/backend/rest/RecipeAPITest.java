@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mealtiger.backend.BackendApplication;
 import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
+import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
-import com.mealtiger.backend.database.model.recipe.RecipeDTO;
 import com.mealtiger.backend.database.repository.RecipeRepository;
+import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
+import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class RecipeAPITest {
 
-    private static final String MOCK_USER_ID = "123e4567-e89b-12d3-a456-42661417400";
+    private static final String SAMPLE_USER_ID = "123e4567-e89b-12d3-a456-42661417400";
 
     @Autowired
     private MockMvc mvc;
@@ -75,50 +77,13 @@ class RecipeAPITest {
      */
     @Test
     void getRecipesDefaultTest() throws Exception {
-        RecipeDTO[] testRecipes = {
-                new Recipe(
-                        "Gebrannte Mandeln",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15,
-                        new UUID[]{UUID.randomUUID()}
-                ).toDTO(),
-                new Recipe(
-                        "Gebratene Cashewkerne",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15,
-                        new UUID[]{UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()}
-                ).toDTO(),
-                new Recipe(
-                        "Toast Hawaii",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Schinken"),
-                                new Ingredient(10, "Scheiben", "Toastbrot"),
-                                new Ingredient(10, "Scheiben", "Ananas"),
-                                new Ingredient(10, "Scheiben", "Schmelzkäse")
-                        },
-                        "TestDescription",
-                        1,
-                        4,
-                        15
-                ).toDTO(),
-        };
-        recipeRepository.saveAll((Arrays.stream(testRecipes).map(Recipe::fromDTO).toList()));
+        Recipe[] testRecipes = SampleSource.getSampleRecipes(3).toArray(new Recipe[]{});
+
+        recipeRepository.saveAll(Arrays.stream(testRecipes).toList());
         Pageable paging = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "title"));
 
         Map<String, Object> expectedAnswer = new HashMap<>();
-        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent().stream().map(Recipe::toResponse).toList());
         expectedAnswer.put("totalItems", 3);
         expectedAnswer.put("totalPages", 1);
         expectedAnswer.put("currentPage", 0);
@@ -137,116 +102,7 @@ class RecipeAPITest {
      */
     @Test
     void getRecipesMultiplePagesTest() throws Exception {
-        Recipe[] testRecipes = {
-                new Recipe(
-                        "Gebrannte Mandeln",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Gebratene Cashewkerne",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15,
-                        new UUID[]{UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()}
-                ),
-                new Recipe(
-                        "Toast Hawaii",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Schinken"),
-                                new Ingredient(10, "Scheiben", "Toastbrot"),
-                                new Ingredient(10, "Scheiben", "Ananas"),
-                                new Ingredient(10, "Scheiben", "Schmelzkäse")
-                        },
-                        "TestDescription",
-                        1,
-                        4,
-                        15
-                ),
-                new Recipe(
-                        "Gebrannte Mandeln",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Gebratene Cashewkerne",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15,
-                        new UUID[]{UUID.randomUUID(), UUID.randomUUID()}
-                ),
-                new Recipe(
-                        "Toast Hawaii",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Schinken"),
-                                new Ingredient(10, "Scheiben", "Toastbrot"),
-                                new Ingredient(10, "Scheiben", "Ananas"),
-                                new Ingredient(10, "Scheiben", "Schmelzkäse")
-                        },
-                        "TestDescription",
-                        1,
-                        4,
-                        15
-                ),
-                new Recipe(
-                        "Gebrannte Mandeln",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Gebratene Cashewkerne",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15,
-                        new UUID[]{UUID.randomUUID()}
-                ),
-                new Recipe(
-                        "Toast Hawaii",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Schinken"),
-                                new Ingredient(10, "Scheiben", "Toastbrot"),
-                                new Ingredient(10, "Scheiben", "Ananas"),
-                                new Ingredient(10, "Scheiben", "Schmelzkäse")
-                        },
-                        "TestDescription",
-                        1,
-                        4,
-                        15
-                ),
-        };
+        Recipe[] testRecipes = SampleSource.getSampleRecipes(9).toArray(new Recipe[]{});
 
         recipeRepository.saveAll(Arrays.asList(testRecipes));
 
@@ -255,7 +111,7 @@ class RecipeAPITest {
         // Page 0
 
         Map<String, Object> expectedAnswer = new HashMap<>();
-        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent().stream().map(Recipe::toResponse).toList());
         expectedAnswer.put("totalItems", 9);
         expectedAnswer.put("totalPages", 3);
         expectedAnswer.put("currentPage", 0);
@@ -275,7 +131,7 @@ class RecipeAPITest {
         paging = PageRequest.of(1, 3, Sort.by(Sort.Direction.DESC, "title"));
 
         expectedAnswer.clear();
-        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent().stream().map(Recipe::toResponse).toList());
         expectedAnswer.put("totalItems", 9);
         expectedAnswer.put("totalPages", 3);
         expectedAnswer.put("currentPage", 1);
@@ -293,7 +149,7 @@ class RecipeAPITest {
         paging = PageRequest.of(2, 3, Sort.by(Sort.Direction.DESC, "title"));
 
         expectedAnswer.clear();
-        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent().stream().map(Recipe::toResponse).toList());
         expectedAnswer.put("totalItems", 9);
         expectedAnswer.put("totalPages", 3);
         expectedAnswer.put("currentPage", 2);
@@ -312,113 +168,7 @@ class RecipeAPITest {
      */
     @Test
     void getRecipesMultiplePagesVariableSizeTest() throws Exception {
-        Recipe[] testRecipes = {
-                new Recipe(
-                        "Gebrannte Mandeln",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Gebratene Cashewkerne",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Toast Hawaii",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Schinken"),
-                                new Ingredient(10, "Scheiben", "Toastbrot"),
-                                new Ingredient(10, "Scheiben", "Ananas"),
-                                new Ingredient(10, "Scheiben", "Schmelzkäse")
-                        },
-                        "TestDescription",
-                        1,
-                        4,
-                        15
-                ),
-                new Recipe(
-                        "Gebrannte Mandeln",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Gebratene Cashewkerne",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Toast Hawaii",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Schinken"),
-                                new Ingredient(10, "Scheiben", "Toastbrot"),
-                                new Ingredient(10, "Scheiben", "Ananas"),
-                                new Ingredient(10, "Scheiben", "Schmelzkäse")
-                        },
-                        "TestDescription",
-                        1,
-                        4,
-                        15
-                ),
-                new Recipe(
-                        "Gebrannte Mandeln",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Gebratene Cashewkerne",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Toast Hawaii",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Schinken"),
-                                new Ingredient(10, "Scheiben", "Toastbrot"),
-                                new Ingredient(10, "Scheiben", "Ananas"),
-                                new Ingredient(10, "Scheiben", "Schmelzkäse")
-                        },
-                        "TestDescription",
-                        1,
-                        4,
-                        15
-                ),
-        };
+        Recipe[] testRecipes = SampleSource.getSampleRecipes(9).toArray(new Recipe[]{});
 
         recipeRepository.saveAll(Arrays.asList(testRecipes));
 
@@ -427,14 +177,12 @@ class RecipeAPITest {
         Pageable paging = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "title"));
 
         Map<String, Object> expectedAnswer = new HashMap<>();
-        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent().stream().map(Recipe::toResponse).toList());
         expectedAnswer.put("totalItems", 9);
         expectedAnswer.put("totalPages", 3);
         expectedAnswer.put("currentPage", 0);
 
         String testRecipesJSON = new ObjectMapper().writer().writeValueAsString(expectedAnswer);
-
-        System.out.println(testRecipesJSON);
 
         mvc.perform(get("/recipes")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -447,7 +195,7 @@ class RecipeAPITest {
         paging = PageRequest.of(0, 4, Sort.by(Sort.Direction.DESC, "title"));
 
         expectedAnswer.clear();
-        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent().stream().map(Recipe::toResponse).toList());
         expectedAnswer.put("totalItems", 9);
         expectedAnswer.put("totalPages", 3);
         expectedAnswer.put("currentPage", 0);
@@ -465,7 +213,7 @@ class RecipeAPITest {
         paging = PageRequest.of(0, 9, Sort.by(Sort.Direction.DESC, "title"));
 
         expectedAnswer.clear();
-        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent().stream().map(Recipe::toResponse).toList());
         expectedAnswer.put("totalItems", 9);
         expectedAnswer.put("totalPages", 1);
         expectedAnswer.put("currentPage", 0);
@@ -483,7 +231,7 @@ class RecipeAPITest {
         paging = PageRequest.of(0, 9, Sort.by(Sort.Direction.DESC, "title"));
 
         expectedAnswer.clear();
-        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent());
+        expectedAnswer.put("recipes", recipeRepository.findAll(paging).getContent().stream().map(Recipe::toResponse).toList());
         expectedAnswer.put("totalItems", 9);
         expectedAnswer.put("totalPages", 1);
         expectedAnswer.put("currentPage", 0);
@@ -502,27 +250,17 @@ class RecipeAPITest {
      */
     @Test
     void getSingleRecipeTest() throws Exception {
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                15
-        );
+        Recipe testRecipe = SampleSource.getSampleRecipes(1).get(0);
 
         recipeRepository.save(testRecipe);
 
         String id = recipeRepository.findAll().get(0).getId();
 
-        testRecipe = recipeRepository.findAll().get(0);
+        RecipeResponse testRecipeResponse = recipeRepository.findAll().get(0).toResponse();
 
         mvc.perform(get("/recipes/" + id))
                 .andExpect(status().isOk())
-                .andExpect(content().json(new ObjectMapper().writer().writeValueAsString(testRecipe)));
+                .andExpect(content().json(new ObjectMapper().writer().writeValueAsString(testRecipeResponse)));
     }
 
     /**
@@ -531,50 +269,14 @@ class RecipeAPITest {
 
     @Test
     void getQueriedRecipeTest() throws Exception {
-        Recipe[] testRecipes = {
-                new Recipe(
-                        "Gebrannte Mandeln",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Gebratene Cashewkerne",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Toast Hawaii",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Schinken"),
-                                new Ingredient(10, "Scheiben", "Toastbrot"),
-                                new Ingredient(10, "Scheiben", "Ananas"),
-                                new Ingredient(10, "Scheiben", "Schmelzkäse")
-                        },
-                        "TestDescription",
-                        1,
-                        4,
-                        15
-                )
-        };
+        Recipe[] testRecipes = SampleSource.getSampleRecipes(3).toArray(new Recipe[]{});
 
         recipeRepository.saveAll(Arrays.asList(testRecipes));
 
         Pageable pageable = PageRequest.of(0, 1);
 
         Map<String, Object> expectedAnswer = new HashMap<>();
-        expectedAnswer.put("recipes", recipeRepository.findRecipesByTitleContaining("Gebrannte Mandeln", pageable));
+        expectedAnswer.put("recipes", recipeRepository.findRecipesByTitleContaining("Gebrannte Mandeln", pageable).stream().map(Recipe::toResponse).toList());
         expectedAnswer.put("totalItems", 1);
         expectedAnswer.put("totalPages", 1);
         expectedAnswer.put("currentPage", 0);
@@ -598,19 +300,20 @@ class RecipeAPITest {
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void postRecipeTest() throws Exception {
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                MOCK_USER_ID,
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                2.8,
-                4.3,
-                15,
-                new UUID[]{}
+        RecipeRequest testRecipe = new RecipeRequest();
+        testRecipe.setTitle("Gebrannte Mandeln");
+        testRecipe.setIngredients(
+            new Ingredient[]{
+                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                new Ingredient(200, "Gramm", "Zucker")
+            }
         );
+        testRecipe.setDescription("TestDescription");
+        testRecipe.setDifficulty(2.8);
+        testRecipe.setTime(15);
+        testRecipe.setImages(new UUID[]{});
+
+        //SampleSource.getSampleUUIDs().map(UUID::fromString).toList().toArray(new UUID[]{})
 
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
@@ -618,8 +321,17 @@ class RecipeAPITest {
                 .andExpect(status().isCreated());
 
         assertEquals(1, recipeRepository.findAll().size());
-        assertEquals(testRecipe, recipeRepository.findAll().get(0));
 
+        Recipe recipe = recipeRepository.findAll().get(0);
+
+        assertEquals(testRecipe.getTitle(), recipe.getTitle());
+        assertEquals(SAMPLE_USER_ID, recipe.getUserId());
+        assertArrayEquals(testRecipe.getIngredients(), recipe.getIngredients());
+        assertEquals(testRecipe.getDescription(), recipe.getDescription());
+        assertEquals(testRecipe.getDifficulty(), recipe.getDifficulty());
+        assertArrayEquals(new Rating[]{}, recipe.getRatings());
+        assertEquals(testRecipe.getTime(), recipe.getTime());
+        assertArrayEquals(testRecipe.getImages(), recipe.getImages());
     }
 
     /**
@@ -628,63 +340,39 @@ class RecipeAPITest {
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void postRecipeWithImageTest() throws Exception {
-        UUID imageUUID = UUID.fromString("af7c1fe6-d669-414e-b066-e9733f0de7a8");
+        UUID imageUUID = UUID.fromString(SampleSource.getSampleUUIDs().toList().get(0));
 
         Files.createDirectories(Path.of(configurator.getString("Image.imagePath"), imageUUID.toString()));
 
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                MOCK_USER_ID,
+        RecipeRequest testRecipe = new RecipeRequest();
+        testRecipe.setTitle("Gebrannte Mandeln");
+        testRecipe.setIngredients(
                 new Ingredient[]{
                         new Ingredient(500, "Gramm", "Mandeln, geschält"),
                         new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                2.8,
-                4.3,
-                15,
-                new UUID[]{imageUUID}
+                }
         );
+        testRecipe.setDescription("TestDescription");
+        testRecipe.setDifficulty(2.8);
+        testRecipe.setTime(15);
+        testRecipe.setImages(new UUID[]{imageUUID});
 
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
 
-        assertEquals(1, recipeRepository.findAll().size());
-        assertEquals(testRecipe, recipeRepository.findAll().get(0));
-    }
-
-    /**
-     * Tests posting a recipe with an id given - it should be overridden.
-     */
-    @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
-    @Test
-    void postRecipeWithIDTest() throws Exception {
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                MOCK_USER_ID,
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                2.8,
-                4.3,
-                15,
-                new UUID[]{}
-        );
-
-        testRecipe.setId("1234567890");
-
-        mvc.perform(post("/recipes")
-                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
+        Recipe recipe = recipeRepository.findAll().get(0);
 
         assertEquals(1, recipeRepository.findAll().size());
-        assertEquals(testRecipe, recipeRepository.findAll().get(0));
-        assertNotEquals(testRecipe.getId(), recipeRepository.findAll().get(0).getId());
+        assertEquals(testRecipe.getTitle(), recipe.getTitle());
+        assertEquals(SAMPLE_USER_ID, recipe.getUserId());
+        assertArrayEquals(testRecipe.getIngredients(), recipe.getIngredients());
+        assertEquals(testRecipe.getDescription(), recipe.getDescription());
+        assertEquals(testRecipe.getDifficulty(), recipe.getDifficulty());
+        assertArrayEquals(new Rating[]{}, recipe.getRatings());
+        assertEquals(testRecipe.getTime(), recipe.getTime());
+        assertArrayEquals(testRecipe.getImages(), recipe.getImages());
     }
 
     // PUT TESTS
@@ -695,46 +383,42 @@ class RecipeAPITest {
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void putRecipeTest() throws Exception {
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                MOCK_USER_ID,
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                15,
-                new UUID[]{}
-        );
-
-        recipeRepository.save(testRecipe);
+        recipeRepository.save(SampleSource.getSampleRecipes().get(0));
 
         String id = recipeRepository.findAll().get(0).getId();
 
-        testRecipe = new Recipe(
-                "Toast Hawaii",
-                MOCK_USER_ID,
+        RecipeRequest testRecipe = new RecipeRequest();
+        testRecipe.setTitle("Toast Hawaii");
+        testRecipe.setIngredients(
                 new Ingredient[]{
                         new Ingredient(500, "Gramm", "Schinken"),
                         new Ingredient(10, "Scheiben", "Toastbrot"),
                         new Ingredient(10, "Scheiben", "Ananas"),
                         new Ingredient(10, "Scheiben", "Schmelzkäse")
-                },
-                "TestDescription",
-                1,
-                4,
-                30,
-                new UUID[]{}
+                }
         );
+        testRecipe.setDescription("TestDescription");
+        testRecipe.setDifficulty(1);
+        testRecipe.setTime(30);
+        testRecipe.setImages(new UUID[]{});
 
         mvc.perform(put("/recipes/" + id)
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        assertEquals(testRecipe, recipeRepository.findAll().get(0));
+        assertEquals(1, recipeRepository.findAll().size());
+
+        Recipe recipe = recipeRepository.findAll().get(0);
+
+        assertEquals(testRecipe.getTitle(), recipe.getTitle());
+        assertEquals(SAMPLE_USER_ID, recipe.getUserId());
+        assertArrayEquals(testRecipe.getIngredients(), recipe.getIngredients());
+        assertEquals(testRecipe.getDescription(), recipe.getDescription());
+        assertEquals(testRecipe.getDifficulty(), recipe.getDifficulty());
+        assertArrayEquals(new Rating[]{}, recipe.getRatings());
+        assertEquals(testRecipe.getTime(), recipe.getTime());
+        assertArrayEquals(testRecipe.getImages(), recipe.getImages());
     }
 
     // DELETE TESTS
@@ -745,19 +429,7 @@ class RecipeAPITest {
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void deleteRecipeTest() throws Exception {
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                MOCK_USER_ID,
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                15,
-                new UUID[]{}
-        );
+        Recipe testRecipe = SampleSource.getSampleRecipes().get(0);
 
         recipeRepository.save(testRecipe);
 
@@ -777,45 +449,7 @@ class RecipeAPITest {
 
     @Test
     void negative_404_getPaginationTest() throws Exception {
-        Recipe[] testRecipes = {
-                new Recipe(
-                        "Gebrannte Mandeln",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Gebratene Cashewkerne",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
-                                new Ingredient(200, "Gramm", "Zucker")
-                        },
-                        "TestDescription",
-                        3,
-                        5,
-                        15
-                ),
-                new Recipe(
-                        "Toast Hawaii",
-                        new Ingredient[]{
-                                new Ingredient(500, "Gramm", "Schinken"),
-                                new Ingredient(10, "Scheiben", "Toastbrot"),
-                                new Ingredient(10, "Scheiben", "Ananas"),
-                                new Ingredient(10, "Scheiben", "Schmelzkäse")
-                        },
-                        "TestDescription",
-                        1,
-                        4,
-                        15
-                ),
-        };
-
-        recipeRepository.saveAll(Arrays.asList(testRecipes));
+        recipeRepository.saveAll(SampleSource.getSampleRecipes(3));
 
         mvc.perform(get("/recipes?page=15"))
                 .andExpect(status().isNotFound())
@@ -848,17 +482,20 @@ class RecipeAPITest {
     void negative_400_postTest() throws Exception {
         // Wrong title
 
-        Recipe testRecipe = new Recipe(
-                null,
+        RecipeRequest testRecipe = new RecipeRequest();
+        testRecipe.setTitle(null);
+        testRecipe.setIngredients(
                 new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                15
+                        new Ingredient(500, "Gramm", "Schinken"),
+                        new Ingredient(10, "Scheiben", "Toastbrot"),
+                        new Ingredient(10, "Scheiben", "Ananas"),
+                        new Ingredient(10, "Scheiben", "Schmelzkäse")
+                }
         );
+        testRecipe.setDescription("TestDescription");
+        testRecipe.setDifficulty(1);
+        testRecipe.setTime(30);
+        testRecipe.setImages(new UUID[]{});
 
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
@@ -873,14 +510,15 @@ class RecipeAPITest {
 
         // Wrong ingredients
 
-        testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                new Ingredient[0],
-                "TestDescription",
-                3,
-                5,
-                15
+        testRecipe = new RecipeRequest();
+        testRecipe.setTitle("Toast Hawaii");
+        testRecipe.setIngredients(
+                new Ingredient[]{}
         );
+        testRecipe.setDescription("TestDescription");
+        testRecipe.setDifficulty(1);
+        testRecipe.setTime(30);
+        testRecipe.setImages(new UUID[]{});
 
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
@@ -896,17 +534,20 @@ class RecipeAPITest {
         // Wrong difficulty
         // Too high
 
-        testRecipe = new Recipe(
-                "Gebrannte Mandeln",
+        testRecipe = new RecipeRequest();
+        testRecipe.setTitle("Toast Hawaii");
+        testRecipe.setIngredients(
                 new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3.1,
-                5,
-                15
+                        new Ingredient(500, "Gramm", "Schinken"),
+                        new Ingredient(10, "Scheiben", "Toastbrot"),
+                        new Ingredient(10, "Scheiben", "Ananas"),
+                        new Ingredient(10, "Scheiben", "Schmelzkäse")
+                }
         );
+        testRecipe.setDescription("TestDescription");
+        testRecipe.setDifficulty(3.1);
+        testRecipe.setTime(30);
+        testRecipe.setImages(new UUID[]{});
 
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
@@ -921,68 +562,20 @@ class RecipeAPITest {
 
         // Too low
 
-        testRecipe = new Recipe(
-                "Gebrannte Mandeln",
+        testRecipe = new RecipeRequest();
+        testRecipe.setTitle("Toast Hawaii");
+        testRecipe.setIngredients(
                 new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                0,
-                5,
-                15
+                        new Ingredient(500, "Gramm", "Schinken"),
+                        new Ingredient(10, "Scheiben", "Toastbrot"),
+                        new Ingredient(10, "Scheiben", "Ananas"),
+                        new Ingredient(10, "Scheiben", "Schmelzkäse")
+                }
         );
-
-        mvc.perform(post("/recipes")
-                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.error").isString())
-                .andExpect(jsonPath("$.path").value("/recipes"));
-
-        assertTrue(recipeRepository.findAll().isEmpty());
-
-        // Wrong rating
-        // Too high
-
-        testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5.2,
-                15
-        );
-
-        mvc.perform(post("/recipes")
-                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.error").isString())
-                .andExpect(jsonPath("$.path").value("/recipes"));
-
-        assertTrue(recipeRepository.findAll().isEmpty());
-
-        // Too low
-
-        testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                0,
-                15
-        );
+        testRecipe.setDescription("TestDescription");
+        testRecipe.setDifficulty(0);
+        testRecipe.setTime(30);
+        testRecipe.setImages(new UUID[]{});
 
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
@@ -997,42 +590,20 @@ class RecipeAPITest {
 
         // Wrong time
 
-        testRecipe = new Recipe(
-                "Gebrannte Mandeln",
+        testRecipe = new RecipeRequest();
+        testRecipe.setTitle("Toast Hawaii");
+        testRecipe.setIngredients(
                 new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                -1
+                        new Ingredient(500, "Gramm", "Schinken"),
+                        new Ingredient(10, "Scheiben", "Toastbrot"),
+                        new Ingredient(10, "Scheiben", "Ananas"),
+                        new Ingredient(10, "Scheiben", "Schmelzkäse")
+                }
         );
-
-        mvc.perform(post("/recipes")
-                        .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.error").isString())
-                .andExpect(jsonPath("$.path").value("/recipes"));
-
-        assertTrue(recipeRepository.findAll().isEmpty());
-
-        // Minimum Time is 0
-
-        testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                0
-        );
+        testRecipe.setDescription("TestDescription");
+        testRecipe.setDifficulty(1);
+        testRecipe.setTime(0);
+        testRecipe.setImages(new UUID[]{});
 
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
@@ -1047,18 +618,20 @@ class RecipeAPITest {
 
         // Non-existent image
 
-        testRecipe = new Recipe(
-                "Gebrannte Mandeln",
+        testRecipe = new RecipeRequest();
+        testRecipe.setTitle("Toast Hawaii");
+        testRecipe.setIngredients(
                 new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                0,
-                new UUID[]{UUID.randomUUID()}
+                        new Ingredient(500, "Gramm", "Schinken"),
+                        new Ingredient(10, "Scheiben", "Toastbrot"),
+                        new Ingredient(10, "Scheiben", "Ananas"),
+                        new Ingredient(10, "Scheiben", "Schmelzkäse")
+                }
         );
+        testRecipe.setDescription("TestDescription");
+        testRecipe.setDifficulty(1);
+        testRecipe.setTime(0);
+        testRecipe.setImages(new UUID[]{UUID.fromString(SampleSource.getSampleUUIDs().toList().get(0))});
 
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
@@ -1080,17 +653,20 @@ class RecipeAPITest {
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void negative_404_putTest() throws Exception {
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
+        RecipeRequest testRecipe = new RecipeRequest();
+        testRecipe.setTitle("Toast Hawaii");
+        testRecipe.setIngredients(
                 new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                15
+                        new Ingredient(500, "Gramm", "Schinken"),
+                        new Ingredient(10, "Scheiben", "Toastbrot"),
+                        new Ingredient(10, "Scheiben", "Ananas"),
+                        new Ingredient(10, "Scheiben", "Schmelzkäse")
+                }
         );
+        testRecipe.setDescription("TestDescription");
+        testRecipe.setDifficulty(1);
+        testRecipe.setTime(30);
+        testRecipe.setImages(new UUID[]{});
 
         mvc.perform(put("/recipes/someRandomID")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
@@ -1108,19 +684,8 @@ class RecipeAPITest {
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void negative_403_putTest() throws Exception {
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                "22ec6016-8b9b-11ed-a1eb-0242ac120002",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                15,
-                new UUID[]{}
-        );
+        Recipe testRecipe = SampleSource.getSampleRecipes().get(0);
+        testRecipe.setUserId("fffa5f32-c451-4f06-91e6-2857a8982eb5");
 
         recipeRepository.save(testRecipe);
 
@@ -1155,19 +720,8 @@ class RecipeAPITest {
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void negative_403_deleteTest() throws Exception {
-        Recipe testRecipe = new Recipe(
-                "Gebrannte Mandeln",
-                "22ec6016-8b9b-11ed-a1eb-0242ac120002",
-                new Ingredient[]{
-                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
-                        new Ingredient(200, "Gramm", "Zucker")
-                },
-                "TestDescription",
-                3,
-                5,
-                15,
-                new UUID[]{}
-        );
+        Recipe testRecipe = SampleSource.getSampleRecipes().get(0);
+        testRecipe.setUserId("22ec6016-8b9b-11ed-a1eb-0242ac120002");
 
         recipeRepository.save(testRecipe);
 
