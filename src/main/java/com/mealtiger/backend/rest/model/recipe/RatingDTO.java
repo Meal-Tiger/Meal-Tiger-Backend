@@ -10,6 +10,10 @@ public class RatingDTO {
     @Max(value = 5, message = "Maximum rating is 5!")
     private int ratingValue;
 
+    public void setRatingValue(int ratingValue) {
+        this.ratingValue = ratingValue;
+    }
+
     public int getRatingValue() {
         return ratingValue;
     }
