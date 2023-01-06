@@ -128,6 +128,25 @@ class RecipeDTOTest {
 
         assertFalse(validator.validate(noIngredients).isEmpty());
 
+        // WRONG INGREDIENTS
+
+        RecipeDTO wrongIngredients = new RecipeDTO();
+        wrongIngredients.setId("TestId");
+        wrongIngredients.setTitle("Test title");
+        wrongIngredients.setUserId(SAMPLE_USER_ID);
+        wrongIngredients.setIngredients(new Ingredient[]{
+                new Ingredient(0, "Units", "wrong ingredient"),
+                new Ingredient(-1, "Units", "Other not right ingredient")
+        });
+        wrongIngredients.setDescription("Test description");
+        wrongIngredients.setDifficulty(1);
+        wrongIngredients.setRating(5);
+        wrongIngredients.setTime(10);
+        wrongIngredients.setImages(new UUID[]{});
+
+        assertFalse(validator.validate(wrongIngredients).isEmpty());
+
+
         // INCORRECT TIME
 
         RecipeDTO incorrectTime = new RecipeDTO();
