@@ -3,8 +3,8 @@ package com.mealtiger.backend.rest.controller;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
-import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.database.repository.RecipeRepository;
+import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,8 +19,7 @@ import org.springframework.data.domain.Sort;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -171,5 +170,101 @@ class RecipeControllerTest {
         when(recipeRepository.existsById("B")).thenReturn(false);
         assertFalse(recipeController.deleteRecipe("B"));
         verify(recipeRepository, never()).deleteById("B");
+    }
+
+    // RATING TESTS
+
+    /**
+     * Tests the doesRatingExist method.
+     */
+    @Test
+    void doesRatingExistTest() {
+        Recipe mockRecipe = mock(Recipe.class);
+        when(mockRecipe.getRatings()).thenReturn(new Rating[]{
+                new Rating(4, SAMPLE_USER_ID)
+        });
+
+        when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
+        assertTrue(recipeController.doesRatingExist("A", SAMPLE_USER_ID));
+        verify(mockRecipe).getRatings();
+        assertFalse(recipeController.doesRatingExist("A", "a3e94848-3ee4-4200-a9ed-a7f00debe554"));
+        verify(mockRecipe, times(2)).getRatings();
+    }
+
+    /**
+     * Tests the addRating method
+     */
+    @Test
+    void addRatingTest() {
+        Recipe mockRecipe = mock(Recipe.class);
+        when(mockRecipe.getRatings()).thenReturn(new Rating[]{});
+
+        when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
+        recipeController.addRating("A", SAMPLE_USER_ID, 4);
+        verify(mockRecipe).getRatings();
+        verify(mockRecipe).setRatings(new Rating[]{new Rating(4, SAMPLE_USER_ID)});
+        verify(recipeRepository).save(mockRecipe);
+    }
+
+    /**
+     * Tests the updateRating method
+     */
+    @Test
+    void updateRatingTest() {
+        Recipe mockRecipe = spy(new Recipe(
+                "Test",
+                SAMPLE_USER_ID,
+                new Ingredient[]{
+                        new Ingredient(1, "Test", "Test")
+                },
+                "Description",
+                1.2,
+                new Rating[]{
+                        new Rating(4, SAMPLE_USER_ID)
+                },
+                15,
+                new UUID[]{}
+        ));
+
+        when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
+
+        recipeController.updateRating("A", SAMPLE_USER_ID, 1);
+        verify(mockRecipe, times(2)).getRatings();
+        verify(mockRecipe).setRatings(new Rating[]{});
+        verify(mockRecipe).setRatings(new Rating[]{new Rating(1, SAMPLE_USER_ID)});
+
+        verify(recipeRepository, times(2)).save(mockRecipe);
+
+        assertArrayEquals(new Rating[]{new Rating(1, SAMPLE_USER_ID)}, mockRecipe.getRatings());
+    }
+
+    /**
+     * Tests the deleteRating method
+     */
+    @Test
+    void deleteRatingTest() {
+        Recipe mockRecipe = spy(new Recipe(
+                "Test",
+                SAMPLE_USER_ID,
+                new Ingredient[]{
+                        new Ingredient(1, "Test", "Test")
+                },
+                "Description",
+                1.2,
+                new Rating[]{
+                        new Rating(4, SAMPLE_USER_ID)
+                },
+                15,
+                new UUID[]{}
+        ));
+
+        when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
+        recipeController.deleteRating("A", SAMPLE_USER_ID);
+
+        verify(mockRecipe).getRatings();
+        verify(mockRecipe).setRatings(new Rating[]{});
+        verify(recipeRepository).save(mockRecipe);
+
+        assertArrayEquals(new Rating[]{}, mockRecipe.getRatings());
     }
 }
