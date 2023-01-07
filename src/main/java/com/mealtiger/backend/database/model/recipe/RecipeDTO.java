@@ -2,6 +2,7 @@ package com.mealtiger.backend.database.model.recipe;
 
 import com.mealtiger.backend.database.model.image_metadata.validation.ImageExists;
 
+import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ public class RecipeDTO {
     private String userId;
     @NotEmpty
     @NotNull
+    @Valid
     private Ingredient[] ingredients;
     @NotBlank(message = "Recipe description is mandatory!")
     private String description;
@@ -101,5 +103,4 @@ public class RecipeDTO {
     public UUID[] getImages() {
         return images;
     }
-
 }
