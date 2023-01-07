@@ -140,6 +140,161 @@ public class SampleSource {
         );
     }
 
+    public static List<Recipe> getSampleRecipesWithRatings() {
+        return List.of(
+                new Recipe(
+                        "Gebrannte Mandeln",
+                        SAMPLE_USER_ID,
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        new Rating[]{
+                                new Rating(4, SAMPLE_USER_ID),
+                                new Rating(3, SAMPLE_USER_ID)
+                        },
+                        15,
+                        new UUID[]{}
+                ),
+                new Recipe(
+                        "Gebratene Cashewkerne",
+                        SAMPLE_USER_ID,
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        new Rating[]{
+                                new Rating(1, SAMPLE_USER_ID),
+                        },
+                        15,
+                        new UUID[]{UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()}
+                ),
+                new Recipe(
+                        "Toast Hawaii",
+                        SAMPLE_USER_ID,
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Schinken"),
+                                new Ingredient(10, "Scheiben", "Toastbrot"),
+                                new Ingredient(10, "Scheiben", "Ananas"),
+                                new Ingredient(10, "Scheiben", "Schmelzkäse")
+                        },
+                        "TestDescription",
+                        1,
+                        new Rating[]{
+                                new Rating(2, SAMPLE_USER_ID),
+                                new Rating(5, SAMPLE_USER_ID)
+                        },
+                        15,
+                        new UUID[]{}
+                ),
+                new Recipe(
+                        "Gebrannte Mandeln",
+                        SAMPLE_USER_ID,
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        new Rating[]{
+                                new Rating(1, SAMPLE_USER_ID),
+                                new Rating(3, SAMPLE_USER_ID),
+                                new Rating(5, SAMPLE_USER_ID)
+                        },
+                        15,
+                        new UUID[]{}
+                ),
+                new Recipe(
+                        "Gebratene Cashewkerne",
+                        SAMPLE_USER_ID,
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        new Rating[]{
+                                new Rating(4, SAMPLE_USER_ID),
+                                new Rating(3, SAMPLE_USER_ID)
+                        },
+                        15,
+                        new UUID[]{UUID.randomUUID(), UUID.randomUUID()}
+                ),
+                new Recipe(
+                        "Toast Hawaii",
+                        SAMPLE_USER_ID,
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Schinken"),
+                                new Ingredient(10, "Scheiben", "Toastbrot"),
+                                new Ingredient(10, "Scheiben", "Ananas"),
+                                new Ingredient(10, "Scheiben", "Schmelzkäse")
+                        },
+                        "TestDescription",
+                        1,
+                        new Rating[]{
+                                new Rating(2, SAMPLE_USER_ID),
+                                new Rating(1, SAMPLE_USER_ID)
+                        },
+                        15,
+                        new UUID[]{}
+                ),
+                new Recipe(
+                        "Gebrannte Mandeln",
+                        SAMPLE_USER_ID,
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        new Rating[]{
+                                new Rating(3, SAMPLE_USER_ID),
+                                new Rating(1, SAMPLE_USER_ID)
+                        },
+                        15,
+                        new UUID[]{}
+                ),
+                new Recipe(
+                        "Gebratene Cashewkerne",
+                        SAMPLE_USER_ID,
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
+                                new Ingredient(200, "Gramm", "Zucker")
+                        },
+                        "TestDescription",
+                        3,
+                        new Rating[]{
+                                new Rating(3, SAMPLE_USER_ID),
+                                new Rating(2, SAMPLE_USER_ID),
+                                new Rating(1, SAMPLE_USER_ID)
+                        },
+                        15,
+                        new UUID[]{UUID.randomUUID()}
+                ),
+                new Recipe(
+                        "Toast Hawaii",
+                        SAMPLE_USER_ID,
+                        new Ingredient[]{
+                                new Ingredient(500, "Gramm", "Schinken"),
+                                new Ingredient(10, "Scheiben", "Toastbrot"),
+                                new Ingredient(10, "Scheiben", "Ananas"),
+                                new Ingredient(10, "Scheiben", "Schmelzkäse")
+                        },
+                        "TestDescription",
+                        1,
+                        new Rating[]{
+                                new Rating(4, SAMPLE_USER_ID)
+                        },
+                        15,
+                        new UUID[]{}
+                )
+        );
+    }
+
     public static List<Recipe> getSampleRecipes(int amount) {
         return getSampleRecipes().subList(0, amount);
     }
