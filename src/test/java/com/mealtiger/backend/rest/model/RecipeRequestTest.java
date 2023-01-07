@@ -84,6 +84,61 @@ class RecipeRequestTest {
 
         assertFalse(validator.validate(noIngredients).isEmpty());
 
+        // WRONG INGREDIENTS amount
+
+        RecipeDTO wrongIngredientsamount = new RecipeDTO();
+        wrongIngredientsamount.setId("TestId");
+        wrongIngredientsamount.setTitle("Test title");
+        wrongIngredientsamount.setUserId(SAMPLE_USER_ID);
+        wrongIngredientsamount.setIngredients(new Ingredient[]{
+                new Ingredient(0, "Units", "wrong ingredient"),
+                new Ingredient(-1, "Units", "Other not right ingredient")
+        });
+        wrongIngredientsamount.setDescription("Test description");
+        wrongIngredientsamount.setDifficulty(1);
+        wrongIngredientsamount.setRating(5);
+        wrongIngredientsamount.setTime(10);
+        wrongIngredientsamount.setImages(new UUID[]{});
+
+        assertFalse(validator.validate(wrongIngredientsamount).isEmpty());
+
+        // WRONG INGREDIENTS unit
+
+        RecipeDTO wrongIngredientsunit = new RecipeDTO();
+        wrongIngredientsunit.setId("TestId");
+        wrongIngredientsunit.setTitle("Test title");
+        wrongIngredientsunit.setUserId(SAMPLE_USER_ID);
+        wrongIngredientsunit.setIngredients(new Ingredient[]{
+                new Ingredient(12, "Units", ""),
+                new Ingredient(31, "Units", "")
+        });
+        wrongIngredientsunit.setDescription("Test description");
+        wrongIngredientsunit.setDifficulty(1);
+        wrongIngredientsunit.setRating(5);
+        wrongIngredientsunit.setTime(10);
+        wrongIngredientsunit.setImages(new UUID[]{});
+
+        assertFalse(validator.validate(wrongIngredientsunit).isEmpty());
+
+        // WRONG INGREDIENTS name
+
+        RecipeDTO wrongIngredientsname = new RecipeDTO();
+        wrongIngredientsname.setId("TestId");
+        wrongIngredientsname.setTitle("Test title");
+        wrongIngredientsname.setUserId(SAMPLE_USER_ID);
+        wrongIngredientsname.setIngredients(new Ingredient[]{
+                new Ingredient(10, "Units", ""),
+                new Ingredient(31, "Units", "")
+        });
+        wrongIngredientsname.setDescription("Test description");
+        wrongIngredientsname.setDifficulty(1);
+        wrongIngredientsname.setRating(5);
+        wrongIngredientsname.setTime(10);
+        wrongIngredientsname.setImages(new UUID[]{});
+
+        assertFalse(validator.validate(wrongIngredientsname).isEmpty());
+
+
         // INCORRECT TIME
 
         RecipeRequest incorrectTime = new RecipeRequest();
