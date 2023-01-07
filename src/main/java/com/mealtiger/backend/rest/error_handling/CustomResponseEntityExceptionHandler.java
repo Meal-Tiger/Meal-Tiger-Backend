@@ -150,7 +150,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
                         uri
                 );
 
-        return handleExceptionInternal(e, errorMessage, headers, HttpStatus.BAD_REQUEST, request);
+        return handleExceptionInternal(e, errorMessage, headers, HttpStatus.FORBIDDEN, request);
     }
 
     // HELPER METHOD
