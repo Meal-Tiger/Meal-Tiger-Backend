@@ -96,7 +96,7 @@ public class RecipeController {
     public RecipeResponse getRecipe(String id) {
         log.trace("Getting recipe with id {} from repository.", id);
         Recipe recipe = getRecipeFromRepository(id);
-        return recipe != null ? recipe.toResponse(): null;
+        return recipe.toResponse();
     }
 
     /**
