@@ -4,7 +4,6 @@ import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -48,7 +47,6 @@ class RecipeTest {
         assertArrayEquals(recipe.getIngredients(), recipeResponse.getIngredients());
         assertEquals(recipe.getDescription(), recipeResponse.getDescription());
         assertEquals(recipe.getDifficulty(), recipeResponse.getDifficulty());
-        assertEquals(Arrays.stream(recipe.getRatings()).mapToDouble(Rating::getRatingValue).average().orElse(0), recipeResponse.getRating());
         assertEquals(recipe.getTime(), recipeResponse.getTime());
         assertArrayEquals(recipe.getImages(), recipeResponse.getImages());
 
@@ -75,7 +73,6 @@ class RecipeTest {
         assertArrayEquals(recipe.getIngredients(), recipeResponse.getIngredients());
         assertEquals(recipe.getDescription(), recipeResponse.getDescription());
         assertEquals(recipe.getDifficulty(), recipeResponse.getDifficulty());
-        assertEquals(3, recipeResponse.getRating());
         assertEquals(recipe.getTime(), recipeResponse.getTime());
         assertArrayEquals(recipe.getImages(), recipeResponse.getImages());
 
@@ -102,7 +99,6 @@ class RecipeTest {
         assertArrayEquals(recipe.getIngredients(), recipeResponse.getIngredients());
         assertEquals(recipe.getDescription(), recipeResponse.getDescription());
         assertEquals(recipe.getDifficulty(), recipeResponse.getDifficulty());
-        assertEquals(3, recipeResponse.getRating());
         assertEquals(recipe.getTime(), recipeResponse.getTime());
         assertArrayEquals(recipe.getImages(), recipeResponse.getImages());
     }
@@ -114,7 +110,6 @@ class RecipeTest {
     void convertFromRequest() {
         RecipeRequest recipeRequest = new RecipeRequest();
         recipeRequest.setTitle("Gebrannte Mandeln");
-        recipeRequest.setUserId(SAMPLE_USER_ID);
         recipeRequest.setIngredients(new Ingredient[]{
                 new Ingredient(500, "Gramm", "Mandeln, geschält"),
                 new Ingredient(200, "Gramm", "Zucker")
@@ -127,7 +122,6 @@ class RecipeTest {
         Recipe recipe = Recipe.fromRequest(recipeRequest);
 
         assertEquals(recipeRequest.getTitle(), recipe.getTitle());
-        assertEquals(recipeRequest.getUserId(), recipe.getUserId());
         assertArrayEquals(recipeRequest.getIngredients(), recipe.getIngredients());
         assertEquals(recipeRequest.getDescription(), recipe.getDescription());
         assertEquals(recipeRequest.getDifficulty(), recipe.getDifficulty());

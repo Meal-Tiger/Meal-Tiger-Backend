@@ -10,8 +10,6 @@ public class RecipeRequest {
 
     @NotBlank(message = "Recipe title is mandatory!")
     private String title;
-    @Null
-    private String userId;
     @NotEmpty
     @NotNull
     private Ingredient[] ingredients;
@@ -28,10 +26,6 @@ public class RecipeRequest {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public void setIngredients(Ingredient[] ingredients) {
@@ -72,10 +66,6 @@ public class RecipeRequest {
 
     public String getTitle() {
         return title;
-    }
-
-    public String getUserId() {
-        return userId;
     }
 
     public UUID[] getImages() {

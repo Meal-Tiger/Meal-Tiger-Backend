@@ -2,6 +2,7 @@ package com.mealtiger.backend.rest.error_handling;
 
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
 import com.mealtiger.backend.rest.error_handling.exceptions.InvalidRequestFormatException;
+import com.mealtiger.backend.rest.error_handling.exceptions.RatingOwnRecipeException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -124,6 +125,27 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
                 ) :
                 createErrorMessage(
                         400,
+                        e.getMessage(),
+                        uri
+                );
+
+        return handleExceptionInternal(e, errorMessage, headers, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = { RatingOwnRecipeException.class })
+    protected ResponseEntity<Object> handleRatingOwnRecipe(RuntimeException e, WebRequest request) {
+        String uri = getRequestURI(request);
+
+        HttpHeaders headers = HttpHeaders.EMPTY;
+
+        Map<String, String> errorMessage = e.getMessage() == null ?
+                createErrorMessage(
+                        403,
+                        "You may not rate your own recipe!",
+                        uri
+                ) :
+                createErrorMessage(
+                        403,
                         e.getMessage(),
                         uri
                 );

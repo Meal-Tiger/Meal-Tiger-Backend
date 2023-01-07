@@ -4,6 +4,7 @@ import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.database.repository.RecipeRepository;
+import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
 import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,10 +13,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -56,7 +59,6 @@ class RecipeControllerTest {
     static void setup() {
         SAMPLE_RECIPE.setId("TestId");
         SAMPLE_RECIPE_DTO.setTitle("Test title");
-        SAMPLE_RECIPE_DTO.setUserId(SAMPLE_USER_ID);
         SAMPLE_RECIPE_DTO.setIngredients(new Ingredient[]{
                 new Ingredient(10, "Units", "Test ingredient"),
                 new Ingredient(25, "Units", "Other test ingredient")
@@ -79,6 +81,9 @@ class RecipeControllerTest {
     @Test
     void getRecipePageTest() {
         Pageable paging = PageRequest.of(1, 5, Sort.by(Sort.Direction.DESC, "title"));
+        when(recipeRepository.findAll(paging)).thenReturn(new PageImpl<>(List.of(
+                SAMPLE_RECIPE
+        ), paging, 1));
 
         recipeController.getRecipePage(1, 5, "title");
 
@@ -91,6 +96,9 @@ class RecipeControllerTest {
     @Test
     void getRecipePageByTitleQueryTest() {
         Pageable paging = PageRequest.of(1, 5, Sort.by(Sort.Direction.DESC, "title"));
+        when(recipeRepository.findRecipesByTitleContainingIgnoreCase("query", paging)).thenReturn(new PageImpl<>(List.of(
+                SAMPLE_RECIPE
+        ), paging, 1));
 
         recipeController.getRecipePageByTitleQuery(1, 5, "title", "query");
 
@@ -103,7 +111,7 @@ class RecipeControllerTest {
      */
     @Test
     void saveRecipeTest() {
-        recipeController.saveRecipe(SAMPLE_RECIPE_DTO);
+        recipeController.saveRecipe(SAMPLE_RECIPE_DTO, SAMPLE_USER_ID);
         verify(recipeRepository).save(any());
     }
 
@@ -164,11 +172,11 @@ class RecipeControllerTest {
     @Test
     void deleteRecipeTest() {
         when(recipeRepository.existsById("A")).thenReturn(true);
-        assertTrue(recipeController.deleteRecipe("A"));
+        assertDoesNotThrow(() -> recipeController.deleteRecipe("A"));
         verify(recipeRepository).deleteById("A");
 
         when(recipeRepository.existsById("B")).thenReturn(false);
-        assertFalse(recipeController.deleteRecipe("B"));
+        assertThrows(EntityNotFoundException.class, () -> recipeController.deleteRecipe("B"));
         verify(recipeRepository, never()).deleteById("B");
     }
 
@@ -196,13 +204,23 @@ class RecipeControllerTest {
      */
     @Test
     void addRatingTest() {
-        Recipe mockRecipe = mock(Recipe.class);
-        when(mockRecipe.getRatings()).thenReturn(new Rating[]{});
+        Recipe mockRecipe = spy(new Recipe(
+                "Test",
+                SAMPLE_USER_ID,
+                new Ingredient[]{
+                        new Ingredient(1, "Test", "Test")
+                },
+                "Description",
+                1.2,
+                new Rating[]{},
+                15,
+                new UUID[]{}
+        ));
 
         when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
-        recipeController.addRating("A", SAMPLE_USER_ID, 4);
+        recipeController.addRating("A", "e9add05b-0e50-4be9-bc00-f3ff870d51a6", 4);
         verify(mockRecipe).getRatings();
-        verify(mockRecipe).setRatings(new Rating[]{new Rating(4, SAMPLE_USER_ID)});
+        verify(mockRecipe).setRatings(new Rating[]{new Rating(4, "e9add05b-0e50-4be9-bc00-f3ff870d51a6")});
         verify(recipeRepository).save(mockRecipe);
     }
 
@@ -220,7 +238,7 @@ class RecipeControllerTest {
                 "Description",
                 1.2,
                 new Rating[]{
-                        new Rating(4, SAMPLE_USER_ID)
+                        new Rating(4, "e9add05b-0e50-4be9-bc00-f3ff870d51a6")
                 },
                 15,
                 new UUID[]{}
@@ -228,14 +246,14 @@ class RecipeControllerTest {
 
         when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
 
-        recipeController.updateRating("A", SAMPLE_USER_ID, 1);
-        verify(mockRecipe, times(2)).getRatings();
+        recipeController.updateRating("A", "e9add05b-0e50-4be9-bc00-f3ff870d51a6", 1);
+        verify(mockRecipe, times(3)).getRatings();
         verify(mockRecipe).setRatings(new Rating[]{});
-        verify(mockRecipe).setRatings(new Rating[]{new Rating(1, SAMPLE_USER_ID)});
+        verify(mockRecipe).setRatings(new Rating[]{new Rating(1, "e9add05b-0e50-4be9-bc00-f3ff870d51a6")});
 
         verify(recipeRepository, times(2)).save(mockRecipe);
 
-        assertArrayEquals(new Rating[]{new Rating(1, SAMPLE_USER_ID)}, mockRecipe.getRatings());
+        assertArrayEquals(new Rating[]{new Rating(1, "e9add05b-0e50-4be9-bc00-f3ff870d51a6")}, mockRecipe.getRatings());
     }
 
     /**
@@ -261,7 +279,7 @@ class RecipeControllerTest {
         when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
         recipeController.deleteRating("A", SAMPLE_USER_ID);
 
-        verify(mockRecipe).getRatings();
+        verify(mockRecipe, times(2)).getRatings();
         verify(mockRecipe).setRatings(new Rating[]{});
         verify(recipeRepository).save(mockRecipe);
 

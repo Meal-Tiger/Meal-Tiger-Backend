@@ -12,18 +12,16 @@ public class RecipeResponse {
     private final Ingredient[] ingredients;
     private final String description;
     private final double difficulty;
-    private final double rating;
     private final int time;
     private final UUID[] images;
 
-    public RecipeResponse(String id, String title, String userId, Ingredient[] ingredients, String description, double difficulty, double rating, int time, UUID[] images) {
+    public RecipeResponse(String id, String title, String userId, Ingredient[] ingredients, String description, double difficulty, int time, UUID[] images) {
         this.id = id;
         this.title = title;
         this.userId = userId;
         this.ingredients = ingredients;
         this.description = description;
         this.difficulty = difficulty;
-        this.rating = rating;
         this.time = time;
         this.images = images;
     }
@@ -50,10 +48,6 @@ public class RecipeResponse {
 
     public double getDifficulty() {
         return difficulty;
-    }
-
-    public double getRating() {
-        return rating;
     }
 
     public int getTime() {

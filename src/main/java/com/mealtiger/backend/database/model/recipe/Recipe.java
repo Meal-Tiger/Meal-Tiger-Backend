@@ -190,7 +190,6 @@ public class Recipe {
                 this.getIngredients(),
                 this.getDescription(),
                 this.getDifficulty(),
-                this.getAverageRating(),
                 this.getTime(),
                 this.getImages()
         );
@@ -199,7 +198,7 @@ public class Recipe {
     public static Recipe fromRequest(RecipeRequest recipeRequest) {
         return new Recipe(
                 recipeRequest.getTitle(),
-                recipeRequest.getUserId(),
+                null,
                 recipeRequest.getIngredients(),
                 recipeRequest.getDescription(),
                 recipeRequest.getDifficulty(),

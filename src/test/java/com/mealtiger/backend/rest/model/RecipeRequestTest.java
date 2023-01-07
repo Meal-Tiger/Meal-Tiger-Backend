@@ -44,22 +44,6 @@ class RecipeRequestTest {
 
         assertTrue(validator.validate(recipeRequest).isEmpty());
 
-        // USERID SET
-
-        recipeRequest = new RecipeRequest();
-        recipeRequest.setTitle("Test title");
-        recipeRequest.setUserId(SAMPLE_USER_ID);
-        recipeRequest.setIngredients(new Ingredient[]{
-                new Ingredient(10, "Units", "Test ingredient"),
-                new Ingredient(25, "Units", "Other test ingredient")
-        });
-        recipeRequest.setDescription("Test description");
-        recipeRequest.setDifficulty(1.2);
-        recipeRequest.setTime(10);
-        recipeRequest.setImages(new UUID[]{});
-
-        assertFalse(validator.validate(recipeRequest).isEmpty());
-
         // INCORRECT DIFFICULTY
 
         RecipeRequest incorrectDifficultyTooHigh = new RecipeRequest();

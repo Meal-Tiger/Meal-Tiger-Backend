@@ -4,7 +4,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
 @SuppressWarnings("unused")
-public class RatingDTO {
+public class RatingRequest {
 
     @Min(value = 1, message = "Minimum rating is 1!")
     @Max(value = 5, message = "Maximum rating is 5!")

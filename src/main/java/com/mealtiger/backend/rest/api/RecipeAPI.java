@@ -1,10 +1,8 @@
 package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.configuration.Configurator;
-import com.mealtiger.backend.rest.model.recipe.RatingDTO;
 import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.rest.controller.RecipeController;
-import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
 import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,9 +65,6 @@ public class RecipeAPI {
             returnValue = recipeController.getRecipePage(page, size, sort);
         }
 
-        if (returnValue == null) {
-            throw new EntityNotFoundException("No recipes in database yet for requested page!");
-        }
         return ResponseEntity.ok(returnValue);
     }
 
@@ -85,9 +80,7 @@ public class RecipeAPI {
         log.debug("Recipe posted: {}", recipeRequest);
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        recipeRequest.setUserId(userId);
-
-        recipeController.saveRecipe(recipeRequest);
+        recipeController.saveRecipe(recipeRequest, userId);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -104,9 +97,6 @@ public class RecipeAPI {
 
         RecipeResponse returnValue = recipeController.getRecipe(id);
 
-        if (returnValue == null) {
-            throw new EntityNotFoundException("Recipe " + id + " does not exist!");
-        }
         return ResponseEntity.ok(returnValue);
     }
 
@@ -121,10 +111,6 @@ public class RecipeAPI {
     public ResponseEntity<String> replaceRecipe(@PathVariable(value = "id") String id, @RequestBody RecipeRequest recipeRequest) {
         log.debug("Editing recipe with id {}!", id);
 
-        if (!recipeController.doesRecipeExist(id)) {
-            throw new EntityNotFoundException("Recipe " + id + " does not exist!");
-        }
-
         String adminRole = configurator.getString("Authentication.OIDC.adminRole");
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -134,11 +120,8 @@ public class RecipeAPI {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        if (recipeController.replaceRecipe(id, recipeRequest)) {
-            return ResponseEntity.noContent().build();
-        } else {
-            throw new EntityNotFoundException("Recipe " + id + " does not exist!");
-        }
+        recipeController.replaceRecipe(id, recipeRequest);
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -151,10 +134,6 @@ public class RecipeAPI {
     public ResponseEntity<Void> deleteRecipe(@PathVariable(value = "id") String id) {
         log.debug("Deleting recipe with id {}!", id);
 
-        if (!recipeController.doesRecipeExist(id)) {
-            throw new EntityNotFoundException("Recipe " + id + " does not exist!");
-        }
-
         String adminRole = configurator.getString("Authentication.OIDC.adminRole");
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -164,64 +143,7 @@ public class RecipeAPI {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        if (recipeController.deleteRecipe(id)) {
-            return ResponseEntity.noContent().build();
-        } else {
-            throw new EntityNotFoundException("Recipe " + id + " does not exist!");
-        }
-    }
-
-    @PostMapping("/recipes/{id}/rating")
-    public ResponseEntity<Void> postRating(@PathVariable(value = "id") String id, @Valid @RequestBody RatingDTO rating) {
-        if (!recipeController.doesRecipeExist(id)) {
-            throw new EntityNotFoundException("Recipe " + id + "does not exist!");
-        }
-
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        if (recipeController.isUserRecipeOwner(id, userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        recipeController.addRating(id, userId, rating.getRatingValue());
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @PutMapping("/recipe/{id}/rating")
-    public ResponseEntity<Void> putRating(@PathVariable(value = "id") String id, @Valid @RequestBody RatingDTO rating) {
-        if (!recipeController.doesRecipeExist(id)) {
-            throw new EntityNotFoundException("Recipe " + id + "does not exist!");
-        }
-
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        if (recipeController.isUserRecipeOwner(id, userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        if (recipeController.doesRatingExist(id, userId)) {
-            recipeController.updateRating(id, userId, rating.getRatingValue());
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } else {
-            recipeController.addRating(id, userId, rating.getRatingValue());
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        }
-    }
-
-    @DeleteMapping("/recipe/{id}/rating")
-    public ResponseEntity<Void> deleteRating(@PathVariable(value = "id") String id) {
-        if (!recipeController.doesRecipeExist(id)) {
-            throw new EntityNotFoundException("Recipe " + id + " does not exist!");
-        }
-
-        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        if (!recipeController.doesRatingExist(id, userId)) {
-            throw new EntityNotFoundException("Rating for recipe " + id + " does not exist!");
-        }
-
-        recipeController.deleteRating(id, userId);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        recipeController.deleteRecipe(id);
+        return ResponseEntity.noContent().build();
     }
 }
