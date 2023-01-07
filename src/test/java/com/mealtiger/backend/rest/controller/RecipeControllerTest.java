@@ -5,6 +5,7 @@ import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.database.repository.RecipeRepository;
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
+import com.mealtiger.backend.rest.error_handling.exceptions.RatingOwnRecipeException;
 import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -200,6 +202,58 @@ class RecipeControllerTest {
     }
 
     /**
+     * Tests the getRatings method
+     */
+    @Test
+    void getRatingsTest() {
+        Recipe mockRecipe = mock(Recipe.class);
+        when(mockRecipe.getRatings()).thenReturn(new Rating[]{
+                new Rating(4, SAMPLE_USER_ID)
+        });
+
+        when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
+
+        Map<String, Object> returnValue = recipeController.getRatings("A", 1, 5);
+        verify(recipeRepository).findById("A");
+        verify(mockRecipe).getRatings();
+
+        assertTrue(returnValue.containsKey("ratings"));
+        assertTrue(returnValue.containsKey("totalPages"));
+        assertTrue(returnValue.containsKey("totalItems"));
+        assertTrue(returnValue.containsKey("currentPage"));
+
+        assertTrue(returnValue.get("ratings") instanceof List);
+    }
+
+    /**
+     * Tests getAverageRating method
+     */
+    @Test
+    void getAverageRatingTest() {
+        Recipe mockRecipe = mock(Recipe.class);
+        when(mockRecipe.getRatings()).thenReturn(new Rating[]{
+                new Rating(4, SAMPLE_USER_ID)
+        });
+
+        when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
+
+        double returnValue = recipeController.getAverageRating("A").getRatingValue();
+        verify(recipeRepository).findById("A");
+        verify(mockRecipe).getRatings();
+
+        assertEquals(4.0, returnValue, 0.01);
+
+        when(mockRecipe.getRatings()).thenReturn(new Rating[]{
+                new Rating(4, SAMPLE_USER_ID),
+                new Rating(2, SAMPLE_USER_ID)
+        });
+
+        returnValue = recipeController.getAverageRating("A").getRatingValue();
+
+        assertEquals(3.0, returnValue, 0.01);
+    }
+
+    /**
      * Tests the addRating method
      */
     @Test
@@ -222,6 +276,8 @@ class RecipeControllerTest {
         verify(mockRecipe).getRatings();
         verify(mockRecipe).setRatings(new Rating[]{new Rating(4, "e9add05b-0e50-4be9-bc00-f3ff870d51a6")});
         verify(recipeRepository).save(mockRecipe);
+
+        assertThrows(RatingOwnRecipeException.class, () -> recipeController.addRating("A", SAMPLE_USER_ID, 5));
     }
 
     /**
@@ -284,5 +340,7 @@ class RecipeControllerTest {
         verify(recipeRepository).save(mockRecipe);
 
         assertArrayEquals(new Rating[]{}, mockRecipe.getRatings());
+
+        assertThrows(EntityNotFoundException.class, () -> recipeController.deleteRating("A", SAMPLE_USER_ID));
     }
 }
