@@ -55,7 +55,7 @@ public class RatingAPI {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PutMapping("/recipe/{id}/ratings")
+    @PutMapping("/recipes/{id}/ratings")
     public ResponseEntity<Void> putRating(@PathVariable(value = "id") String id, @Valid @RequestBody RatingRequest rating) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -63,7 +63,7 @@ public class RatingAPI {
 
         if (recipeController.doesRatingExist(id, userId)) {
             recipeController.updateRating(id, userId, rating.getRatingValue());
-            return ResponseEntity.status(HttpStatus.OK).build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {
             log.trace("Rating by {} on {} does not exist yet! Trying to create one instead!", userId, id);
             recipeController.addRating(id, userId, rating.getRatingValue());
@@ -71,7 +71,7 @@ public class RatingAPI {
         }
     }
 
-    @DeleteMapping("/recipe/{id}/ratings")
+    @DeleteMapping("/recipes/{id}/ratings")
     public ResponseEntity<Void> deleteRating(@PathVariable(value = "id") String id) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
