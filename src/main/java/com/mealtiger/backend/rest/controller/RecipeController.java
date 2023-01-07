@@ -181,7 +181,7 @@ public class RecipeController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Rating> ratingPage = new PageImpl<>(List.of(ratings), pageable, ratings.length);
 
-        return assemblePaginatedResult(ratingPage, "rating");
+        return assemblePaginatedResult(ratingPage, "ratings");
     }
 
     public RatingResponse getAverageRating(String recipeId) {
