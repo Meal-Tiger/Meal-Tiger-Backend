@@ -1,9 +1,9 @@
 package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.configuration.Configurator;
-import com.mealtiger.backend.database.model.recipe.RecipeDTO;
+import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.rest.controller.RecipeController;
-import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
+import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -65,9 +65,6 @@ public class RecipeAPI {
             returnValue = recipeController.getRecipePage(page, size, sort);
         }
 
-        if (returnValue == null) {
-            throw new EntityNotFoundException("No recipes in database yet for requested page!");
-        }
         return ResponseEntity.ok(returnValue);
     }
 
@@ -75,22 +72,15 @@ public class RecipeAPI {
     /**
      * User adds a recipe to database.
      *
-     * @param recipeDTO Recipe to add.
+     * @param recipeRequest Recipe to add.
      *               HTTP Status 200 if adding recipe was successful, HTTP Status 500 on error/exception.
      */
     @PostMapping("/recipes")
-    public ResponseEntity<String> postRecipe(@Valid @RequestBody RecipeDTO recipeDTO) {
-        log.debug("Recipe posted: {}", recipeDTO);
-
-        if (recipeDTO.getId() != null) {
-            log.debug("Replacing user given id with null!");
-            recipeDTO.setId(null);
-        }
+    public ResponseEntity<String> postRecipe(@Valid @RequestBody RecipeRequest recipeRequest) {
+        log.debug("Recipe posted: {}", recipeRequest);
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        recipeDTO.setUserId(userId);
-
-        recipeController.saveRecipe(recipeDTO);
+        recipeController.saveRecipe(recipeRequest, userId);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -102,14 +92,11 @@ public class RecipeAPI {
      * @return HTTP Status 200 if getting recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
     @GetMapping("/recipes/{id}")
-    public ResponseEntity<RecipeDTO> getSingleRecipe(@PathVariable(value = "id") String id) {
+    public ResponseEntity<RecipeResponse> getSingleRecipe(@PathVariable(value = "id") String id) {
         log.debug("Getting recipe with id {}!", id);
 
-        RecipeDTO returnValue = recipeController.getRecipe(id);
+        RecipeResponse returnValue = recipeController.getRecipe(id);
 
-        if (returnValue == null) {
-            throw new EntityNotFoundException("Recipe " + id + " does not exist!");
-        }
         return ResponseEntity.ok(returnValue);
     }
 
@@ -117,16 +104,12 @@ public class RecipeAPI {
      * Replaces recipe in database with user-given recipe.
      *
      * @param id     ID of the recipe to be replaced.
-     * @param recipeDTO Recipe to replace the old recipe.
+     * @param recipeRequest Recipe to replace the old recipe.
      * @return HTTP Status 200 if replacing recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
     @PutMapping("/recipes/{id}")
-    public ResponseEntity<String> replaceRecipe(@PathVariable(value = "id") String id, @RequestBody RecipeDTO recipeDTO) {
+    public ResponseEntity<String> replaceRecipe(@PathVariable(value = "id") String id, @RequestBody RecipeRequest recipeRequest) {
         log.debug("Editing recipe with id {}!", id);
-
-        if (!recipeController.doesRecipeExist(id)) {
-            throw new EntityNotFoundException("Recipe " + id + " does not exist!");
-        }
 
         String adminRole = configurator.getString("Authentication.OIDC.adminRole");
 
@@ -137,11 +120,8 @@ public class RecipeAPI {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        if (recipeController.replaceRecipe(id, recipeDTO)) {
-            return ResponseEntity.noContent().build();
-        } else {
-            throw new EntityNotFoundException("Recipe " + id + " does not exist!");
-        }
+        recipeController.replaceRecipe(id, recipeRequest);
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -154,10 +134,6 @@ public class RecipeAPI {
     public ResponseEntity<Void> deleteRecipe(@PathVariable(value = "id") String id) {
         log.debug("Deleting recipe with id {}!", id);
 
-        if (!recipeController.doesRecipeExist(id)) {
-            throw new EntityNotFoundException("Recipe " + id + " does not exist!");
-        }
-
         String adminRole = configurator.getString("Authentication.OIDC.adminRole");
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -167,10 +143,7 @@ public class RecipeAPI {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        if (recipeController.deleteRecipe(id)) {
-            return ResponseEntity.noContent().build();
-        } else {
-            throw new EntityNotFoundException("Recipe " + id + " does not exist!");
-        }
+        recipeController.deleteRecipe(id);
+        return ResponseEntity.noContent().build();
     }
 }

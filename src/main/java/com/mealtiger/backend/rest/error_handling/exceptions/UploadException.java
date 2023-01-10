@@ -1,4 +1,4 @@
-package com.mealtiger.backend.rest.exceptions;
+package com.mealtiger.backend.rest.error_handling.exceptions;
 
 /**
  * @author Lucca Greschner
