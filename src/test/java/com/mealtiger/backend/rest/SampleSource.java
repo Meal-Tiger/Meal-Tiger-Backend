@@ -152,8 +152,8 @@ public class SampleSource {
                         "TestDescription",
                         3,
                         new Rating[]{
-                                new Rating(4, SAMPLE_USER_ID),
-                                new Rating(3, SAMPLE_USER_ID)
+                                new Rating(4, "Pretty tasty - but too much sugar.", SAMPLE_USER_ID),
+                                new Rating(3, "I'm allergic...", SAMPLE_USER_ID)
                         },
                         15,
                         new UUID[]{}
@@ -168,7 +168,8 @@ public class SampleSource {
                         "TestDescription",
                         3,
                         new Rating[]{
-                                new Rating(1, SAMPLE_USER_ID),
+                                new Rating(1, "Did you know that cashew shells are actually poisonous. " +
+                                        "Thus workers are harmed when peeling them. Please, use other nuts!", SAMPLE_USER_ID),
                         },
                         15,
                         new UUID[]{UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()}
@@ -185,8 +186,8 @@ public class SampleSource {
                         "TestDescription",
                         1,
                         new Rating[]{
-                                new Rating(2, SAMPLE_USER_ID),
-                                new Rating(5, SAMPLE_USER_ID)
+                                new Rating(2, "Way too much for one person!", SAMPLE_USER_ID),
+                                new Rating(5, "Could be more, but really tasty!", SAMPLE_USER_ID)
                         },
                         15,
                         new UUID[]{}
@@ -201,9 +202,9 @@ public class SampleSource {
                         "TestDescription",
                         3,
                         new Rating[]{
-                                new Rating(1, SAMPLE_USER_ID),
-                                new Rating(3, SAMPLE_USER_ID),
-                                new Rating(5, SAMPLE_USER_ID)
+                                new Rating(1, "Too much sugar!", SAMPLE_USER_ID),
+                                new Rating(3, "", SAMPLE_USER_ID),
+                                new Rating(5, "My favorite!", SAMPLE_USER_ID)
                         },
                         15,
                         new UUID[]{}
@@ -218,8 +219,8 @@ public class SampleSource {
                         "TestDescription",
                         3,
                         new Rating[]{
-                                new Rating(4, SAMPLE_USER_ID),
-                                new Rating(3, SAMPLE_USER_ID)
+                                new Rating(4, "Very good!", SAMPLE_USER_ID),
+                                new Rating(3, "Bit too much sugar for me!",SAMPLE_USER_ID)
                         },
                         15,
                         new UUID[]{UUID.randomUUID(), UUID.randomUUID()}
@@ -236,8 +237,8 @@ public class SampleSource {
                         "TestDescription",
                         1,
                         new Rating[]{
-                                new Rating(2, SAMPLE_USER_ID),
-                                new Rating(1, SAMPLE_USER_ID)
+                                new Rating(2, "Meh!", SAMPLE_USER_ID),
+                                new Rating(1, "Yuck!", SAMPLE_USER_ID)
                         },
                         15,
                         new UUID[]{}
@@ -252,8 +253,8 @@ public class SampleSource {
                         "TestDescription",
                         3,
                         new Rating[]{
-                                new Rating(3, SAMPLE_USER_ID),
-                                new Rating(1, SAMPLE_USER_ID)
+                                new Rating(3, "Meh!", SAMPLE_USER_ID),
+                                new Rating(1, "Yuck!", SAMPLE_USER_ID)
                         },
                         15,
                         new UUID[]{}
@@ -268,9 +269,9 @@ public class SampleSource {
                         "TestDescription",
                         3,
                         new Rating[]{
-                                new Rating(3, SAMPLE_USER_ID),
-                                new Rating(2, SAMPLE_USER_ID),
-                                new Rating(1, SAMPLE_USER_ID)
+                                new Rating(3, "It's okay", SAMPLE_USER_ID),
+                                new Rating(2, "",SAMPLE_USER_ID),
+                                new Rating(1, "Worst I have ever eaten!", SAMPLE_USER_ID)
                         },
                         15,
                         new UUID[]{UUID.randomUUID()}
@@ -287,7 +288,7 @@ public class SampleSource {
                         "TestDescription",
                         1,
                         new Rating[]{
-                                new Rating(4, SAMPLE_USER_ID)
+                                new Rating(4, "Genius invention - especially for college students!", SAMPLE_USER_ID)
                         },
                         15,
                         new UUID[]{}

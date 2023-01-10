@@ -185,24 +185,24 @@ public class RecipeController {
         return assemblePaginatedResult(ratingPage, "ratings");
     }
 
-    public RatingResponse getAverageRating(String recipeId) {
+    public AverageRatingResponse getAverageRating(String recipeId) {
         Recipe recipe = getRecipeFromRepository(recipeId);
-        return new RatingResponse(Arrays.stream(recipe.getRatings()).mapToDouble(Rating::getRatingValue).average().orElse(0));
+        return new AverageRatingResponse(Arrays.stream(recipe.getRatings()).mapToDouble(Rating::getRatingValue).average().orElse(0));
     }
 
     /**
      * Adds a rating to a recipe.
      * @param recipeId Recipe to add the rating to
      * @param userId UserId of the user who rated the recipe.
-     * @param ratingValue Rating the user gave.
+     * @param ratingRequest Rating the user gave.
      */
-    public void addRating(String recipeId, String userId, int ratingValue) {
+    public void addRating(String recipeId, String userId, RatingRequest ratingRequest) {
         if (isUserRecipeOwner(recipeId, userId)) {
             throw new RatingOwnRecipeException("Recipe " + recipeId + " is your own recipe. You may not rate your own recipe!");
         }
 
         Recipe recipe = getRecipeFromRepository(recipeId);
-        Rating rating = new Rating(ratingValue, userId);
+        Rating rating = new Rating(ratingRequest.getRatingValue(), ratingRequest.getComment(), userId);
 
         List<Rating> allRatings = new ArrayList<>(Arrays.stream(recipe.getRatings()).toList());
         allRatings.add(rating);
@@ -216,11 +216,11 @@ public class RecipeController {
      * Updates an existent rating.
      * @param recipeId Recipe to update the rating on.
      * @param userId UserId of the user that has rated
-     * @param ratingValue Value user has rated.
+     * @param ratingRequest Value user has rated.
      */
-    public void updateRating(String recipeId, String userId, int ratingValue) {
+    public void updateRating(String recipeId, String userId, RatingRequest ratingRequest) {
         deleteRating(recipeId, userId);
-        addRating(recipeId, userId, ratingValue);
+        addRating(recipeId, userId, ratingRequest);
     }
 
     /**

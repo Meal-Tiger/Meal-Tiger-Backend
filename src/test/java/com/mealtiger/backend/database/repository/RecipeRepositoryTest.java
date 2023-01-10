@@ -89,7 +89,7 @@ class RecipeRepositoryTest {
                         },
                         "TestDescription",
                         1,
-                        new Rating[]{new Rating(1, SAMPLE_USER_ID_2)},
+                        new Rating[]{new Rating(1, "Sample", SAMPLE_USER_ID_2)},
                         15,
                         new UUID[]{}
                 )

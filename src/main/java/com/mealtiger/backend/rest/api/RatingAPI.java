@@ -51,7 +51,7 @@ public class RatingAPI {
 
         log.debug("User {} is trying to add rating {} to recipe {}!", userId, rating, id);
 
-        recipeController.addRating(id, userId, rating.getRatingValue());
+        recipeController.addRating(id, userId, rating);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -62,11 +62,11 @@ public class RatingAPI {
         log.debug("User {} is trying to update rating on recipe {} to {}!", userId, id, rating);
 
         if (recipeController.doesRatingExist(id, userId)) {
-            recipeController.updateRating(id, userId, rating.getRatingValue());
+            recipeController.updateRating(id, userId, rating);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {
             log.trace("Rating by {} on {} does not exist yet! Trying to create one instead!", userId, id);
-            recipeController.addRating(id, userId, rating.getRatingValue());
+            recipeController.addRating(id, userId, rating);
             return ResponseEntity.status(HttpStatus.CREATED).build();
         }
     }

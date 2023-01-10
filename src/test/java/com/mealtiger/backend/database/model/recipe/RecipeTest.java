@@ -61,7 +61,7 @@ class RecipeTest {
                 },
                 "TestDescription",
                 3,
-                new Rating[]{new Rating(4, SAMPLE_USER_ID), new Rating(2, SAMPLE_USER_ID)},
+                new Rating[]{new Rating(4, "Comment", SAMPLE_USER_ID), new Rating(2, "Second comment", SAMPLE_USER_ID)},
                 15,
                 new UUID[]{}
         );
@@ -87,7 +87,7 @@ class RecipeTest {
                 },
                 "TestDescription",
                 3,
-                new Rating[]{new Rating(4, SAMPLE_USER_ID), new Rating(2, SAMPLE_USER_ID)},
+                new Rating[]{new Rating(4, "This is a sample", SAMPLE_USER_ID), new Rating(2, "Other Sample",SAMPLE_USER_ID)},
                 15,
                 new UUID[]{UUID.fromString("e818d27a-ee98-473d-82d3-9e2455969ab0"), UUID.fromString("a3e94848-3ee4-4200-a9ed-a7f00debe554")}
         );
@@ -127,5 +127,6 @@ class RecipeTest {
         assertEquals(recipeRequest.getDifficulty(), recipe.getDifficulty());
         assertEquals(recipeRequest.getTime(), recipe.getTime());
         assertEquals(recipeRequest.getImages(), recipe.getImages());
+        assertArrayEquals(new Rating[]{}, recipe.getRatings());
     }
 }

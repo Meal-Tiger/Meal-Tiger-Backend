@@ -84,6 +84,7 @@ class RatingAPITest {
 
         RatingRequest request = new RatingRequest();
         request.setRatingValue(5);
+        request.setComment("Very good, indeed!");
 
         mvc.perform(post("/recipes/" + testId + "/ratings")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -104,6 +105,7 @@ class RatingAPITest {
 
         RatingRequest request = new RatingRequest();
         request.setRatingValue(5);
+        request.setComment("Better than I originally thought!");
 
         mvc.perform(put("/recipes/" + testId + "/ratings")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -113,6 +115,7 @@ class RatingAPITest {
         assertEquals(5, recipeRepository.findAll().get(0).getRatings()[0].getRatingValue());
 
         request.setRatingValue(4);
+        request.setComment("Next day was like hell - never ever am I going to eat that again. However, was very tasty!");
 
         mvc.perform(put("/recipes/" + testId + "/ratings")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -176,6 +179,7 @@ class RatingAPITest {
 
         RatingRequest request = new RatingRequest();
         request.setRatingValue(6);
+        request.setComment("So good, I'd give it 6/5!");
 
         mvc.perform(post("/recipes/" + testId + "/ratings")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -186,6 +190,7 @@ class RatingAPITest {
                 .andExpect(jsonPath("$.status").value("400"));
 
         request.setRatingValue(0);
+        request.setComment("Worse than I thought was possible! 0/5!");
 
         mvc.perform(post("/recipes/" + testId + "/ratings")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -205,16 +210,31 @@ class RatingAPITest {
         String testId = recipeRepository.findAll().get(0).getId();
 
         RatingRequest request = new RatingRequest();
-        request.setRatingValue(5);
 
-        mvc.perform(post("/recipes/" + testId + "/ratings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writer().writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+        for (int rating = 0; rating < 7; rating++) {
+            request.setRatingValue(rating);
+
+            mvc.perform(post("/recipes/" + testId + "/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        request.setComment("Some comment...");
+
+        for (int rating = 0; rating < 7; rating++) {
+            request.setRatingValue(rating);
+
+            mvc.perform(post("/recipes/" + testId + "/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isUnauthorized());
+        }
     }
 
     /**
      * Negative "FORBIDDEN" integration test for POST on ratings endpoint.
+     * FORBIDDEN - because it is the user's own recipe.
      */
     @Test
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
@@ -223,15 +243,32 @@ class RatingAPITest {
         String testId = recipeRepository.findAll().get(0).getId();
 
         RatingRequest request = new RatingRequest();
-        request.setRatingValue(5);
 
-        mvc.perform(post("/recipes/" + testId + "/ratings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writer().writeValueAsString(request)))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.error").isString())
-                .andExpect(jsonPath("$.path").value("/recipes/" + testId + "/ratings"))
-                .andExpect(jsonPath("$.status").value("403"));
+        for (int rating = 1; rating < 6; rating++) {
+            request.setRatingValue(rating);
+
+            mvc.perform(post("/recipes/" + testId + "/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.error").isString())
+                    .andExpect(jsonPath("$.path").value("/recipes/" + testId + "/ratings"))
+                    .andExpect(jsonPath("$.status").value("403"));
+        }
+
+        request.setComment("Some comment!");
+
+        for (int rating = 1; rating < 6; rating++) {
+            request.setRatingValue(rating);
+
+            mvc.perform(post("/recipes/" + testId + "/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.error").isString())
+                    .andExpect(jsonPath("$.path").value("/recipes/" + testId + "/ratings"))
+                    .andExpect(jsonPath("$.status").value("403"));
+        }
     }
 
     /**
@@ -241,15 +278,32 @@ class RatingAPITest {
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     void negative_404_postRatingsTest() throws Exception {
         RatingRequest request = new RatingRequest();
-        request.setRatingValue(5);
 
-        mvc.perform(post("/recipes/someID/ratings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writer().writeValueAsString(request)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").isString())
-                .andExpect(jsonPath("$.path").value("/recipes/someID/ratings"))
-                .andExpect(jsonPath("$.status").value("404"));
+        for (int rating = 1; rating < 6; rating++) {
+            request.setRatingValue(rating);
+
+            mvc.perform(post("/recipes/someID/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.error").isString())
+                    .andExpect(jsonPath("$.path").value("/recipes/someID/ratings"))
+                    .andExpect(jsonPath("$.status").value("404"));
+        }
+
+        request.setComment("Some comment...");
+
+        for (int rating = 1; rating < 6; rating++) {
+            request.setRatingValue(rating);
+
+            mvc.perform(post("/recipes/someID/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.error").isString())
+                    .andExpect(jsonPath("$.path").value("/recipes/someID/ratings"))
+                    .andExpect(jsonPath("$.status").value("404"));
+        }
     }
 
     /**
@@ -284,10 +338,54 @@ class RatingAPITest {
                 .andExpect(jsonPath("$.path").value("/recipes/" + testId + "/ratings"))
                 .andExpect(jsonPath("$.status").value("400"));
 
+        request.setComment("Some comment...");
+
+        request.setRatingValue(6);
+
+        mvc.perform(put("/recipes/" + testId + "/ratings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writer().writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes/" + testId + "/ratings"))
+                .andExpect(jsonPath("$.status").value("400"));
+
+        request.setRatingValue(0);
+
+        mvc.perform(put("/recipes/" + testId + "/ratings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writer().writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes/" + testId + "/ratings"))
+                .andExpect(jsonPath("$.status").value("400"));
+
         sampleRecipe.setRatings(new Rating[]{
-                new Rating(4, "123e4567-e89b-12d3-a456-42661417400")
+                new Rating(4, "Some comment...", "123e4567-e89b-12d3-a456-42661417400")
         });
         recipeRepository.save(sampleRecipe);
+
+        request.setRatingValue(6);
+
+        mvc.perform(put("/recipes/" + testId + "/ratings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writer().writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes/" + testId + "/ratings"))
+                .andExpect(jsonPath("$.status").value("400"));
+
+        request.setRatingValue(0);
+
+        mvc.perform(put("/recipes/" + testId + "/ratings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writer().writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").isString())
+                .andExpect(jsonPath("$.path").value("/recipes/" + testId + "/ratings"))
+                .andExpect(jsonPath("$.status").value("400"));
+
+        request.setComment("Some comment...");
 
         request.setRatingValue(6);
 
@@ -319,12 +417,25 @@ class RatingAPITest {
         String testId = recipeRepository.findAll().get(0).getId();
 
         RatingRequest request = new RatingRequest();
-        request.setRatingValue(5);
+        for (int rating = 0; rating < 7; rating++) {
+            request.setRatingValue(rating);
 
-        mvc.perform(put("/recipes/" + testId + "/ratings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writer().writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+            mvc.perform(put("/recipes/" + testId + "/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        request.setComment("Some comment...");
+
+        for (int rating = 0; rating < 7; rating++) {
+            request.setRatingValue(rating);
+
+            mvc.perform(put("/recipes/" + testId + "/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isUnauthorized());
+        }
     }
 
     /**
@@ -337,15 +448,32 @@ class RatingAPITest {
         String testId = recipeRepository.findAll().get(0).getId();
 
         RatingRequest request = new RatingRequest();
-        request.setRatingValue(5);
 
-        mvc.perform(put("/recipes/" + testId + "/ratings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writer().writeValueAsString(request)))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.error").isString())
-                .andExpect(jsonPath("$.path").value("/recipes/" + testId + "/ratings"))
-                .andExpect(jsonPath("$.status").value("403"));
+        for (int rating = 1; rating < 6; rating++) {
+            request.setRatingValue(rating);
+
+            mvc.perform(put("/recipes/" + testId + "/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.error").isString())
+                    .andExpect(jsonPath("$.path").value("/recipes/" + testId + "/ratings"))
+                    .andExpect(jsonPath("$.status").value("403"));
+        }
+
+        request.setComment("Some comment!");
+
+        for (int rating = 1; rating < 6; rating++) {
+            request.setRatingValue(rating);
+
+            mvc.perform(put("/recipes/" + testId + "/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.error").isString())
+                    .andExpect(jsonPath("$.path").value("/recipes/" + testId + "/ratings"))
+                    .andExpect(jsonPath("$.status").value("403"));
+        }
     }
 
     /**
@@ -355,15 +483,31 @@ class RatingAPITest {
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     void negative_404_putRatingsTest() throws Exception {
         RatingRequest request = new RatingRequest();
-        request.setRatingValue(5);
+        for (int rating = 1; rating < 6; rating++) {
+            request.setRatingValue(rating);
 
-        mvc.perform(put("/recipes/someID/ratings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writer().writeValueAsString(request)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").isString())
-                .andExpect(jsonPath("$.path").value("/recipes/someID/ratings"))
-                .andExpect(jsonPath("$.status").value("404"));
+            mvc.perform(put("/recipes/someID/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.error").isString())
+                    .andExpect(jsonPath("$.path").value("/recipes/someID/ratings"))
+                    .andExpect(jsonPath("$.status").value("404"));
+        }
+
+        request.setComment("Some comment...");
+
+        for (int rating = 1; rating < 6; rating++) {
+            request.setRatingValue(rating);
+
+            mvc.perform(put("/recipes/someID/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.error").isString())
+                    .andExpect(jsonPath("$.path").value("/recipes/someID/ratings"))
+                    .andExpect(jsonPath("$.status").value("404"));
+        }
     }
 
     /**
@@ -374,12 +518,8 @@ class RatingAPITest {
         recipeRepository.save(SampleSource.getSampleRecipes().get(0));
         String testId = recipeRepository.findAll().get(0).getId();
 
-        RatingRequest request = new RatingRequest();
-        request.setRatingValue(5);
-
-        mvc.perform(put("/recipes/" + testId + "/ratings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writer().writeValueAsString(request)))
+        mvc.perform(delete("/recipes/" + testId + "/ratings")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 

@@ -7,10 +7,13 @@ public class Rating {
 
     private final int ratingValue;
 
+    private final String comment;
+
     private String userId;
 
-    public Rating(int ratingValue, String userId) {
+    public Rating(int ratingValue, String comment, String userId) {
         this.ratingValue = ratingValue;
+        this.comment = comment;
         this.userId = userId;
     }
 
@@ -18,6 +21,10 @@ public class Rating {
 
     public int getRatingValue() {
         return ratingValue;
+    }
+
+    public String getComment() {
+        return comment;
     }
 
     public String getUserId() {

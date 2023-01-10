@@ -192,7 +192,7 @@ class RecipeControllerTest {
     void doesRatingExistTest() {
         Recipe mockRecipe = mock(Recipe.class);
         when(mockRecipe.getRatings()).thenReturn(new Rating[]{
-                new Rating(4, SAMPLE_USER_ID)
+                new Rating(4, "Comment", SAMPLE_USER_ID)
         });
 
         when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
@@ -209,7 +209,7 @@ class RecipeControllerTest {
     void getRatingsTest() {
         Recipe mockRecipe = mock(Recipe.class);
         when(mockRecipe.getRatings()).thenReturn(new Rating[]{
-                new Rating(4, SAMPLE_USER_ID)
+                new Rating(4, "Comment", SAMPLE_USER_ID)
         });
 
         when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
@@ -233,7 +233,7 @@ class RecipeControllerTest {
     void getAverageRatingTest() {
         Recipe mockRecipe = mock(Recipe.class);
         when(mockRecipe.getRatings()).thenReturn(new Rating[]{
-                new Rating(4, SAMPLE_USER_ID)
+                new Rating(4, "Comment", SAMPLE_USER_ID)
         });
 
         when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
@@ -245,8 +245,8 @@ class RecipeControllerTest {
         assertEquals(4.0, returnValue, 0.01);
 
         when(mockRecipe.getRatings()).thenReturn(new Rating[]{
-                new Rating(4, SAMPLE_USER_ID),
-                new Rating(2, SAMPLE_USER_ID)
+                new Rating(4, "Comment", SAMPLE_USER_ID),
+                new Rating(2, "Comment", SAMPLE_USER_ID)
         });
 
         returnValue = recipeController.getAverageRating("A").getRatingValue();
@@ -272,13 +272,17 @@ class RecipeControllerTest {
                 new UUID[]{}
         ));
 
+        RatingRequest ratingRequest = new RatingRequest();
+        ratingRequest.setRatingValue(4);
+        ratingRequest.setComment("Sample Comment");
+
         when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
-        recipeController.addRating("A", "e9add05b-0e50-4be9-bc00-f3ff870d51a6", 4);
+        recipeController.addRating("A", "e9add05b-0e50-4be9-bc00-f3ff870d51a6", ratingRequest);
         verify(mockRecipe).getRatings();
-        verify(mockRecipe).setRatings(new Rating[]{new Rating(4, "e9add05b-0e50-4be9-bc00-f3ff870d51a6")});
+        verify(mockRecipe).setRatings(new Rating[]{new Rating(4, "Sample comment", "e9add05b-0e50-4be9-bc00-f3ff870d51a6")});
         verify(recipeRepository).save(mockRecipe);
 
-        assertThrows(RatingOwnRecipeException.class, () -> recipeController.addRating("A", SAMPLE_USER_ID, 5));
+        assertThrows(RatingOwnRecipeException.class, () -> recipeController.addRating("A", SAMPLE_USER_ID, ratingRequest));
     }
 
     /**
@@ -295,7 +299,7 @@ class RecipeControllerTest {
                 "Description",
                 1.2,
                 new Rating[]{
-                        new Rating(4, "e9add05b-0e50-4be9-bc00-f3ff870d51a6")
+                        new Rating(4, "Sample comment", "e9add05b-0e50-4be9-bc00-f3ff870d51a6")
                 },
                 15,
                 new UUID[]{}
@@ -303,14 +307,18 @@ class RecipeControllerTest {
 
         when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
 
-        recipeController.updateRating("A", "e9add05b-0e50-4be9-bc00-f3ff870d51a6", 1);
+        RatingRequest ratingRequest = new RatingRequest();
+        ratingRequest.setComment("Sample");
+        ratingRequest.setRatingValue(3);
+
+        recipeController.updateRating("A", "e9add05b-0e50-4be9-bc00-f3ff870d51a6", ratingRequest);
         verify(mockRecipe, times(3)).getRatings();
         verify(mockRecipe).setRatings(new Rating[]{});
-        verify(mockRecipe).setRatings(new Rating[]{new Rating(1, "e9add05b-0e50-4be9-bc00-f3ff870d51a6")});
+        verify(mockRecipe).setRatings(new Rating[]{new Rating(3, "Sample", "e9add05b-0e50-4be9-bc00-f3ff870d51a6")});
 
         verify(recipeRepository, times(2)).save(mockRecipe);
 
-        assertArrayEquals(new Rating[]{new Rating(1, "e9add05b-0e50-4be9-bc00-f3ff870d51a6")}, mockRecipe.getRatings());
+        assertArrayEquals(new Rating[]{new Rating(3, "Sample",  "e9add05b-0e50-4be9-bc00-f3ff870d51a6")}, mockRecipe.getRatings());
     }
 
     /**
@@ -327,7 +335,7 @@ class RecipeControllerTest {
                 "Description",
                 1.2,
                 new Rating[]{
-                        new Rating(4, SAMPLE_USER_ID)
+                        new Rating(4, "Comment", SAMPLE_USER_ID)
                 },
                 15,
                 new UUID[]{}
