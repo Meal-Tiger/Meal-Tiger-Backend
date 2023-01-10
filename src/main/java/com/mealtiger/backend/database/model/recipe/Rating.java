@@ -1,5 +1,8 @@
 package com.mealtiger.backend.database.model.recipe;
 
+/**
+ * This class serves as the model for a rating.
+ */
 public class Rating {
 
     private final int ratingValue;
@@ -11,6 +14,8 @@ public class Rating {
         this.userId = userId;
     }
 
+    // GETTER
+
     public int getRatingValue() {
         return ratingValue;
     }
@@ -19,9 +24,13 @@ public class Rating {
         return userId;
     }
 
+    // SETTER
+
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
+    // EQUALS, HASHCODE, TOSTRING
 
     @Override
     public boolean equals(Object o) {

@@ -4,7 +4,7 @@ import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.rest.controller.ImageIOController;
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
 import com.mealtiger.backend.rest.error_handling.exceptions.InvalidRequestFormatException;
-import com.mealtiger.backend.rest.exceptions.UploadException;
+import com.mealtiger.backend.rest.error_handling.exceptions.UploadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;

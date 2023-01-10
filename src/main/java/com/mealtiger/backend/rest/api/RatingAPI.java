@@ -1,8 +1,8 @@
 package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.rest.controller.RecipeController;
-import com.mealtiger.backend.rest.model.recipe.RatingRequest;
-import com.mealtiger.backend.rest.model.recipe.RatingResponse;
+import com.mealtiger.backend.rest.model.rating.RatingRequest;
+import com.mealtiger.backend.rest.model.rating.AverageRatingResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -39,7 +39,7 @@ public class RatingAPI {
     }
 
     @GetMapping("/recipes/{id}/rating")
-    public ResponseEntity<RatingResponse> getAverageRating(@PathVariable(value = "id") String id) {
+    public ResponseEntity<AverageRatingResponse> getAverageRating(@PathVariable(value = "id") String id) {
         log.debug("Trying to get average rating for recipe {}.", id);
 
         return ResponseEntity.ok(recipeController.getAverageRating(id));

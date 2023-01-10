@@ -1,10 +1,10 @@
-package com.mealtiger.backend.rest.model.recipe;
+package com.mealtiger.backend.rest.model.rating;
 
-public class RatingResponse {
+public class AverageRatingResponse {
 
     private final double ratingValue;
 
-    public RatingResponse(double ratingValue) {
+    public AverageRatingResponse(double ratingValue) {
         this.ratingValue = ratingValue;
     }
 

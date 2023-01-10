@@ -1,6 +1,6 @@
 package com.mealtiger.backend.rest.model;
 
-import com.mealtiger.backend.rest.model.recipe.RatingRequest;
+import com.mealtiger.backend.rest.model.rating.RatingRequest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

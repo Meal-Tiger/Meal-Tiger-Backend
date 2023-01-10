@@ -5,7 +5,7 @@ import com.mealtiger.backend.BackendApplication;
 import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.database.repository.RecipeRepository;
-import com.mealtiger.backend.rest.model.recipe.RatingRequest;
+import com.mealtiger.backend.rest.model.rating.RatingRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
