@@ -32,6 +32,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static com.mealtiger.backend.SampleSource.SAMPLE_IMAGE_ID;
+import static com.mealtiger.backend.SampleSource.SAMPLE_OTHER_USER_ID;
+import static com.mealtiger.backend.SampleSource.SAMPLE_USER_ID;
 import static org.hamcrest.Matchers.matchesPattern;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -47,11 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         classes = {BackendApplication.class}
 )
 class ImageAPITest {
-
-    private static final String SAMPLE_IMAGE_UUID = "22ec6016-8b9b-11ed-a1eb-0242ac120002";
-    private static final String SAMPLE_USER_UUID = "123e4567-e89b-12d3-a456-42661417400";
-    private static final String SAMPLE_OTHER_USER_UUID = "22ec6016-8b9b-11ed-a1eb-0242ac120002";
-
+    
     @Autowired
     private WebApplicationContext webApplicationContext;
 
@@ -145,9 +144,9 @@ class ImageAPITest {
         MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         File inputFile = fileStream().toList().get(0);
-        saveImage(inputFile, SAMPLE_IMAGE_UUID, SAMPLE_USER_UUID);
+        saveImage(inputFile, SAMPLE_IMAGE_ID, SAMPLE_USER_ID);
 
-        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_ID)
                         .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"))
                 .andExpect(status().isOk());
     }
@@ -164,44 +163,44 @@ class ImageAPITest {
         MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         File inputFile = fileStream().toList().get(0);
-        saveImage(inputFile, SAMPLE_IMAGE_UUID, SAMPLE_USER_UUID);
+        saveImage(inputFile, SAMPLE_IMAGE_ID, SAMPLE_USER_ID);
 
-        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_ID)
                         .header("Accept", "image/webp"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/webp"));
 
-        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_ID)
                         .header("Accept", "image/png"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/png"));
 
-        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_ID)
                         .header("Accept", "image/gif"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/gif"));
 
-        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_ID)
                         .header("Accept", "image/bmp"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/bmp"));
 
-        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_ID)
                         .header("Accept", "image/jpeg"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/jpeg"));
 
-        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_ID)
                         .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/jpeg,*/*;q=0.8"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/jpeg"));
 
-        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_ID)
                         .header("Accept", "image/jpeg;q=0.9,image/png;q=0.8;*/*;q=0.7"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/jpeg"));
 
-        mvc.perform(get("/image/" + SAMPLE_IMAGE_UUID)
+        mvc.perform(get("/image/" + SAMPLE_IMAGE_ID)
                         .header("Accept", "image/webp;q=0.9,image/jpeg;q=0.8;*/*;q=0.7"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/webp"));
@@ -364,9 +363,9 @@ class ImageAPITest {
 
         File inputFile = fileStream().toList().get(0);
 
-        saveImage(inputFile, SAMPLE_IMAGE_UUID, SAMPLE_OTHER_USER_UUID);
+        saveImage(inputFile, SAMPLE_IMAGE_ID, SAMPLE_OTHER_USER_ID);
 
-        mvc.perform(delete("/image/" + SAMPLE_IMAGE_UUID))
+        mvc.perform(delete("/image/" + SAMPLE_IMAGE_ID))
                 .andExpect(status().isForbidden());
     }
 

@@ -4,6 +4,7 @@ import com.mealtiger.backend.BackendApplication;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
+import com.mealtiger.backend.SampleSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,9 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         classes = {BackendApplication.class}
 )
 class RecipeRepositoryTest {
-
-    private static final String SAMPLE_USER_ID = "123e4567-e89b-12d3-a456-42661417400";
-    private static final String SAMPLE_USER_ID_2 = "bc2ef248-91a5-4f06-86f1-726b412170ca";
 
     @Autowired
     private RecipeRepository recipeRepository;
@@ -54,7 +52,7 @@ class RecipeRepositoryTest {
         Recipe[] testRecipes = {
                 new Recipe(
                         "Gebrannte Mandeln",
-                        SAMPLE_USER_ID,
+                        SampleSource.SAMPLE_USER_ID,
                         new Ingredient[]{
                                 new Ingredient(500, "Gramm", "Mandeln, geschält"),
                                 new Ingredient(200, "Gramm", "Zucker")
@@ -67,7 +65,7 @@ class RecipeRepositoryTest {
                 ),
                 new Recipe(
                         "Gebratene Cashewkerne",
-                        SAMPLE_USER_ID,
+                        SampleSource.SAMPLE_USER_ID,
                         new Ingredient[]{
                                 new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
                                 new Ingredient(200, "Gramm", "Zucker")
@@ -80,7 +78,7 @@ class RecipeRepositoryTest {
                 ),
                 new Recipe(
                         "Toast Hawaii",
-                        SAMPLE_USER_ID,
+                        SampleSource.SAMPLE_USER_ID,
                         new Ingredient[]{
                                 new Ingredient(500, "Gramm", "Schinken"),
                                 new Ingredient(10, "Scheiben", "Toastbrot"),
@@ -89,7 +87,7 @@ class RecipeRepositoryTest {
                         },
                         "TestDescription",
                         1,
-                        new Rating[]{new Rating(1, "Sample", SAMPLE_USER_ID_2)},
+                        new Rating[]{new Rating(SampleSource.SAMPLE_RATING_ID, 1, "Sample", SampleSource.SAMPLE_OTHER_USER_ID)},
                         15,
                         new UUID[]{}
                 )
@@ -115,7 +113,7 @@ class RecipeRepositoryTest {
         Recipe[] testRecipes = {
                 new Recipe(
                         "Gebrannte Mandeln",
-                        SAMPLE_USER_ID,
+                        SampleSource.SAMPLE_USER_ID,
                         new Ingredient[]{
                                 new Ingredient(500, "Gramm", "Mandeln, geschält"),
                                 new Ingredient(200, "Gramm", "Zucker")
@@ -128,7 +126,7 @@ class RecipeRepositoryTest {
                 ),
                 new Recipe(
                         "Gebratene Cashewkerne",
-                        SAMPLE_USER_ID,
+                        SampleSource.SAMPLE_USER_ID,
                         new Ingredient[]{
                                 new Ingredient(500, "Gramm", "Cashewkerne, geschält"),
                                 new Ingredient(200, "Gramm", "Zucker")
@@ -141,7 +139,7 @@ class RecipeRepositoryTest {
                 ),
                 new Recipe(
                         "Toast Hawaii",
-                        SAMPLE_USER_ID,
+                        SampleSource.SAMPLE_USER_ID,
                         new Ingredient[]{
                                 new Ingredient(500, "Gramm", "Schinken"),
                                 new Ingredient(10, "Scheiben", "Toastbrot"),

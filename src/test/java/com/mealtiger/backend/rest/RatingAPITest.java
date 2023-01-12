@@ -2,6 +2,7 @@ package com.mealtiger.backend.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mealtiger.backend.BackendApplication;
+import com.mealtiger.backend.SampleSource;
 import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.database.repository.RecipeRepository;
@@ -16,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.mealtiger.backend.SampleSource.SAMPLE_RATING_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -361,7 +363,7 @@ class RatingAPITest {
                 .andExpect(jsonPath("$.status").value("400"));
 
         sampleRecipe.setRatings(new Rating[]{
-                new Rating(4, "Some comment...", "123e4567-e89b-12d3-a456-42661417400")
+                new Rating(SAMPLE_RATING_ID, 4, "Some comment...", "123e4567-e89b-12d3-a456-42661417400")
         });
         recipeRepository.save(sampleRecipe);
 

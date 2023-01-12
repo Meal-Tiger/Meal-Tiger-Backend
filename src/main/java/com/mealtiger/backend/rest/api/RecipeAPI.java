@@ -1,9 +1,9 @@
 package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.configuration.Configurator;
-import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.rest.controller.RecipeController;
-import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
+import com.mealtiger.backend.rest.model.Response;
+import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -92,10 +92,10 @@ public class RecipeAPI {
      * @return HTTP Status 200 if getting recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
     @GetMapping("/recipes/{id}")
-    public ResponseEntity<RecipeResponse> getSingleRecipe(@PathVariable(value = "id") String id) {
+    public ResponseEntity<Response> getSingleRecipe(@PathVariable(value = "id") String id) {
         log.debug("Getting recipe with id {}!", id);
 
-        RecipeResponse returnValue = recipeController.getRecipe(id);
+        Response returnValue = recipeController.getRecipe(id);
 
         return ResponseEntity.ok(returnValue);
     }

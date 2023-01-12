@@ -10,12 +10,11 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.util.UUID;
 
+import static com.mealtiger.backend.SampleSource.SAMPLE_USER_ID;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RecipeRequestTest {
-
-    private static final String SAMPLE_USER_ID = "123e4567-e89b-12d3-a456-42661417400";
 
     private static Validator validator;
 

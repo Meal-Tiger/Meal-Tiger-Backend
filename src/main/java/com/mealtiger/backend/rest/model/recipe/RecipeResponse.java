@@ -1,10 +1,12 @@
 package com.mealtiger.backend.rest.model.recipe;
 
 import com.mealtiger.backend.database.model.recipe.Ingredient;
+import com.mealtiger.backend.rest.model.Response;
+
 import java.util.UUID;
 
 @SuppressWarnings("unused")
-public class RecipeResponse {
+public class RecipeResponse implements Response {
 
     private final String id;
     private final String title;

@@ -4,6 +4,7 @@ import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
 import com.mealtiger.backend.rest.error_handling.exceptions.RatingOwnRecipeException;
+import com.mealtiger.backend.rest.model.Response;
 import com.mealtiger.backend.rest.model.rating.AverageRatingResponse;
 import com.mealtiger.backend.rest.model.rating.RatingRequest;
 import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
@@ -82,7 +83,7 @@ public class RecipeController {
      * @param recipeRequest Recipe to be saved.
      */
     public void saveRecipe(RecipeRequest recipeRequest, String userID) {
-        Recipe recipe = Recipe.fromRequest(recipeRequest);
+        Recipe recipe = recipeRequest.toEntity();
         recipe.setUserId(userID);
         log.trace("Saving recipe {} to repository!", recipe);
         recipeRepository.save(recipe);
@@ -94,7 +95,7 @@ public class RecipeController {
      * @param id ID of the recipe to get.
      * @return Recipe requested.
      */
-    public RecipeResponse getRecipe(String id) {
+    public Response getRecipe(String id) {
         log.trace("Getting recipe with id {} from repository.", id);
         Recipe recipe = getRecipeFromRepository(id);
         return recipe.toResponse();
@@ -107,7 +108,7 @@ public class RecipeController {
      * @param recipeRequest Recipe to replace the old recipe.
      */
     public void replaceRecipe(String id, RecipeRequest recipeRequest) {
-        Recipe recipe = Recipe.fromRequest(recipeRequest);
+        Recipe recipe = recipeRequest.toEntity();
         log.trace("Replacing recipe with id {} in repository with {}.", id, recipe);
         Recipe oldRecipe = getRecipeFromRepository(id);
 
@@ -129,7 +130,7 @@ public class RecipeController {
      * @return True if the user owns the recipe, false otherwise.
      */
     public boolean isUserRecipeOwner(String id, String userId) {
-        RecipeResponse recipe = getRecipe(id);
+        RecipeResponse recipe = (RecipeResponse) getRecipe(id);
         return recipe.getUserId().equals(userId);
     }
 
@@ -182,10 +183,10 @@ public class RecipeController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Rating> ratingPage = new PageImpl<>(List.of(ratings), pageable, ratings.length);
 
-        return assemblePaginatedResult(ratingPage, "ratings");
+        return assemblePaginatedResult(ratingPage.map(Rating::toResponse), "ratings");
     }
 
-    public AverageRatingResponse getAverageRating(String recipeId) {
+    public Response getAverageRating(String recipeId) {
         Recipe recipe = getRecipeFromRepository(recipeId);
         return new AverageRatingResponse(Arrays.stream(recipe.getRatings()).mapToDouble(Rating::getRatingValue).average().orElse(0));
     }
@@ -195,14 +196,17 @@ public class RecipeController {
      * @param recipeId Recipe to add the rating to
      * @param userId UserId of the user who rated the recipe.
      * @param ratingRequest Rating the user gave.
+     * @return The added rating
      */
-    public void addRating(String recipeId, String userId, RatingRequest ratingRequest) {
+    public Response addRating(String recipeId, String userId, RatingRequest ratingRequest) {
         if (isUserRecipeOwner(recipeId, userId)) {
             throw new RatingOwnRecipeException("Recipe " + recipeId + " is your own recipe. You may not rate your own recipe!");
         }
 
         Recipe recipe = getRecipeFromRepository(recipeId);
-        Rating rating = new Rating(ratingRequest.getRatingValue(), ratingRequest.getComment(), userId);
+        Rating rating = ratingRequest.toEntity();
+        rating.setId(UUID.randomUUID().toString());
+        rating.setUserId(userId);
 
         List<Rating> allRatings = new ArrayList<>(Arrays.stream(recipe.getRatings()).toList());
         allRatings.add(rating);
@@ -210,6 +214,8 @@ public class RecipeController {
         recipe.setRatings(allRatings.toArray(new Rating[0]));
 
         recipeRepository.save(recipe);
+
+        return rating.toResponse();
     }
 
     /**
@@ -259,7 +265,7 @@ public class RecipeController {
      * @param page Page to be used for assembling the result.
      * @return Map that contains the entries objectName, 'currentPage', 'totalItems', 'totalPages'.
      */
-    private Map<String, Object> assemblePaginatedResult(Page<?> page, String objectName) {
+    private Map<String, Object> assemblePaginatedResult(Page<Response> page, String objectName) {
         List<?> objects = page.getContent();
 
         if (objects.isEmpty()) {

@@ -1,6 +1,8 @@
 package com.mealtiger.backend.rest.model.rating;
 
-public class AverageRatingResponse {
+import com.mealtiger.backend.rest.model.Response;
+
+public class AverageRatingResponse implements Response {
 
     private final double ratingValue;
 

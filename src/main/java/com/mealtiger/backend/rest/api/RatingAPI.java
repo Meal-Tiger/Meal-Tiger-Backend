@@ -1,8 +1,8 @@
 package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.rest.controller.RecipeController;
+import com.mealtiger.backend.rest.model.Response;
 import com.mealtiger.backend.rest.model.rating.RatingRequest;
-import com.mealtiger.backend.rest.model.rating.AverageRatingResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.Map;
 
 @RestController
@@ -39,24 +40,24 @@ public class RatingAPI {
     }
 
     @GetMapping("/recipes/{id}/rating")
-    public ResponseEntity<AverageRatingResponse> getAverageRating(@PathVariable(value = "id") String id) {
+    public ResponseEntity<Response> getAverageRating(@PathVariable(value = "id") String id) {
         log.debug("Trying to get average rating for recipe {}.", id);
 
         return ResponseEntity.ok(recipeController.getAverageRating(id));
     }
 
     @PostMapping("/recipes/{id}/ratings")
-    public ResponseEntity<Void> postRating(@PathVariable(value = "id") String id, @Valid @RequestBody RatingRequest rating) {
+    public ResponseEntity<Response> postRating(@PathVariable(value = "id") String id, @Valid @RequestBody RatingRequest rating) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         log.debug("User {} is trying to add rating {} to recipe {}!", userId, rating, id);
 
-        recipeController.addRating(id, userId, rating);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        Response savedRating = recipeController.addRating(id, userId, rating);
+        return ResponseEntity.created(URI.create("/recipes/" + id)).body(savedRating);
     }
 
     @PutMapping("/recipes/{id}/ratings")
-    public ResponseEntity<Void> putRating(@PathVariable(value = "id") String id, @Valid @RequestBody RatingRequest rating) {
+    public ResponseEntity<Response> putRating(@PathVariable(value = "id") String id, @Valid @RequestBody RatingRequest rating) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         log.debug("User {} is trying to update rating on recipe {} to {}!", userId, id, rating);
@@ -66,8 +67,8 @@ public class RatingAPI {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else {
             log.trace("Rating by {} on {} does not exist yet! Trying to create one instead!", userId, id);
-            recipeController.addRating(id, userId, rating);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            Response savedRating = recipeController.addRating(id, userId, rating);
+            return ResponseEntity.created(URI.create("/recipes/" + id)).body(savedRating);
         }
     }
 

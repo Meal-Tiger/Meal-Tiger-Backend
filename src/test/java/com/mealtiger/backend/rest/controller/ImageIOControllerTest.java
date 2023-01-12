@@ -28,14 +28,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.mealtiger.backend.SampleSource.SAMPLE_IMAGE_ID;
+import static com.mealtiger.backend.SampleSource.SAMPLE_USER_ID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @MockitoSettings
 class ImageIOControllerTest {
-
-    private static final String SAMPLE_USER_ID = "123e4567-e89b-12d3-a456-42661417400";
-    private static final String SAMPLE_IMAGE_ID = "b522317c-adc2-438d-a5cf-957e49bd7647";
 
     @Mock
     private Configurator configurator;

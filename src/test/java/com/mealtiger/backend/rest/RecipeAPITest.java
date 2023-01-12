@@ -3,6 +3,7 @@ package com.mealtiger.backend.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mealtiger.backend.BackendApplication;
+import com.mealtiger.backend.SampleSource;
 import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.database.model.recipe.Rating;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.mealtiger.backend.SampleSource.SAMPLE_USER_ID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -47,8 +49,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @AutoConfigureMockMvc
 class RecipeAPITest {
-
-    private static final String SAMPLE_USER_ID = "123e4567-e89b-12d3-a456-42661417400";
 
     @Autowired
     private MockMvc mvc;
@@ -256,7 +256,7 @@ class RecipeAPITest {
 
         String id = recipeRepository.findAll().get(0).getId();
 
-        RecipeResponse testRecipeResponse = recipeRepository.findAll().get(0).toResponse();
+        RecipeResponse testRecipeResponse = (RecipeResponse) recipeRepository.findAll().get(0).toResponse();
 
         mvc.perform(get("/recipes/" + id))
                 .andExpect(status().isOk())
@@ -340,7 +340,7 @@ class RecipeAPITest {
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void postRecipeWithImageTest() throws Exception {
-        UUID imageUUID = UUID.fromString(SampleSource.getSampleUUIDs().toList().get(0));
+        UUID imageUUID = UUID.fromString(SampleSource.getSampleUUIDs().get(0));
 
         Files.createDirectories(Path.of(configurator.getString("Image.imagePath"), imageUUID.toString()));
 
@@ -631,7 +631,7 @@ class RecipeAPITest {
         testRecipe.setDescription("TestDescription");
         testRecipe.setDifficulty(1);
         testRecipe.setTime(0);
-        testRecipe.setImages(new UUID[]{UUID.fromString(SampleSource.getSampleUUIDs().toList().get(0))});
+        testRecipe.setImages(new UUID[]{UUID.fromString(SampleSource.getSampleUUIDs().get(0))});
 
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
