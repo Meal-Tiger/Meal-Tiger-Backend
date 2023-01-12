@@ -65,6 +65,22 @@ class RatingAPITest {
     }
 
     /**
+     * Integration test for GET on /ratings endpoint
+     */
+    @Test
+    void getRatingTest() throws Exception {
+        Rating rating = recipeRepository.save(SampleSource.getSampleRecipesWithRatings().get(0)).getRatings()[0];
+
+        mvc.perform(get("/ratings/" + rating.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.ratingValue").value(rating.getRatingValue()))
+                .andExpect(jsonPath("$.comment").value(rating.getComment()))
+                .andExpect(jsonPath("$.userId").value(rating.getUserId()))
+                .andExpect(jsonPath("$.id").value(rating.getId()));
+    }
+
+    /**
      * Integration test for GET on average rating endpoint.
      */
     @Test
