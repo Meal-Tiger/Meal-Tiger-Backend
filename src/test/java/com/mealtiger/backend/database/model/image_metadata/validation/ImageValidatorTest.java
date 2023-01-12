@@ -9,14 +9,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
+import static com.mealtiger.backend.SampleSource.SAMPLE_IMAGE_ID;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class ImageValidatorTest {
-
-    private static final String SAMPLE_IMAGE_ID = "b522317c-adc2-438d-a5cf-957e49bd7647";
     private static final String NON_EXISTENT_IMAGE_ID = "f2076c35-e8d1-4d34-82f1-0de7f370efbd";
 
     @Test

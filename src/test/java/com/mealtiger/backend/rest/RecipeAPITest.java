@@ -1,8 +1,10 @@
 package com.mealtiger.backend.rest;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mealtiger.backend.BackendApplication;
+import com.mealtiger.backend.SampleSource;
 import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.database.model.recipe.Rating;
@@ -25,13 +27,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
+import static com.mealtiger.backend.SampleSource.SAMPLE_USER_ID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -47,8 +48,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @AutoConfigureMockMvc
 class RecipeAPITest {
-
-    private static final String SAMPLE_USER_ID = "123e4567-e89b-12d3-a456-42661417400";
 
     @Autowired
     private MockMvc mvc;
@@ -256,7 +255,7 @@ class RecipeAPITest {
 
         String id = recipeRepository.findAll().get(0).getId();
 
-        RecipeResponse testRecipeResponse = recipeRepository.findAll().get(0).toResponse();
+        RecipeResponse testRecipeResponse = (RecipeResponse) recipeRepository.findAll().get(0).toResponse();
 
         mvc.perform(get("/recipes/" + id))
                 .andExpect(status().isOk())
@@ -304,7 +303,7 @@ class RecipeAPITest {
         testRecipe.setTitle("Gebrannte Mandeln");
         testRecipe.setIngredients(
             new Ingredient[]{
-                new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                new Ingredient(500, "Gramm", "Mandeln"),
                 new Ingredient(200, "Gramm", "Zucker")
             }
         );
@@ -313,12 +312,13 @@ class RecipeAPITest {
         testRecipe.setTime(15);
         testRecipe.setImages(new UUID[]{});
 
-        //SampleSource.getSampleUUIDs().map(UUID::fromString).toList().toArray(new UUID[]{})
-
-        mvc.perform(post("/recipes")
+        String responseJSON = mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString(Charset.defaultCharset());
 
         assertEquals(1, recipeRepository.findAll().size());
 
@@ -332,6 +332,45 @@ class RecipeAPITest {
         assertArrayEquals(new Rating[]{}, recipe.getRatings());
         assertEquals(testRecipe.getTime(), recipe.getTime());
         assertArrayEquals(testRecipe.getImages(), recipe.getImages());
+
+        JsonNode response = new ObjectMapper().readTree(responseJSON);
+
+        assertEquals(recipe.getId(), response.get("id").textValue());
+        assertEquals(recipe.getTitle(), response.get("title").textValue());
+        assertEquals(recipe.getUserId(), response.get("userId").textValue());
+        assertEquals(recipe.getDescription(), response.get("description").textValue());
+        assertEquals(recipe.getTime(), response.get("time").intValue());
+
+        assertTrue(response.get("images").isArray());
+
+        Arrays.stream(recipe.getImages()).forEach(image -> {
+            Iterator<JsonNode> iterator = response.get("images").iterator();
+            boolean contained = false;
+
+            while(iterator.hasNext()) {
+                if (iterator.next().textValue().equals(image.toString())) {
+                    contained = true;
+                    break;
+                }
+            }
+
+            assertTrue(contained, () -> "Image id " + image.toString() + " not in response!");
+        });
+
+        Arrays.stream(recipe.getIngredients()).forEach(ingredient -> {
+            Iterator<JsonNode> iterator = response.get("ingredients").iterator();
+            List<JsonNode> nodeList = new ArrayList<>();
+
+            iterator.forEachRemaining(nodeList::add);
+
+            assertTrue(nodeList.stream().anyMatch(node -> {
+                boolean amountEquals = node.get("amount").intValue() == ingredient.getAmount();
+                boolean unitEquals = node.get("unit").textValue().equals(ingredient.getUnit());
+                boolean nameEquals = node.get("name").textValue().equals(ingredient.getName());
+
+                return amountEquals && unitEquals && nameEquals;
+            }));
+        });
     }
 
     /**
@@ -340,7 +379,7 @@ class RecipeAPITest {
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
     @Test
     void postRecipeWithImageTest() throws Exception {
-        UUID imageUUID = UUID.fromString(SampleSource.getSampleUUIDs().toList().get(0));
+        UUID imageUUID = UUID.fromString(SampleSource.getSampleUUIDs().get(0));
 
         Files.createDirectories(Path.of(configurator.getString("Image.imagePath"), imageUUID.toString()));
 
@@ -357,10 +396,13 @@ class RecipeAPITest {
         testRecipe.setTime(15);
         testRecipe.setImages(new UUID[]{imageUUID});
 
-        mvc.perform(post("/recipes")
+        String responseJSON = mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString(Charset.defaultCharset());
 
         Recipe recipe = recipeRepository.findAll().get(0);
 
@@ -373,6 +415,45 @@ class RecipeAPITest {
         assertArrayEquals(new Rating[]{}, recipe.getRatings());
         assertEquals(testRecipe.getTime(), recipe.getTime());
         assertArrayEquals(testRecipe.getImages(), recipe.getImages());
+
+        JsonNode response = new ObjectMapper().readTree(responseJSON);
+
+        assertEquals(recipe.getId(), response.get("id").textValue());
+        assertEquals(recipe.getTitle(), response.get("title").textValue());
+        assertEquals(recipe.getUserId(), response.get("userId").textValue());
+        assertEquals(recipe.getDescription(), response.get("description").textValue());
+        assertEquals(recipe.getTime(), response.get("time").intValue());
+
+        assertTrue(response.get("images").isArray());
+
+        Arrays.stream(recipe.getImages()).forEach(image -> {
+            Iterator<JsonNode> iterator = response.get("images").iterator();
+            boolean contained = false;
+
+            while(iterator.hasNext()) {
+                if (iterator.next().textValue().equals(image.toString())) {
+                    contained = true;
+                    break;
+                }
+            }
+
+            assertTrue(contained, () -> "Image id " + image.toString() + " not in response!");
+        });
+
+        Arrays.stream(recipe.getIngredients()).forEach(ingredient -> {
+            Iterator<JsonNode> iterator = response.get("ingredients").iterator();
+            List<JsonNode> nodeList = new ArrayList<>();
+
+            iterator.forEachRemaining(nodeList::add);
+
+            assertTrue(nodeList.stream().anyMatch(node -> {
+                boolean amountEquals = node.get("amount").intValue() == ingredient.getAmount();
+                boolean unitEquals = node.get("unit").textValue().equals(ingredient.getUnit());
+                boolean nameEquals = node.get("name").textValue().equals(ingredient.getName());
+
+                return amountEquals && unitEquals && nameEquals;
+            }));
+        });
     }
 
     // PUT TESTS
@@ -631,7 +712,7 @@ class RecipeAPITest {
         testRecipe.setDescription("TestDescription");
         testRecipe.setDifficulty(1);
         testRecipe.setTime(0);
-        testRecipe.setImages(new UUID[]{UUID.fromString(SampleSource.getSampleUUIDs().toList().get(0))});
+        testRecipe.setImages(new UUID[]{UUID.fromString(SampleSource.getSampleUUIDs().get(0))});
 
         mvc.perform(post("/recipes")
                         .content(new ObjectMapper().writer().writeValueAsString(testRecipe))

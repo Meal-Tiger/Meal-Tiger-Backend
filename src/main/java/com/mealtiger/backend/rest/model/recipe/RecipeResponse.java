@@ -1,10 +1,18 @@
 package com.mealtiger.backend.rest.model.recipe;
 
 import com.mealtiger.backend.database.model.recipe.Ingredient;
+import com.mealtiger.backend.rest.model.Response;
+
 import java.util.UUID;
 
+/**
+ * Response for the Recipe database model.
+ * It does not include the ratings as these are queried using a different endpoint.
+ * You could say, this class is used to map the database representation
+ * of a recipe to the representation of a recipe used in the API documentation.
+ */
 @SuppressWarnings("unused")
-public class RecipeResponse {
+public class RecipeResponse implements Response {
 
     private final String id;
     private final String title;

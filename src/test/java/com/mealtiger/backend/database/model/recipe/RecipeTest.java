@@ -1,5 +1,6 @@
 package com.mealtiger.backend.database.model.recipe;
 
+import com.mealtiger.backend.SampleSource;
 import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
 import org.junit.jupiter.api.Test;
@@ -16,9 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class RecipeTest {
 
-    private static final String SAMPLE_USER_ID = "123e4567-e89b-12d3-a456-42661417400";
-    private static final String SAMPLE_IMAGE_ID = "bc2ef248-91a5-4f06-86f1-726b412170ca";
-
     /**
      * Tests if Recipe converted to RecipeResponse is equal to original Recipe.
      */
@@ -28,7 +26,7 @@ class RecipeTest {
 
         Recipe recipe = new Recipe(
                 "Gebrannte Mandeln",
-                SAMPLE_USER_ID,
+                SampleSource.SAMPLE_USER_ID,
                 new Ingredient[]{
                         new Ingredient(500, "Gramm", "Mandeln, geschält"),
                         new Ingredient(200, "Gramm", "Zucker")
@@ -40,7 +38,7 @@ class RecipeTest {
                 new UUID[]{}
         );
 
-        RecipeResponse recipeResponse = recipe.toResponse();
+        RecipeResponse recipeResponse = (RecipeResponse) recipe.toResponse();
 
         assertEquals(recipe.getId(), recipeResponse.getId());
         assertEquals(recipe.getUserId(), recipeResponse.getUserId());
@@ -54,19 +52,22 @@ class RecipeTest {
 
         recipe = new Recipe(
                 "Gebrannte Mandeln",
-                SAMPLE_USER_ID,
+                SampleSource.SAMPLE_USER_ID,
                 new Ingredient[]{
                         new Ingredient(500, "Gramm", "Mandeln, geschält"),
                         new Ingredient(200, "Gramm", "Zucker")
                 },
                 "TestDescription",
                 3,
-                new Rating[]{new Rating(4, "Comment", SAMPLE_USER_ID), new Rating(2, "Second comment", SAMPLE_USER_ID)},
+                new Rating[]{
+                        new Rating(SampleSource.getSampleUUIDs().get(0), 4, "Comment", SampleSource.SAMPLE_USER_ID),
+                        new Rating(SampleSource.getSampleUUIDs().get(1), 2, "Second comment", SampleSource.SAMPLE_USER_ID)
+                },
                 15,
                 new UUID[]{}
         );
 
-        recipeResponse = recipe.toResponse();
+        recipeResponse = (RecipeResponse) recipe.toResponse();
 
         assertEquals(recipe.getId(), recipeResponse.getId());
         assertEquals(recipe.getUserId(), recipeResponse.getUserId());
@@ -80,19 +81,25 @@ class RecipeTest {
 
         recipe = new Recipe(
                 "Gebrannte Mandeln",
-                SAMPLE_USER_ID,
+                SampleSource.SAMPLE_USER_ID,
                 new Ingredient[]{
                         new Ingredient(500, "Gramm", "Mandeln, geschält"),
                         new Ingredient(200, "Gramm", "Zucker")
                 },
                 "TestDescription",
                 3,
-                new Rating[]{new Rating(4, "This is a sample", SAMPLE_USER_ID), new Rating(2, "Other Sample",SAMPLE_USER_ID)},
+                new Rating[]{
+                        new Rating(SampleSource.getSampleUUIDs().get(0), 4, "This is a sample", SampleSource.SAMPLE_USER_ID),
+                        new Rating(SampleSource.getSampleUUIDs().get(0), 2, "Other Sample", SampleSource.SAMPLE_USER_ID)
+                },
                 15,
-                new UUID[]{UUID.fromString("e818d27a-ee98-473d-82d3-9e2455969ab0"), UUID.fromString("a3e94848-3ee4-4200-a9ed-a7f00debe554")}
+                new UUID[]{
+                        UUID.fromString(SampleSource.getSampleUUIDs().get(0)),
+                        UUID.fromString(SampleSource.getSampleUUIDs().get(1))
+                }
         );
 
-        recipeResponse = recipe.toResponse();
+        recipeResponse = (RecipeResponse) recipe.toResponse();
 
         assertEquals(recipe.getId(), recipeResponse.getId());
         assertEquals(recipe.getUserId(), recipeResponse.getUserId());
@@ -117,9 +124,9 @@ class RecipeTest {
         recipeRequest.setDescription("TestDescription");
         recipeRequest.setDifficulty(3);
         recipeRequest.setTime(15);
-        recipeRequest.setImages(new UUID[]{UUID.fromString(SAMPLE_IMAGE_ID)});
+        recipeRequest.setImages(new UUID[]{UUID.fromString(SampleSource.SAMPLE_IMAGE_ID)});
 
-        Recipe recipe = Recipe.fromRequest(recipeRequest);
+        Recipe recipe = recipeRequest.toEntity();
 
         assertEquals(recipeRequest.getTitle(), recipe.getTitle());
         assertArrayEquals(recipeRequest.getIngredients(), recipe.getIngredients());

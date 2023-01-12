@@ -1,6 +1,7 @@
 package com.mealtiger.backend.database.model.recipe;
 
-import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
+import com.mealtiger.backend.rest.model.QueriedObject;
+import com.mealtiger.backend.rest.model.Response;
 import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceCreator;
@@ -8,7 +9,9 @@ import org.springframework.data.mongodb.core.index.IndexDirection;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * This class serves as a model for the recipes stored in database.
@@ -17,7 +20,7 @@ import java.util.*;
  */
 
 @Document(collection = "recipe")
-public class Recipe {
+public class Recipe implements QueriedObject {
     @Id
     private String id;
     @Indexed(direction = IndexDirection.ASCENDING)
@@ -182,7 +185,8 @@ public class Recipe {
 
     // DTO Methods
 
-    public RecipeResponse toResponse() {
+    @Override
+    public Response toResponse() {
         return new RecipeResponse(
                 this.getId(),
                 this.getTitle(),
@@ -192,19 +196,6 @@ public class Recipe {
                 this.getDifficulty(),
                 this.getTime(),
                 this.getImages()
-        );
-    }
-
-    public static Recipe fromRequest(RecipeRequest recipeRequest) {
-        return new Recipe(
-                recipeRequest.getTitle(),
-                null,
-                recipeRequest.getIngredients(),
-                recipeRequest.getDescription(),
-                recipeRequest.getDifficulty(),
-                new Rating[]{},
-                recipeRequest.getTime(),
-                recipeRequest.getImages()
         );
     }
 }

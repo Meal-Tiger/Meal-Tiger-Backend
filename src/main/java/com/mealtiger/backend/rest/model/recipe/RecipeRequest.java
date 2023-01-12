@@ -2,12 +2,23 @@ package com.mealtiger.backend.rest.model.recipe;
 
 import com.mealtiger.backend.database.model.image_metadata.validation.ImageExists;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
+import com.mealtiger.backend.database.model.recipe.Rating;
+import com.mealtiger.backend.database.model.recipe.Recipe;
+import com.mealtiger.backend.rest.model.Request;
 
 import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.UUID;
 
-public class RecipeRequest {
+/**
+ * Request entity for the Recipe database model.
+ * It is used to validate a request made,
+ * but also to ensure no fields are submitted that are added by other users (i.e. the ratings)
+ * or that are adjusted by the logic itself (e.g. the userId or the id of the recipe itself)
+ */
+public class RecipeRequest implements Request<Recipe> {
+
+    // FIELDS
 
     @NotBlank(message = "Recipe title is mandatory!")
     private String title;
@@ -25,6 +36,34 @@ public class RecipeRequest {
 
     @ImageExists(message = "At least one image does not exist!")
     private UUID[] images;
+
+    // GETTERS
+
+    public Ingredient[] getIngredients() {
+        return ingredients;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public double getDifficulty() {
+        return difficulty;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public UUID[] getImages() {
+        return images;
+    }
+
+    // SETTERS
 
     public void setTitle(String title) {
         this.title = title;
@@ -50,27 +89,19 @@ public class RecipeRequest {
         this.images = images;
     }
 
-    public Ingredient[] getIngredients() {
-        return ingredients;
-    }
+    // TO ENTITY
 
-    public String getDescription() {
-        return description;
-    }
-
-    public double getDifficulty() {
-        return difficulty;
-    }
-
-    public int getTime() {
-        return time;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public UUID[] getImages() {
-        return images;
+    @Override
+    public Recipe toEntity() {
+        return new Recipe(
+                getTitle(),
+                null,
+                getIngredients(),
+                getDescription(),
+                getDifficulty(),
+                new Rating[]{},
+                getTime(),
+                getImages()
+        );
     }
 }

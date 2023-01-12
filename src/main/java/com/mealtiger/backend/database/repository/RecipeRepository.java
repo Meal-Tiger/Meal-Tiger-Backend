@@ -22,4 +22,8 @@ public interface RecipeRepository extends MongoRepository<Recipe, String> {
      */
     Page<Recipe> findRecipesByTitleContaining(String title, Pageable pageable);
 
+    /**
+     * Finds all recipes who have a rating with given id.
+     */
+    Recipe findRecipeByRatings_Id(String id);
 }

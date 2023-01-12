@@ -1,8 +1,9 @@
 package com.mealtiger.backend.rest.api;
 
 import com.mealtiger.backend.configuration.Configurator;
-import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.rest.controller.RecipeController;
+import com.mealtiger.backend.rest.model.Response;
+import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.Map;
 
 /**
@@ -76,13 +78,13 @@ public class RecipeAPI {
      *               HTTP Status 200 if adding recipe was successful, HTTP Status 500 on error/exception.
      */
     @PostMapping("/recipes")
-    public ResponseEntity<String> postRecipe(@Valid @RequestBody RecipeRequest recipeRequest) {
+    public ResponseEntity<Response> postRecipe(@Valid @RequestBody RecipeRequest recipeRequest) {
         log.debug("Recipe posted: {}", recipeRequest);
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        recipeController.saveRecipe(recipeRequest, userId);
+        Response savedRecipe = recipeController.saveRecipe(recipeRequest, userId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.created(URI.create("/recipes/" + ((RecipeResponse) savedRecipe).getId())).body(savedRecipe);
     }
 
     /**
@@ -92,10 +94,10 @@ public class RecipeAPI {
      * @return HTTP Status 200 if getting recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
     @GetMapping("/recipes/{id}")
-    public ResponseEntity<RecipeResponse> getSingleRecipe(@PathVariable(value = "id") String id) {
+    public ResponseEntity<Response> getSingleRecipe(@PathVariable(value = "id") String id) {
         log.debug("Getting recipe with id {}!", id);
 
-        RecipeResponse returnValue = recipeController.getRecipe(id);
+        Response returnValue = recipeController.getRecipe(id);
 
         return ResponseEntity.ok(returnValue);
     }

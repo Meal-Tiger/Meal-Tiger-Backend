@@ -1,9 +1,15 @@
 package com.mealtiger.backend.database.model.recipe;
 
+import com.mealtiger.backend.rest.model.QueriedObject;
+import com.mealtiger.backend.rest.model.Response;
+import com.mealtiger.backend.rest.model.rating.RatingResponse;
+
 /**
  * This class serves as the model for a rating.
  */
-public class Rating {
+public class Rating implements QueriedObject {
+
+    private String id;
 
     private final int ratingValue;
 
@@ -11,13 +17,18 @@ public class Rating {
 
     private String userId;
 
-    public Rating(int ratingValue, String comment, String userId) {
+    public Rating(String id, int ratingValue, String comment, String userId) {
+        this.id = id;
         this.ratingValue = ratingValue;
         this.comment = comment;
         this.userId = userId;
     }
 
     // GETTER
+
+    public String getId() {
+        return id;
+    }
 
     public int getRatingValue() {
         return ratingValue;
@@ -32,6 +43,10 @@ public class Rating {
     }
 
     // SETTER
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public void setUserId(String userId) {
         this.userId = userId;
@@ -63,5 +78,10 @@ public class Rating {
                 "ratingValue=" + ratingValue +
                 ", userId='" + userId + '\'' +
                 '}';
+    }
+
+    @Override
+    public Response toResponse() {
+        return new RatingResponse(id, getUserId(), getRatingValue(), getComment());
     }
 }

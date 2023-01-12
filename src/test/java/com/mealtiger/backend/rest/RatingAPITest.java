@@ -1,7 +1,9 @@
 package com.mealtiger.backend.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mealtiger.backend.BackendApplication;
+import com.mealtiger.backend.SampleSource;
 import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.database.repository.RecipeRepository;
@@ -16,6 +18,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.charset.Charset;
+
+import static com.mealtiger.backend.SampleSource.SAMPLE_RATING_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -60,6 +65,22 @@ class RatingAPITest {
     }
 
     /**
+     * Integration test for GET on /ratings endpoint
+     */
+    @Test
+    void getRatingTest() throws Exception {
+        Rating rating = recipeRepository.save(SampleSource.getSampleRecipesWithRatings().get(0)).getRatings()[0];
+
+        mvc.perform(get("/ratings/" + rating.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.ratingValue").value(rating.getRatingValue()))
+                .andExpect(jsonPath("$.comment").value(rating.getComment()))
+                .andExpect(jsonPath("$.userId").value(rating.getUserId()))
+                .andExpect(jsonPath("$.id").value(rating.getId()));
+    }
+
+    /**
      * Integration test for GET on average rating endpoint.
      */
     @Test
@@ -86,12 +107,27 @@ class RatingAPITest {
         request.setRatingValue(5);
         request.setComment("Very good, indeed!");
 
-        mvc.perform(post("/recipes/" + testId + "/ratings")
+        String resultJSON = mvc.perform(post("/recipes/" + testId + "/ratings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writer().writeValueAsString(request)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString(Charset.defaultCharset());
 
-        assertEquals(5, recipeRepository.findAll().get(0).getRatings()[0].getRatingValue());
+        Rating rating = recipeRepository.findAll().get(0).getRatings()[0];
+
+        assertEquals(request.getRatingValue(), rating.getRatingValue());
+        assertEquals(request.getComment(), rating.getComment());
+        assertEquals("6e61cfe3-ba89-4ad0-b3b1-5f7bdbbfa887", rating.getUserId());
+
+        JsonNode resultTree = new ObjectMapper().readTree(resultJSON);
+
+        assertEquals(request.getRatingValue(), resultTree.get("ratingValue").intValue());
+        assertEquals(request.getComment(), resultTree.get("comment").textValue());
+        assertEquals("6e61cfe3-ba89-4ad0-b3b1-5f7bdbbfa887", resultTree.get("userId").textValue());
+        assertEquals(rating.getId(), resultTree.get("id").textValue());
+
     }
 
     /**
@@ -107,12 +143,27 @@ class RatingAPITest {
         request.setRatingValue(5);
         request.setComment("Better than I originally thought!");
 
-        mvc.perform(put("/recipes/" + testId + "/ratings")
+        String responseJSON = mvc.perform(put("/recipes/" + testId + "/ratings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writer().writeValueAsString(request)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString(Charset.defaultCharset());
 
-        assertEquals(5, recipeRepository.findAll().get(0).getRatings()[0].getRatingValue());
+        Rating rating = recipeRepository.findAll().get(0).getRatings()[0];
+
+        assertEquals(request.getRatingValue(), rating.getRatingValue());
+        assertEquals(request.getComment(), rating.getComment());
+        assertEquals("6e61cfe3-ba89-4ad0-b3b1-5f7bdbbfa887", rating.getUserId());
+
+        JsonNode resultTree = new ObjectMapper().readTree(responseJSON);
+
+        assertEquals(request.getRatingValue(), resultTree.get("ratingValue").intValue());
+        assertEquals(request.getComment(), resultTree.get("comment").textValue());
+        assertEquals("6e61cfe3-ba89-4ad0-b3b1-5f7bdbbfa887", resultTree.get("userId").textValue());
+        assertEquals(rating.getId(), resultTree.get("id").textValue());
+
 
         request.setRatingValue(4);
         request.setComment("Next day was like hell - never ever am I going to eat that again. However, was very tasty!");
@@ -122,7 +173,11 @@ class RatingAPITest {
                         .content(new ObjectMapper().writer().writeValueAsString(request)))
                 .andExpect(status().isNoContent());
 
-        assertEquals(4, recipeRepository.findAll().get(0).getRatings()[0].getRatingValue());
+        rating = recipeRepository.findAll().get(0).getRatings()[0];
+
+        assertEquals(request.getRatingValue(), rating.getRatingValue());
+        assertEquals(request.getComment(), rating.getComment());
+        assertEquals("6e61cfe3-ba89-4ad0-b3b1-5f7bdbbfa887", rating.getUserId());
     }
 
     /**
@@ -361,7 +416,7 @@ class RatingAPITest {
                 .andExpect(jsonPath("$.status").value("400"));
 
         sampleRecipe.setRatings(new Rating[]{
-                new Rating(4, "Some comment...", "123e4567-e89b-12d3-a456-42661417400")
+                new Rating(SAMPLE_RATING_ID, 4, "Some comment...", "123e4567-e89b-12d3-a456-42661417400")
         });
         recipeRepository.save(sampleRecipe);
 
