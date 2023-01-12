@@ -132,6 +132,13 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         return handleExceptionInternal(e, errorMessage, headers, HttpStatus.BAD_REQUEST, request);
     }
 
+    /**
+     * This exception handler handles the RatingOwnRecipeException.
+     * It is thrown whenever a user tries to rate their own recipe.
+     * @param e the exception thrown by the api.
+     * @param request the current request.
+     * @return ResponseEntity to be sent to the client.
+     */
     @ExceptionHandler(value = { RatingOwnRecipeException.class })
     protected ResponseEntity<Object> handleRatingOwnRecipe(RuntimeException e, WebRequest request) {
         String uri = getRequestURI(request);

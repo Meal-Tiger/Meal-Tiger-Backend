@@ -55,6 +55,12 @@ public class RatingAPI {
         return ResponseEntity.ok(recipeController.getAverageRating(id));
     }
 
+    /**
+     * Posts a rating to a recipe.
+     *
+     * @param id of the recipe to post the rating to.
+     * @return Response Entity (Status code 201) with the saved entity in its body and location in the location header.
+     */
     @PostMapping("/recipes/{id}/ratings")
     public ResponseEntity<Response> postRating(@PathVariable(value = "id") String id, @Valid @RequestBody RatingRequest rating) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -65,6 +71,12 @@ public class RatingAPI {
         return ResponseEntity.created(URI.create("/ratings/" + ((RatingResponse) savedRating).getId())).body(savedRating);
     }
 
+    /**
+     * Replaces a rating on a recipe.
+     *
+     * @param id of the recipe to replace the rating of.
+     * @return Response Entity (Status code 204) or Response Entity (Status code 201) with the saved entity in its body if it didn't exist yet.
+     */
     @PutMapping("/recipes/{id}/ratings")
     public ResponseEntity<Response> putRating(@PathVariable(value = "id") String id, @Valid @RequestBody RatingRequest rating) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -81,6 +93,12 @@ public class RatingAPI {
         }
     }
 
+    /**
+     * Deletes the rating of a recipe.
+     *
+     * @param id of the recipe to get the ratings from.
+     * @return Response Entity (Status code 200).
+     */
     @DeleteMapping("/recipes/{id}/ratings")
     public ResponseEntity<Void> deleteRating(@PathVariable(value = "id") String id) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();

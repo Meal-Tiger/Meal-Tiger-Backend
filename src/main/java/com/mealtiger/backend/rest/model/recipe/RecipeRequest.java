@@ -10,6 +10,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 import java.util.UUID;
 
+/**
+ * Request entity for the Recipe database model.
+ * It is used to validate a request made,
+ * but also to ensure no fields are submitted that are added by other users (i.e. the ratings)
+ * or that are adjusted by the logic itself (e.g. the userId or the id of the recipe itself)
+ */
 public class RecipeRequest implements Request<Recipe> {
 
     // FIELDS
