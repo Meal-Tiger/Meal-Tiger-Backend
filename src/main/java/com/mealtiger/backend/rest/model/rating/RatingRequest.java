@@ -6,6 +6,9 @@ import com.mealtiger.backend.rest.model.Request;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 
+/**
+ * Request for the Rating model.
+ */
 @SuppressWarnings("unused")
 public class RatingRequest implements Request<Rating> {
 

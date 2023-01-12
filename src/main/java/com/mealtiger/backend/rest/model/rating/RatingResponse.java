@@ -2,6 +2,9 @@ package com.mealtiger.backend.rest.model.rating;
 
 import com.mealtiger.backend.rest.model.Response;
 
+/**
+ * Response for the Rating model.
+ */
 public class RatingResponse implements Response {
 
     // FIELDS

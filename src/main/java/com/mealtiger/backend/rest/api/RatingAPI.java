@@ -30,6 +30,14 @@ public class RatingAPI {
         this.recipeController = recipeController;
     }
 
+    /**
+     * Gets all ratings for requested recipe id paginated.
+     *
+     * @param id of the recipe to get the ratings from.
+     * @param page # of current page, default is 0.
+     * @param size page size, default is 3.
+     * @return Response Entity (Status code 200) with the rating page map in its body.
+     */
     @GetMapping("/recipes/{id}/ratings")
     public ResponseEntity<Map<String, Object>> getRatings(@PathVariable(value = "id") String id,
                                                           @RequestParam(value = "page", defaultValue = "0") int page,
@@ -40,6 +48,12 @@ public class RatingAPI {
         return ResponseEntity.ok(ratingPage);
     }
 
+    /**
+     * Gets a specific rating.
+     *
+     * @param id of the rating.
+     * @return Response Entity (Status code 200) with the response in its body.
+     */
     @GetMapping("/ratings/{id}")
     public ResponseEntity<Response> getRating(@PathVariable(value = "id") String id) {
         log.debug("Trying to get rating with id {}.", id);
@@ -48,6 +62,12 @@ public class RatingAPI {
         return ResponseEntity.ok(rating);
     }
 
+    /**
+     * Gets the average rating of a recipe.
+     *
+     * @param id of the recipe to get the ratings from.
+     * @return Response Entity (Status code 200) with the response in its body.
+     */
     @GetMapping("/recipes/{id}/rating")
     public ResponseEntity<Response> getAverageRating(@PathVariable(value = "id") String id) {
         log.debug("Trying to get average rating for recipe {}.", id);
@@ -55,6 +75,12 @@ public class RatingAPI {
         return ResponseEntity.ok(recipeController.getAverageRating(id));
     }
 
+    /**
+     * Posts a rating to a recipe.
+     *
+     * @param id of the recipe to post the rating to.
+     * @return Response Entity (Status code 201) with the saved entity in its body and location in the location header.
+     */
     @PostMapping("/recipes/{id}/ratings")
     public ResponseEntity<Response> postRating(@PathVariable(value = "id") String id, @Valid @RequestBody RatingRequest rating) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -65,6 +91,12 @@ public class RatingAPI {
         return ResponseEntity.created(URI.create("/ratings/" + ((RatingResponse) savedRating).getId())).body(savedRating);
     }
 
+    /**
+     * Replaces a rating on a recipe.
+     *
+     * @param id of the recipe to replace the rating of.
+     * @return Response Entity (Status code 204) or Response Entity (Status code 201) with the saved entity in its body if it didn't exist yet.
+     */
     @PutMapping("/recipes/{id}/ratings")
     public ResponseEntity<Response> putRating(@PathVariable(value = "id") String id, @Valid @RequestBody RatingRequest rating) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -81,6 +113,12 @@ public class RatingAPI {
         }
     }
 
+    /**
+     * Deletes the rating of a recipe.
+     *
+     * @param id of the recipe to get the ratings from.
+     * @return Response Entity (Status code 200).
+     */
     @DeleteMapping("/recipes/{id}/ratings")
     public ResponseEntity<Void> deleteRating(@PathVariable(value = "id") String id) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
