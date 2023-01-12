@@ -22,6 +22,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -77,6 +78,8 @@ public class ImageAPI {
             }
         }
 
+        // Location header cannot be set because there are multiple locations.
+        // Ideally, one would use a new bulk endpoint, but this is too complicated for this use case.
         return ResponseEntity.status(HttpStatus.CREATED).body(uuids);
     }
 
@@ -105,7 +108,7 @@ public class ImageAPI {
             throw new UploadException("Could not open uploaded file " + file.getName() + ". Reason: " + e.getMessage());
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(uuid);
+        return ResponseEntity.created(URI.create("/images/" + uuid)).body(uuid);
     }
 
     /**

@@ -3,6 +3,7 @@ package com.mealtiger.backend.rest.api;
 import com.mealtiger.backend.rest.controller.RecipeController;
 import com.mealtiger.backend.rest.model.Response;
 import com.mealtiger.backend.rest.model.rating.RatingRequest;
+import com.mealtiger.backend.rest.model.rating.RatingResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,14 @@ public class RatingAPI {
         return ResponseEntity.ok(ratingPage);
     }
 
+    @GetMapping("/ratings/{id}")
+    public ResponseEntity<Response> getRating(@PathVariable(value = "id") String id) {
+        log.debug("Trying to get rating with id {}.", id);
+
+        Response rating = recipeController.getRating(id);
+        return ResponseEntity.ok(rating);
+    }
+
     @GetMapping("/recipes/{id}/rating")
     public ResponseEntity<Response> getAverageRating(@PathVariable(value = "id") String id) {
         log.debug("Trying to get average rating for recipe {}.", id);
@@ -53,7 +62,7 @@ public class RatingAPI {
         log.debug("User {} is trying to add rating {} to recipe {}!", userId, rating, id);
 
         Response savedRating = recipeController.addRating(id, userId, rating);
-        return ResponseEntity.created(URI.create("/recipes/" + id)).body(savedRating);
+        return ResponseEntity.created(URI.create("/ratings/" + ((RatingResponse) savedRating).getId())).body(savedRating);
     }
 
     @PutMapping("/recipes/{id}/ratings")
@@ -68,7 +77,7 @@ public class RatingAPI {
         } else {
             log.trace("Rating by {} on {} does not exist yet! Trying to create one instead!", userId, id);
             Response savedRating = recipeController.addRating(id, userId, rating);
-            return ResponseEntity.created(URI.create("/recipes/" + id)).body(savedRating);
+            return ResponseEntity.created(URI.create("/ratings/" + ((RatingResponse) savedRating).getId())).body(savedRating);
         }
     }
 

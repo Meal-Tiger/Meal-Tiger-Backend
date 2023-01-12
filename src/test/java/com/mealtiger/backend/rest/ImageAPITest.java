@@ -95,8 +95,9 @@ class ImageAPITest {
                 .file(file)
         )
                 .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(matchesPattern("\\\"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}\\\"")));
+                .andExpect(content().string(matchesPattern("\"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}\"")));
     }
 
     /**
@@ -230,7 +231,7 @@ class ImageAPITest {
                 )
                 .andExpect(status().isCreated())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(content().string(matchesPattern("\\\"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}\\\"")))
+                .andExpect(content().string(matchesPattern("\"[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}\"")))
                 .andReturn();
 
         String uuid = result.getResponse().getContentAsString().substring(1,37);

@@ -82,11 +82,11 @@ public class RecipeController {
      *
      * @param recipeRequest Recipe to be saved.
      */
-    public void saveRecipe(RecipeRequest recipeRequest, String userID) {
+    public Response saveRecipe(RecipeRequest recipeRequest, String userID) {
         Recipe recipe = recipeRequest.toEntity();
         recipe.setUserId(userID);
         log.trace("Saving recipe {} to repository!", recipe);
-        recipeRepository.save(recipe);
+        return recipeRepository.save(recipe).toResponse();
     }
 
     /**
@@ -186,6 +186,24 @@ public class RecipeController {
         return assemblePaginatedResult(ratingPage.map(Rating::toResponse), "ratings");
     }
 
+    /**
+     * Gets the rating with a certain id.
+     * @param id ID of the rating to get.
+     * @return RatingResponse of the rating.
+     */
+    public Response getRating(String id) {
+        Recipe recipe = recipeRepository.findRecipeByRatings_Id(id);
+        return Arrays.stream(recipe.getRatings())
+                .filter(rating -> rating.getId().equals(id))
+                .map(Rating::toResponse)
+                .findAny().orElseThrow(() -> new EntityNotFoundException("Rating " + id + " does not exist!"));
+    }
+
+    /**
+     * Gets the average rating of all ratings of a recipe
+     * @param recipeId Recipe to get the average rating from.
+     * @return AverageRatingResponse with the average rating
+     */
     public Response getAverageRating(String recipeId) {
         Recipe recipe = getRecipeFromRepository(recipeId);
         return new AverageRatingResponse(Arrays.stream(recipe.getRatings()).mapToDouble(Rating::getRatingValue).average().orElse(0));

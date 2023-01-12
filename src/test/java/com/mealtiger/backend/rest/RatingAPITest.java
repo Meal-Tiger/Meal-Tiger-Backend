@@ -1,5 +1,6 @@
 package com.mealtiger.backend.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mealtiger.backend.BackendApplication;
 import com.mealtiger.backend.SampleSource;
@@ -16,6 +17,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.nio.charset.Charset;
 
 import static com.mealtiger.backend.SampleSource.SAMPLE_RATING_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -88,12 +91,27 @@ class RatingAPITest {
         request.setRatingValue(5);
         request.setComment("Very good, indeed!");
 
-        mvc.perform(post("/recipes/" + testId + "/ratings")
+        String resultJSON = mvc.perform(post("/recipes/" + testId + "/ratings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writer().writeValueAsString(request)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString(Charset.defaultCharset());
 
-        assertEquals(5, recipeRepository.findAll().get(0).getRatings()[0].getRatingValue());
+        Rating rating = recipeRepository.findAll().get(0).getRatings()[0];
+
+        assertEquals(request.getRatingValue(), rating.getRatingValue());
+        assertEquals(request.getComment(), rating.getComment());
+        assertEquals("6e61cfe3-ba89-4ad0-b3b1-5f7bdbbfa887", rating.getUserId());
+
+        JsonNode resultTree = new ObjectMapper().readTree(resultJSON);
+
+        assertEquals(request.getRatingValue(), resultTree.get("ratingValue").intValue());
+        assertEquals(request.getComment(), resultTree.get("comment").textValue());
+        assertEquals("6e61cfe3-ba89-4ad0-b3b1-5f7bdbbfa887", resultTree.get("userId").textValue());
+        assertEquals(rating.getId(), resultTree.get("id").textValue());
+
     }
 
     /**
@@ -109,12 +127,27 @@ class RatingAPITest {
         request.setRatingValue(5);
         request.setComment("Better than I originally thought!");
 
-        mvc.perform(put("/recipes/" + testId + "/ratings")
+        String responseJSON = mvc.perform(put("/recipes/" + testId + "/ratings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writer().writeValueAsString(request)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn().getResponse().getContentAsString(Charset.defaultCharset());
 
-        assertEquals(5, recipeRepository.findAll().get(0).getRatings()[0].getRatingValue());
+        Rating rating = recipeRepository.findAll().get(0).getRatings()[0];
+
+        assertEquals(request.getRatingValue(), rating.getRatingValue());
+        assertEquals(request.getComment(), rating.getComment());
+        assertEquals("6e61cfe3-ba89-4ad0-b3b1-5f7bdbbfa887", rating.getUserId());
+
+        JsonNode resultTree = new ObjectMapper().readTree(responseJSON);
+
+        assertEquals(request.getRatingValue(), resultTree.get("ratingValue").intValue());
+        assertEquals(request.getComment(), resultTree.get("comment").textValue());
+        assertEquals("6e61cfe3-ba89-4ad0-b3b1-5f7bdbbfa887", resultTree.get("userId").textValue());
+        assertEquals(rating.getId(), resultTree.get("id").textValue());
+
 
         request.setRatingValue(4);
         request.setComment("Next day was like hell - never ever am I going to eat that again. However, was very tasty!");
@@ -124,7 +157,11 @@ class RatingAPITest {
                         .content(new ObjectMapper().writer().writeValueAsString(request)))
                 .andExpect(status().isNoContent());
 
-        assertEquals(4, recipeRepository.findAll().get(0).getRatings()[0].getRatingValue());
+        rating = recipeRepository.findAll().get(0).getRatings()[0];
+
+        assertEquals(request.getRatingValue(), rating.getRatingValue());
+        assertEquals(request.getComment(), rating.getComment());
+        assertEquals("6e61cfe3-ba89-4ad0-b3b1-5f7bdbbfa887", rating.getUserId());
     }
 
     /**
