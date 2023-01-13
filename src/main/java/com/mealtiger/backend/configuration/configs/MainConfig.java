@@ -9,7 +9,7 @@ import org.springframework.boot.logging.LogLevel;
  * Properties are represented as non-static fields. Categories can be done by nesting the properties in static nested classes.
  */
 
-@Config(name = "Main", configPath = "main.yml")
+@Config(name = "Main", configPath = "main.yml", sampleConfig = "configuration-samples/main.sample.yml")
 @SuppressWarnings("unused")
 public class MainConfig {
     private final Logging logging;
@@ -19,7 +19,7 @@ public class MainConfig {
         logging = new Logging();
     }
 
-    @ConfigNode(name = "Logging.logLevel", envKey = "LOGLEVEL")
+    @ConfigNode(name = "Logging.logLevel", envKey = "LOGLEVEL", springProperties = "logging.level.root")
     @SuppressWarnings("unused")
     public String getLogLevel() {
         return logging.logLevel;

@@ -20,14 +20,18 @@ public class AuthenticationConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticationConfiguration.class);
 
+    private final Configurator configurator;
+
+    public AuthenticationConfiguration(Configurator configurator) {
+        this.configurator = configurator;
+    }
+
     /**
      * This security filter chain provides authentication through JWTs which is coordinated through a Keycloak Authentication Provider
      * @param http Automatically injected by spring
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        Configurator configurator = new Configurator();
-
         if(configurator.getBoolean("Authentication.OIDC.oidcAuthenticationStatus")) {
             log.trace("Going through OIDC security filter chain!");
 

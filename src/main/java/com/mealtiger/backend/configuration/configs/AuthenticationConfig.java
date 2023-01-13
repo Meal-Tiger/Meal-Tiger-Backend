@@ -10,7 +10,7 @@ import com.mealtiger.backend.configuration.annotations.ConfigNode;
  * @see com.mealtiger.backend.configuration.Configurator
  */
 
-@Config(name = "Authentication", configPath = "auth.yml")
+@Config(name = "Authentication", configPath = "auth.yml", sampleConfig = "configuration-samples/auth.sample.yml")
 @SuppressWarnings("unused")
 public class AuthenticationConfig {
 

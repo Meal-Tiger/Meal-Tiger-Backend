@@ -31,7 +31,8 @@ public class ImageConfig {
         maxFileSize = "5MB";
     }
 
-    @ConfigNode(name = "maxFileSize", envKey = "MAX_IMAGE_FILE_SIZE")
+    @ConfigNode(name = "maxFileSize", envKey = "MAX_IMAGE_FILE_SIZE",
+            springProperties = {"spring.servlet.multipart.max-file-size", "spring.servlet.multipart.max-request-size"})
     public String getMaxFileSize() {
         return maxFileSize;
     }
