@@ -36,6 +36,11 @@ public class AuthenticationConfig {
         return oidc.clientID;
     }
 
+    @ConfigNode(name = "OIDC.adminRole", envKey = "OIDC_ADMIN_ROLE")
+    public String getAdminRole() {
+        return oidc.adminRole;
+    }
+
     static class OIDC {
         /**
          * Defines whether OIDC authentication shall be used. This setting should be set to true for production
@@ -54,13 +59,19 @@ public class AuthenticationConfig {
          */
         private final String clientID;
 
+        /**
+         * Admin Role
+         */
+        private final String adminRole;
+
         OIDC() {
-            //TODO: Set the default to true once implemented in frontend!
-            this.enableOIDCAuthentication = false;
+            this.enableOIDCAuthentication = true;
 
             this.authenticationProviderURL = "";
 
             this.clientID = "mealtiger";
+
+            this.adminRole = "ADMIN";
         }
     }
 

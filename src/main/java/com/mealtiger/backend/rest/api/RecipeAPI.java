@@ -1,12 +1,19 @@
 package com.mealtiger.backend.rest.api;
 
-import com.mealtiger.backend.database.model.recipe.RecipeDTO;
+import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.rest.controller.RecipeController;
+import com.mealtiger.backend.rest.model.Response;
+import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
+import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.net.URI;
 import java.util.Map;
 
 /**
@@ -19,13 +26,15 @@ public class RecipeAPI {
 
     private static final Logger log = LoggerFactory.getLogger(RecipeAPI.class);
     private final RecipeController recipeController;
+    private final Configurator configurator;
 
     /**
      * This constructor is called by the Spring Boot Framework to inject dependencies.
      *
      * @param recipeController Automatically injected.
      */
-    public RecipeAPI(RecipeController recipeController) {
+    public RecipeAPI(RecipeController recipeController, Configurator configurator) {
+        this.configurator = configurator;
         this.recipeController = recipeController;
     }
 
@@ -58,9 +67,6 @@ public class RecipeAPI {
             returnValue = recipeController.getRecipePage(page, size, sort);
         }
 
-        if (returnValue == null) {
-            return ResponseEntity.status(404).body(null);
-        }
         return ResponseEntity.ok(returnValue);
     }
 
@@ -68,24 +74,17 @@ public class RecipeAPI {
     /**
      * User adds a recipe to database.
      *
-     * @param recipeDTO Recipe to add.
+     * @param recipeRequest Recipe to add.
      *               HTTP Status 200 if adding recipe was successful, HTTP Status 500 on error/exception.
      */
     @PostMapping("/recipes")
-    public ResponseEntity<String> postRecipe(@RequestBody RecipeDTO recipeDTO) {
-        log.debug("Recipe posted: {}", recipeDTO);
-        if (!recipeController.checkValidity(recipeDTO)) {
-            log.debug("Bad request on posting recipe!");
-            return ResponseEntity.badRequest().body("Invalid recipe sent!");
-        }
+    public ResponseEntity<Response> postRecipe(@Valid @RequestBody RecipeRequest recipeRequest) {
+        log.debug("Recipe posted: {}", recipeRequest);
 
-        if (recipeDTO.getId() != null) {
-            log.debug("Replacing user given id with null!");
-            recipeDTO.setId(null);
-        }
-        recipeController.saveRecipe(recipeDTO);
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Response savedRecipe = recipeController.saveRecipe(recipeRequest, userId);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.created(URI.create("/recipes/" + ((RecipeResponse) savedRecipe).getId())).body(savedRecipe);
     }
 
     /**
@@ -95,14 +94,11 @@ public class RecipeAPI {
      * @return HTTP Status 200 if getting recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
     @GetMapping("/recipes/{id}")
-    public ResponseEntity<RecipeDTO> getSingleRecipe(@PathVariable(value = "id") String id) {
+    public ResponseEntity<Response> getSingleRecipe(@PathVariable(value = "id") String id) {
         log.debug("Getting recipe with id {}!", id);
 
-        RecipeDTO returnValue = recipeController.getRecipe(id);
+        Response returnValue = recipeController.getRecipe(id);
 
-        if (returnValue == null) {
-            return ResponseEntity.status(404).body(null);
-        }
         return ResponseEntity.ok(returnValue);
     }
 
@@ -110,19 +106,24 @@ public class RecipeAPI {
      * Replaces recipe in database with user-given recipe.
      *
      * @param id     ID of the recipe to be replaced.
-     * @param recipeDTO Recipe to replace the old recipe.
+     * @param recipeRequest Recipe to replace the old recipe.
      * @return HTTP Status 200 if replacing recipes was successful, HTTP Status 404 if it was not found and HTTP Status 500 on error/exception.
      */
     @PutMapping("/recipes/{id}")
-    public ResponseEntity<String> replaceRecipe(@PathVariable(value = "id") String id, @RequestBody RecipeDTO recipeDTO) {
+    public ResponseEntity<String> replaceRecipe(@PathVariable(value = "id") String id, @RequestBody RecipeRequest recipeRequest) {
         log.debug("Editing recipe with id {}!", id);
 
-        if (!recipeController.checkValidity(recipeDTO)) {
-            log.debug("Bad request on editing recipe with id {}!", id);
-            return ResponseEntity.badRequest().body("Invalid recipe sent!");
+        String adminRole = configurator.getString("Authentication.OIDC.adminRole");
+
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(adminRole));
+
+        if (!recipeController.isUserRecipeOwner(id, userId) && !isAdmin) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        return recipeController.replaceRecipe(id, recipeDTO) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        recipeController.replaceRecipe(id, recipeRequest);
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -135,6 +136,16 @@ public class RecipeAPI {
     public ResponseEntity<Void> deleteRecipe(@PathVariable(value = "id") String id) {
         log.debug("Deleting recipe with id {}!", id);
 
-        return recipeController.deleteRecipe(id) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        String adminRole = configurator.getString("Authentication.OIDC.adminRole");
+
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(adminRole));
+
+        if (!recipeController.isUserRecipeOwner(id, userId) && !isAdmin) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        recipeController.deleteRecipe(id);
+        return ResponseEntity.noContent().build();
     }
 }
