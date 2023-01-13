@@ -132,11 +132,7 @@ public class Configurator {
         properties.put("spring.main.banner-mode", "off");
         properties.put("spring.autoconfigure.exclude", "org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration");
 
-        String maxFileSize = getString("Image.maxFileSize");
-        properties.put("spring.servlet.multipart.max-file-size", maxFileSize);
-        properties.put("spring.servlet.multipart.max-request-size", maxFileSize);
-
-        log.debug("Handing over spring properties: {}!", properties);
+        log.trace("Handing over spring properties: {}!", properties);
 
         return properties;
     }
