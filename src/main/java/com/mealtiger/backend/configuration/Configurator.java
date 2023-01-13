@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.util.AnnotatedTypeScanner;
 import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.TypeDescription;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -29,6 +30,7 @@ public class Configurator {
 
     private static final Map<String, Object> loadedConfigs = new HashMap<>();
     private static final Map<String, String> environmentVariables = new HashMap<>();
+    private static final List<TypeDescription> typeDescriptions = new ArrayList<>();
 
     public Configurator() {
         if (loadedConfigs.isEmpty()) {
@@ -80,7 +82,9 @@ public class Configurator {
 
             String configName = annotation.name();
 
-            ConfigLoader configLoader = new ConfigLoader();
+            typeDescriptions.add(new TypeDescription(configClass, configName));
+
+            ConfigLoader configLoader = new ConfigLoader(typeDescriptions);
             Object config = configLoader.loadConfig(configClass);
 
             loadedConfigs.put(configName, config);

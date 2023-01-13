@@ -5,12 +5,16 @@ import com.mealtiger.backend.configuration.exceptions.ConfigLoadingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.introspector.BeanAccess;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
+import java.util.List;
 
 /**
  * This class is used to load configs.
@@ -24,12 +28,24 @@ public class ConfigLoader {
 
     private final Yaml yaml;
 
-    ConfigLoader() {
-        DumperOptions options = new DumperOptions();
-        options.setPrettyFlow(true);
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+    ConfigLoader(List<TypeDescription> typeDescriptionList) {
+        DumperOptions dumperOptions = new DumperOptions();
+        dumperOptions.setPrettyFlow(true);
+        dumperOptions.setProcessComments(true);
 
-        yaml = new Yaml(options);
+        Representer representer = new Representer(dumperOptions);
+        representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+
+        LoaderOptions loaderOptions = new LoaderOptions();
+
+        org.yaml.snakeyaml.constructor.Constructor constructor = new org.yaml.snakeyaml.constructor.Constructor(loaderOptions);
+
+        for (TypeDescription typeDescription : typeDescriptionList) {
+            constructor.addTypeDescription(typeDescription);
+            representer.addTypeDescription(typeDescription);
+        }
+
+        yaml = new Yaml(constructor, representer);
         yaml.setBeanAccess(BeanAccess.FIELD);
     }
 

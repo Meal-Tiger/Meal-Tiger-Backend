@@ -4,10 +4,12 @@ import com.mealtiger.backend.configuration.configs.TestConfig;
 import com.mealtiger.backend.configuration.exceptions.NoSuchConfigException;
 import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
 import org.junit.jupiter.api.Test;
+import org.yaml.snakeyaml.TypeDescription;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,7 +30,7 @@ class ConfigurationTest {
 
     @Test
     void loadSingleConfigTest() throws IOException, NoSuchPropertyException, NoSuchConfigException {
-        ConfigLoader configLoader = new ConfigLoader();
+        ConfigLoader configLoader = new ConfigLoader(List.of(new TypeDescription(TestConfig.class, "Test")));
         TestConfig testConfig = (TestConfig) configLoader.loadConfig(TestConfig.class);
 
         assertEquals("I'm a sample!", testConfig.getSampleNode());
