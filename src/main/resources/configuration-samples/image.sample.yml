@@ -1,0 +1,83 @@
+!<Image>
+
+##############################
+# Image Upload Configuration #
+##############################
+
+# maximum file size that can be uploaded.
+maxFileSize: 5MB
+
+# The path images will be saved at.
+imagePath: images/
+
+##################################
+# Image Processing Configuration #
+##################################
+
+# WebP Configuration
+# Enabled by default, image format of choice with modern web pages/applications.
+webp:
+  enabled: true
+  # Configures the compression type. Valid values are: DEFAULT, LOSSLESS
+  compressionType: DEFAULT
+  # The higher this number, the likelier it is that the
+  # integrated algorithm chooses this image format.
+  qualityWeighting: 1.0
+
+# JPEG Configuration
+# Enabled by default, most browsers will support the JPEG-format.
+jpeg:
+  enabled: true
+  # Defines the quality of the saved image.
+  # Generally, the lower you set this, the smaller
+  # the disk space taken by an image will be. However,
+  # this comes at the cost of image quality.
+  compressionQuality: 75.0
+  # The higher this number, the likelier it is that the
+  # integrated algorithm chooses this image format.
+  qualityWeighting: 0.9
+
+# Bitmap configuration
+# Disabled by default, not advised to be used.
+bmp:
+  enabled: false
+  # Defines the quality of the saved image.
+  # Generally, the lower you set this, the smaller
+  # the disk space taken by an image will be. However,
+  # this comes at the cost of image quality.
+  compressionQuality: 75.0
+  # Bitmap specific compression type. Available options vary by operating system.
+  # Thus, it is not advised to use the bitmap processing feature as bitmap
+  # is not as portable as other image formats and is not often used in a web-context.
+  compressionType: BI_RGB
+  # The higher this number, the likelier it is that the
+  # integrated algorithm chooses this image format.
+  qualityWeighting: 0.5
+
+# GIF configuration
+# Disabled by default, may be interesting for legacy support.
+gif:
+  enabled: false
+  # Defines the quality of the saved image.
+  # Generally, the lower you set this, the smaller
+  # the disk space taken by an image will be. However,
+  # this comes at the cost of image quality.
+  compressionQuality: 75.0
+  # The higher this number, the likelier it is that the
+  # integrated algorithm chooses this image format.
+  qualityWeighting: 0.7
+
+# PNG configuration
+# Disabled by default, most browsers will support PNG.
+# However, it is a lossless format and could significantly increase
+# the disk space used.
+png:
+  enabled: false
+  # Defines the quality of the saved image.
+  # Generally, the lower you set this, the smaller
+  # the disk space taken by an image will be. However,
+  # this comes at the cost of image quality.
+  compressionQuality: 75.0
+  # The higher this number, the likelier it is that the
+  # integrated algorithm chooses this image format.
+  qualityWeighting: 0.8

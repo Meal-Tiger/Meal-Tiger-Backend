@@ -1,9 +1,17 @@
-!!com.mealtiger.backend.configuration.configs.AuthenticationConfig
+!<Authentication>
 # Settings regarding OpenID Connect
 oidc:
+  # This option can be used to disable OpenID Connect Authentication for debugging purposes. This is not recommended for production use!
+  enableOIDCAuthentication: true
+
+  #########################################
+  # Authentication Provider Configuration #
+  #########################################
+
   # URL of the authentication provider.
   authenticationProviderURL: ''
-  # ClientID for OIDC
+  # ClientID for OIDC.
   clientID: mealtiger
-  # This option can be used to disable OpenID Connect Authentication for debugging purposes. This is not recommended for production use!
-  enableOIDCAuthentication: false
+  # Name of the admin role.
+  adminRole: ADMIN
+
