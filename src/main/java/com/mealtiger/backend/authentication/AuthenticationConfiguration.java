@@ -46,6 +46,8 @@ public class AuthenticationConfiguration {
             final String userRecipes = "/user/recipes";
             final String userImages = "/user/images";
             final String user = "/user/**";
+            final String images = "/images";
+            final String image = "/image/**";
 
             http.authorizeRequests(authorizeRequests -> authorizeRequests
                             .antMatchers(HttpMethod.POST, recipes).authenticated()
@@ -56,6 +58,9 @@ public class AuthenticationConfiguration {
                             .antMatchers(HttpMethod.GET, userImages).authenticated()
                             .antMatchers(HttpMethod.PUT, user).authenticated()
                             .antMatchers(HttpMethod.POST, user).authenticated()
+                            .antMatchers(HttpMethod.POST, images).authenticated()
+                            .antMatchers(HttpMethod.DELETE, image).authenticated()
+                            .antMatchers(HttpMethod.POST, image).authenticated()
                     )
                     .oauth2ResourceServer(oauth2ResourceServer ->
                             oauth2ResourceServer

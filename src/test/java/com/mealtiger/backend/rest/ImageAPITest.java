@@ -11,6 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Answers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -50,6 +51,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
         classes = {BackendApplication.class}
 )
+@AutoConfigureMockMvc
 @Tag("integration")
 class ImageAPITest {
     
@@ -58,6 +60,9 @@ class ImageAPITest {
 
     @Autowired
     private ImageIOController imageIOController;
+
+    @Autowired
+    private MockMvc mvc;
 
     @MockBean(answer = Answers.CALLS_REAL_METHODS)
     private Configurator configurator;
@@ -84,8 +89,6 @@ class ImageAPITest {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
 
-        MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-
         MockMultipartFile file;
 
         try (InputStream inputStream = new FileInputStream(inputFile)) {
@@ -110,8 +113,6 @@ class ImageAPITest {
     void postImagesTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
-
-        MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         MockMultipartFile file1;
         MockMultipartFile file2;
@@ -144,8 +145,6 @@ class ImageAPITest {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
 
-        MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-
         File inputFile = fileStream().toList().get(0);
         saveImage(inputFile, SAMPLE_IMAGE_ID, SAMPLE_USER_ID);
 
@@ -162,8 +161,6 @@ class ImageAPITest {
     void getImageAcceptHeaderTest() throws Exception {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
-
-        MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         File inputFile = fileStream().toList().get(0);
         saveImage(inputFile, SAMPLE_IMAGE_ID, SAMPLE_USER_ID);
@@ -218,8 +215,6 @@ class ImageAPITest {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
 
-        MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-
         File inputFile = fileStream().toList().get(0);
         MockMultipartFile file;
 
@@ -253,8 +248,6 @@ class ImageAPITest {
         when(configurator.getString("Image.servedImageMediaTypes")).thenReturn("image/png;q=1.0,image/jpeg;q=1.0,image/bmp;q=1.0,image/webp;q=1.0,image/gif;q=1.0");
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
 
-        MockMvc mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-
         File inputFile = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.pdf")).getFile());
 
         MockMultipartFile file;
@@ -272,6 +265,15 @@ class ImageAPITest {
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").isString())
                 .andExpect(jsonPath("$.path").value("/image"));
+    }
+
+    /**
+     * Tests posting on "/image" while unauthorized.
+     */
+    @Test
+    void negative_401_postImageTest() throws Exception {
+        mvc.perform(multipart("/image"))
+                .andExpect(status().isUnauthorized());
     }
 
     /**
@@ -309,6 +311,15 @@ class ImageAPITest {
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.error").isString())
                 .andExpect(jsonPath("$.path").value("/images"));
+    }
+
+    /**
+     * Tests posting on "/images" while unauthorized.
+     */
+    @Test
+    void negative_401_postImagesTest() throws Exception {
+        mvc.perform(multipart("/images"))
+                .andExpect(status().isUnauthorized());
     }
 
     /**
@@ -351,6 +362,15 @@ class ImageAPITest {
                 .andExpect(jsonPath("$.status").value(406))
                 .andExpect(jsonPath("$.error").isString())
                 .andExpect(jsonPath("$.path").value("/image/" + uuid));
+    }
+
+    /**
+     * Tests deleting on "/images/{imageId}" while unauthorized.
+     */
+    @Test
+    void negative_401_deleteImageTest() throws Exception {
+        mvc.perform(delete("/image/" + SAMPLE_IMAGE_ID))
+                .andExpect(status().isUnauthorized());
     }
 
     /**
