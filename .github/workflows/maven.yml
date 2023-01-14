@@ -25,7 +25,6 @@ jobs:
         run: mvn package --file pom.xml
         env:
           LOGLEVEL: debug
-          DBURL: mongodb://localhost:27017
       - name: Integration tests with Maven
         run: mvn verify --file pom.xml
         env:
