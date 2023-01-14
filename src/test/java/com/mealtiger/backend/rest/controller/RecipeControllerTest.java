@@ -13,10 +13,7 @@ import com.mealtiger.backend.rest.model.rating.RatingRequest;
 import com.mealtiger.backend.rest.model.rating.RatingResponse;
 import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -36,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@Tag("unit")
 class RecipeControllerTest {
 
     private static final RecipeRequest SAMPLE_RECIPE_DTO = new RecipeRequest();

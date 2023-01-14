@@ -7,6 +7,7 @@ import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.SampleSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
         classes = {BackendApplication.class}
 )
+@Tag("integration")
 class RecipeRepositoryTest {
 
     @Autowired

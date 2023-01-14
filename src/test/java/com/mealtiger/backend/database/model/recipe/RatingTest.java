@@ -3,11 +3,13 @@ package com.mealtiger.backend.database.model.recipe;
 import com.mealtiger.backend.SampleSource;
 import com.mealtiger.backend.rest.model.rating.RatingRequest;
 import com.mealtiger.backend.rest.model.rating.RatingResponse;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@Tag("unit")
 class RatingTest {
 
     @Test

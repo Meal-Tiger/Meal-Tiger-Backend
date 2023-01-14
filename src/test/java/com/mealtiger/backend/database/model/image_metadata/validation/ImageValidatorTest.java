@@ -2,6 +2,7 @@ package com.mealtiger.backend.database.model.image_metadata.validation;
 
 import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.rest.Helper;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Tag("unit")
 class ImageValidatorTest {
     private static final String NON_EXISTENT_IMAGE_ID = "f2076c35-e8d1-4d34-82f1-0de7f370efbd";
 

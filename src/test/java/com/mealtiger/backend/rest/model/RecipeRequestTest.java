@@ -3,6 +3,7 @@ package com.mealtiger.backend.rest.model;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
@@ -14,6 +15,7 @@ import static com.mealtiger.backend.SampleSource.SAMPLE_USER_ID;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Tag("unit")
 class RecipeRequestTest {
 
     private static Validator validator;

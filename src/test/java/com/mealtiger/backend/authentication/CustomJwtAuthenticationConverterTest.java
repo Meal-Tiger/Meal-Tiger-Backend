@@ -1,6 +1,7 @@
 package com.mealtiger.backend.authentication;
 
 import com.mealtiger.backend.configuration.Configurator;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Tag("unit")
 class CustomJwtAuthenticationConverterTest {
 
     /**

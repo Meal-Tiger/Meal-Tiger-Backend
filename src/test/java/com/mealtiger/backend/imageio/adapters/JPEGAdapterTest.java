@@ -1,5 +1,6 @@
 package com.mealtiger.backend.imageio.adapters;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Sebastian Maier, Lucca Greschner
  */
 @SpringBootTest
+@Tag("unit")
 class JPEGAdapterTest {
 
     @Autowired
