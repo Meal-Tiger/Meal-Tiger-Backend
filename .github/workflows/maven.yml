@@ -32,6 +32,6 @@ jobs:
           OIDC_AUTHENTICATION_PROVIDER_URL: https://auth.lifeminer.de/realms/meal-tiger-test
           DBURL: mongodb://localhost:27017
       - name: Building with Maven
-        run: mvn package --file pom.xml
+        run: mvn package -DskipTests --file pom.xml
         env:
             LOGLEVEL: debug
