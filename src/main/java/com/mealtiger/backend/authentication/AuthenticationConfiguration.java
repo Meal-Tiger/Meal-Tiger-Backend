@@ -42,11 +42,16 @@ public class AuthenticationConfiguration {
             // Routes
 
             final String recipes = "/recipes/**";
+            final String images = "/images";
+            final String image = "/image/**";
 
             http.authorizeRequests(authorizeRequests -> authorizeRequests
                             .antMatchers(HttpMethod.POST, recipes).authenticated()
                             .antMatchers(HttpMethod.PUT, recipes).authenticated()
-                            .antMatchers(HttpMethod.DELETE, recipes).authenticated())
+                            .antMatchers(HttpMethod.DELETE, recipes).authenticated()
+                            .antMatchers(HttpMethod.POST, images).authenticated()
+                            .antMatchers(HttpMethod.DELETE, image).authenticated()
+                            .antMatchers(HttpMethod.POST, image).authenticated())
                     .oauth2ResourceServer(oauth2ResourceServer ->
                             oauth2ResourceServer
                                     .jwt(jwt -> jwt.decoder(JwtDecoders.fromIssuerLocation(jwtIssuerURL))
