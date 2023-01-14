@@ -2,6 +2,7 @@ package com.mealtiger.backend.rest.model;
 
 import com.mealtiger.backend.rest.model.rating.RatingRequest;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.Validation;
@@ -11,6 +12,7 @@ import javax.validation.ValidatorFactory;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Tag("unit")
 class RatingRequestTest {
 
     private static Validator validator;

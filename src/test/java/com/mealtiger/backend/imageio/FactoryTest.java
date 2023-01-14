@@ -1,6 +1,7 @@
 package com.mealtiger.backend.imageio;
 
 import com.mealtiger.backend.imageio.adapters.*;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * This class tests the ImageAdapterFactory.
  */
 @SpringBootTest
+@Tag("integration")
 class FactoryTest {
 
     @Autowired

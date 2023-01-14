@@ -3,6 +3,7 @@ package com.mealtiger.backend.database.model.recipe;
 import com.mealtiger.backend.SampleSource;
 import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -15,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *
  * @author Sebastian Maier
  */
+@Tag("unit")
 class RecipeTest {
 
     /**

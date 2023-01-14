@@ -8,6 +8,7 @@ import com.mealtiger.backend.rest.Helper;
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @MockitoSettings
+@Tag("unit")
 class ImageIOControllerTest {
 
     @Mock

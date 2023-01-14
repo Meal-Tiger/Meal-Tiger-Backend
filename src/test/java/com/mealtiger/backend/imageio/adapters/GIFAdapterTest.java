@@ -1,9 +1,10 @@
 package com.mealtiger.backend.imageio.adapters;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
@@ -18,11 +19,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *
  * @author Sebastian Maier, Lucca Greschner
  */
-@SpringBootTest
+@Tag("unit")
 class GIFAdapterTest {
 
-    @Autowired
     private ImageAdapter gifAdapter;
+
+    @BeforeEach
+    @AfterEach
+    void beforeAfterEach() {
+        gifAdapter = new GIFAdapter();
+    }
 
     /**
      * Tests conversion of bitmap images

@@ -264,15 +264,15 @@ public class Configurator {
         try {
             if (returnType == String.class) {
                 returnValue = envValue;
-            } else if (returnType == Integer.class) {
+            } else if (returnType.getSimpleName().equalsIgnoreCase("integer")) {
                 returnValue = Integer.valueOf(envValue);
-            } else if (returnType == Boolean.class) {
+            } else if (returnType.getSimpleName().equalsIgnoreCase("boolean")) {
                 switch (envValue.toLowerCase()) {
                     case "true" -> returnValue = Boolean.TRUE;
                     case "false" -> returnValue = Boolean.FALSE;
                     default -> throw new IllegalArgumentException();
                 }
-            } else if (returnType == Double.class) {
+            } else if (returnType.getSimpleName().equalsIgnoreCase("double")) {
                 returnValue = Double.valueOf(envValue);
             }
         } catch (Exception e) {

@@ -3,6 +3,7 @@ package com.mealtiger.backend.configuration;
 import com.mealtiger.backend.configuration.configs.TestConfig;
 import com.mealtiger.backend.configuration.exceptions.NoSuchConfigException;
 import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.yaml.snakeyaml.TypeDescription;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("unit")
 class ConfigurationTest {
 
     @Test

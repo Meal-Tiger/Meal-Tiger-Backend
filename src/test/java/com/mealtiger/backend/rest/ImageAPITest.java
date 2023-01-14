@@ -5,6 +5,7 @@ import com.mealtiger.backend.configuration.Configurator;
 import com.mealtiger.backend.rest.controller.ImageIOController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -49,6 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
         classes = {BackendApplication.class}
 )
+@Tag("integration")
 class ImageAPITest {
     
     @Autowired
