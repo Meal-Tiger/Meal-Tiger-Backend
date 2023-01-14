@@ -21,13 +21,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - name: Unit tests and building with Maven
-        run: mvn package --file pom.xml
+      - name: Unit tests
+        run: mvn test --file pom.xml
         env:
           LOGLEVEL: debug
       - name: Integration tests with Maven
-        run: mvn verify --file pom.xml
+        run: mvn failsafe:integration-test --file pom.xml
         env:
           LOGLEVEL: debug
           OIDC_AUTHENTICATION_PROVIDER_URL: https://auth.lifeminer.de/realms/meal-tiger-test
           DBURL: mongodb://localhost:27017
+      - name: Building with Maven
+        run: mvn package --file pom.xml
+        env:
+            LOGLEVEL: debug
