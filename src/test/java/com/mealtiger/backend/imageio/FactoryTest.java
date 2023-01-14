@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * This class tests the ImageAdapterFactory.
  */
 @SpringBootTest
-@Tag("unit")
+@Tag("integration")
 class FactoryTest {
 
     @Autowired

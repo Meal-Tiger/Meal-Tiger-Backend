@@ -14,9 +14,6 @@ import com.mealtiger.backend.rest.model.rating.RatingResponse;
 import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
 import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +29,6 @@ import static com.mealtiger.backend.SampleSource.SAMPLE_USER_ID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 @Tag("unit")
 class RecipeControllerTest {
 
@@ -52,10 +48,8 @@ class RecipeControllerTest {
             new UUID[]{}
     );
 
-    @MockBean
     private RecipeRepository recipeRepository;
 
-    @Autowired
     private RecipeController recipeController;
 
     /**
@@ -78,7 +72,8 @@ class RecipeControllerTest {
     @BeforeEach
     @AfterEach
     void beforeAfterEach() {
-        recipeRepository.deleteAll();
+        recipeRepository = mock(RecipeRepository.class);
+        recipeController = new RecipeController(recipeRepository);
     }
 
     /**
