@@ -72,6 +72,12 @@ public class ImageIOController {
         this.imageRootPath = Path.of(configurator.getString("Image.imagePath"));
     }
 
+    /**
+     * Saves Image.
+     * @param image the image.
+     * @param uuid ID of the image.
+     * @param userId ID of the user.
+     */
     public void saveImage(BufferedImage image, String uuid, String userId) throws IOException {
         String servedFormats = configurator.getString("Image.servedImageFormats");
         List<String> servedFormatsSplitted = List.of(servedFormats.split(","));
@@ -115,6 +121,12 @@ public class ImageIOController {
         imageMetadataRepository.save(new ImageMetadata(uuid, userId));
     }
 
+    /**
+     * Checks what image media type is best suited.
+     * @param uuid ID of image.
+     * @param acceptedMediaTypes What media type is allowed.
+     * @return Best suited media type.
+     */
     public ResponseEntity<Resource> getBestSuitedImage(String uuid, List<MediaType> acceptedMediaTypes) throws HttpMediaTypeNotAcceptableException {
         List<MediaType> servedMediaTypeList = MediaType.parseMediaTypes(configurator.getString("Image.servedImageMediaTypes"));
 
@@ -150,6 +162,13 @@ public class ImageIOController {
                 + servedMediaTypeList.stream().map(MimeType::getSubtype).reduce((a,b) -> a + ", " + b).orElse(null));
     }
 
+    /**
+     * Deletes Image.
+     * @param uuid ID of Image.
+     * @param userId ID of user.
+     * @param isAdmin If true it is a admin.
+     * @return Empty Response Entity.
+     */
     public ResponseEntity<Void> deleteImage(String uuid, String userId, boolean isAdmin) {
 
         ImageMetadata imageMetadata = imageMetadataRepository.findById(uuid).orElse(null);

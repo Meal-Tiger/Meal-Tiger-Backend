@@ -1,10 +1,10 @@
 package com.mealtiger.backend.database.repository;
 
 import com.mealtiger.backend.BackendApplication;
+import com.mealtiger.backend.SampleSource;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
-import com.mealtiger.backend.SampleSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -13,6 +13,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
@@ -20,8 +21,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static com.mealtiger.backend.SampleSource.SAMPLE_OTHER_USER_ID;
-import static com.mealtiger.backend.SampleSource.SAMPLE_RATING_ID;
+import static com.mealtiger.backend.SampleSource.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -216,6 +216,34 @@ class RecipeRepositoryTest {
         Recipe foundRecipe = recipeRepository.findRecipeByRatings_Id(SAMPLE_RATING_ID);
 
         assertTrue(Arrays.asList(foundRecipe.getRatings()).contains(toBeFound));
+    }
+
+    @Test
+    void findRecipesByUserId() {
+        recipeRepository.saveAll(SampleSource.getSampleRecipes(9));
+        recipeRepository.save(new Recipe(
+                "Gebrannte Mandeln",
+                SAMPLE_OTHER_USER_ID,
+                new Ingredient[]{
+                        new Ingredient(500, "Gramm", "Mandeln, geschält"),
+                        new Ingredient(200, "Gramm", "Zucker")
+                },
+                "TestDescription",
+                3,
+                new Rating[]{},
+                15,
+                new UUID[]{}
+        ));
+
+        assertEquals(10, recipeRepository.findAll().size());
+
+        Pageable pageable = PageRequest.of(0, 9);
+
+        Page<Recipe> foundRecipes = recipeRepository.findRecipesByUserId(SAMPLE_USER_ID, pageable);
+
+        assertEquals(9, foundRecipes.getContent().size());
+        assertEquals(9, foundRecipes.getTotalElements());
+        assertEquals(0, foundRecipes.getNumber());
     }
 
     // VALUE SOURCES

@@ -6,12 +6,11 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.UUID;
 
 /**
- * This Validator is used to validate whether images exist yet or not.
+ * This Validator is used to validate whether a single image exists yet or not.
  */
-public class ImageValidator implements ConstraintValidator<ImageExists, UUID[]> {
+public class ImageValidator implements ConstraintValidator<ImageExists, String> {
 
     private final Configurator configurator;
 
@@ -28,28 +27,24 @@ public class ImageValidator implements ConstraintValidator<ImageExists, UUID[]> 
     }
 
     @Override
-    public void initialize(ImageExists constraintAnnotation) {
-        ConstraintValidator.super.initialize(constraintAnnotation);
+    public void initialize(ImageExists constaintAnnotation) {
+        ConstraintValidator.super.initialize(constaintAnnotation);
     }
 
     /**
-     * Checks if the images of given UUIDs exist.
+     * Checks if the image of given UUID exists.
      * @param value object to validate
      * @param context context in which the constraint is evaluated
      *
-     * @return true if all images exist, false if at least one does not exist.
+     * @return true if image exists, false if it does not exist.
      */
     @Override
-    public boolean isValid(UUID[] value, ConstraintValidatorContext context) {
-        if (value == null || value.length == 0) return true;
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        if (value == null || value.length() == 0) return true;
 
-        for (UUID imageUUID : value) {
-            String imagePath = configurator.getString("Image.imagePath");
+        String imagePath = configurator.getString("Image.imagePath");
 
-            if (!Files.exists(Path.of(imagePath, imageUUID.toString()))) {
-                return false;
-            }
-        }
-        return true;
+        return Files.exists(Path.of(imagePath, value));
     }
+
 }
