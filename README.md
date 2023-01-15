@@ -1,3 +1,7 @@
+[![Java CI with Maven](https://github.com/Meal-Tiger/Meal-Tiger-Backend/actions/workflows/maven.yml/badge.svg?branch=main)](https://github.com/Meal-Tiger/Meal-Tiger-Backend/actions/workflows/maven.yml)
+[![Docker Image Automation](https://github.com/Meal-Tiger/Meal-Tiger-Backend/actions/workflows/docker.yml/badge.svg?branch=main)](https://github.com/Meal-Tiger/Meal-Tiger-Backend/actions/workflows/docker.yml)
+
+
 # Meal-Tiger-Backend
 
 ## About
