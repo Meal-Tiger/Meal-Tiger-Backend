@@ -32,6 +32,8 @@ public class CORSConfiguration {
                 registry.addMapping("/image").allowedOrigins(allowedOriginsArray);
                 registry.addMapping("/images").allowedOrigins(allowedOriginsArray);
                 registry.addMapping("/image/**").allowedOrigins(allowedOriginsArray);
+                registry.addMapping("/user").allowedOrigins(allowedOriginsArray);
+                registry.addMapping("/user/**").allowedOrigins(allowedOriginsArray);
             }
         };
     }

@@ -1,6 +1,6 @@
 package com.mealtiger.backend.rest.model.recipe;
 
-import com.mealtiger.backend.database.model.image_metadata.validation.ImageExists;
+import com.mealtiger.backend.database.model.image_metadata.validation.ImagesExist;
 import com.mealtiger.backend.database.model.recipe.Ingredient;
 import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
@@ -34,7 +34,7 @@ public class RecipeRequest implements Request<Recipe> {
     @Min(value = 1, message = "Minimum time is 1 minute!")
     private int time;
 
-    @ImageExists(message = "At least one image does not exist!")
+    @ImagesExist(message = "At least one image does not exist!")
     private UUID[] images;
 
     // GETTERS

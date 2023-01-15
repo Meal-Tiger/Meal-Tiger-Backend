@@ -9,5 +9,8 @@ import java.util.List;
 @Repository
 public interface ImageMetadataRepository extends MongoRepository<ImageMetadata, String> {
 
+    /**
+     * Find ImageMetadata by its user id.
+     */
     List<ImageMetadata> findImageMetadatasByUserId(String userId);
 }
