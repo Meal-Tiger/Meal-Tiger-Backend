@@ -9,14 +9,13 @@ import com.mealtiger.backend.configuration.exceptions.NoSuchPropertyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.util.AnnotatedTypeScanner;
+import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.TypeDescription;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This class serves as a means to load configs and to get properties from them.
@@ -24,11 +23,14 @@ import java.util.Set;
  *
  * @author Lucca Greschner
  */
+@Component
 public class Configurator {
 
     private static final Logger log = LoggerFactory.getLogger(Configurator.class);
 
     private static final Map<String, Object> loadedConfigs = new HashMap<>();
+    private static final Map<String, String> environmentVariables = new HashMap<>();
+    private static final List<TypeDescription> typeDescriptions = new ArrayList<>();
 
     public Configurator() {
         if (loadedConfigs.isEmpty()) {
@@ -39,7 +41,25 @@ public class Configurator {
                 log.error("IO Error when trying to load configs. Check the permissions on the config files!");
                 throw new ConfigLoadingException(e);
             }
+            environmentVariables.putAll(loadEnvVariables());
         }
+    }
+
+    /**
+     * Constructor for unit testing.
+     */
+    Configurator(Map<String, String> environmentVariables) {
+        if (loadedConfigs.isEmpty()) {
+            log.trace("Starting to load configs due to empty loadedConfigs Map!");
+            try {
+                loadConfigs();
+            } catch (IOException e) {
+                log.error("IO Error when trying to load configs. Check the permissions on the config files!");
+                throw new ConfigLoadingException(e);
+            }
+        }
+
+        Configurator.environmentVariables.putAll(environmentVariables);
     }
 
     // APPLICATION SETUP
@@ -62,7 +82,9 @@ public class Configurator {
 
             String configName = annotation.name();
 
-            ConfigLoader configLoader = new ConfigLoader();
+            typeDescriptions.add(new TypeDescription(configClass, configName));
+
+            ConfigLoader configLoader = new ConfigLoader(typeDescriptions);
             Object config = configLoader.loadConfig(configClass);
 
             loadedConfigs.put(configName, config);
@@ -71,16 +93,46 @@ public class Configurator {
         log.debug("Finished loading configs!");
     }
 
+    private Map<String, String> loadEnvVariables() {
+        log.info("Loading environment variables...");
+
+        return Collections.unmodifiableMap(System.getenv());
+    }
+
     /**
      * @return The Spring properties to be used when starting the Spring application.
      */
     public Properties getSpringProperties() {
         Properties properties = new Properties();
 
-        String logLevel = getString("Main.Logging.logLevel");
-        properties.put("logging.level.root", logLevel);
+        for (Object config : loadedConfigs.values()) {
+            Method[] configMethods = config.getClass().getMethods();
 
-        log.debug("Handing over spring properties: {}!", properties);
+            for (Method method : configMethods) {
+                if (method.isAnnotationPresent(ConfigNode.class)) {
+                    String[] propertyKeys = method.getAnnotation(ConfigNode.class).springProperties();
+                    String property = method.getAnnotation(ConfigNode.class).name();
+
+                    Object returnValue;
+
+                    try {
+                        returnValue = method.invoke(config);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new ConfigPropertyException(property);
+                    }
+
+                    for (String propertyKey : propertyKeys) {
+                        properties.put(propertyKey, returnValue);
+                    }
+
+                }
+            }
+        }
+
+        properties.put("spring.main.banner-mode", "off");
+        properties.put("spring.autoconfigure.exclude", "org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration");
+
+        log.trace("Handing over spring properties: {}!", properties);
 
         return properties;
     }
@@ -88,7 +140,7 @@ public class Configurator {
     // CONFIG QUERYING
 
     /**
-     * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
+     * @param property Property string to get from configs. Example: Database.mongoDBURL
      * @return Object that corresponds to the property string
      */
     private Object getProperty(String property) throws NoSuchConfigException {
@@ -110,28 +162,10 @@ public class Configurator {
         for (Method method : configMethods) {
             if (method.isAnnotationPresent(ConfigNode.class) && method.getAnnotation(ConfigNode.class).name().equals(propertyDescriptor)) {
                 String envKey = method.getAnnotation(ConfigNode.class).envKey();
-                String envValue = envKey.length() != 0 ? System.getenv(envKey) : "";
 
                 if (envKey.length() != 0) {
                     Class<?> returnType = method.getReturnType();
-
-                    try {
-                        if (returnType == String.class) {
-                            returnValue = envValue;
-                        } else if (returnType == Integer.class) {
-                            returnValue = Integer.valueOf(envValue);
-                        } else if (returnType == Boolean.class) {
-                            switch (envValue.toLowerCase()) {
-                                case "true" -> returnValue = Boolean.TRUE;
-                                case "false" -> returnValue = Boolean.FALSE;
-                                default -> throw new IllegalArgumentException();
-                            }
-                        } else if (returnType == Double.class) {
-                            returnValue = Double.valueOf(envValue);
-                        }
-                    } catch (Exception e) {
-                        log.error("Environment variable {} cannot be parsed. Proceeding with config value!", envKey);
-                    }
+                    returnValue = getEnvValue(envKey, returnType);
                 }
 
                 if (returnValue == null) {
@@ -150,7 +184,7 @@ public class Configurator {
     /**
      * Used to get a boolean from a config file.
      *
-     * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
+     * @param property Property string to get from configs. Example: Database.mongoDBURL
      * @return Boolean saved at the given property descriptor.
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
@@ -167,7 +201,7 @@ public class Configurator {
     /**
      * Used to get a String from a config file.
      *
-     * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
+     * @param property Property string to get from configs. Example: Database.mongoDBURL
      * @return Boolean saved at the given property descriptor.
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
@@ -184,7 +218,7 @@ public class Configurator {
     /**
      * Used to get an integer from a config file.
      *
-     * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
+     * @param property Property string to get from configs. Example: Database.mongoDBURL
      * @return Boolean saved at the given property descriptor.
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
@@ -201,7 +235,7 @@ public class Configurator {
     /**
      * Used to get a double from a config file.
      *
-     * @param property Property string to get from configs. Example: Main.Database.mongoDBURL
+     * @param property Property string to get from configs. Example: Database.mongoDBURL
      * @return Boolean saved at the given property descriptor.
      * @throws NoSuchPropertyException is thrown when there is no property as provided.
      */
@@ -213,5 +247,38 @@ public class Configurator {
         if (!(returnValue instanceof Double doubleReturnValue)) {
             throw new NoSuchPropertyException(property);
         } else return doubleReturnValue;
+    }
+
+    // HELPER METHODS
+
+    /**
+     * Gets a value from the environment variables.
+     * @param envKey Key of the environment variable.
+     * @param returnType Type of the environment variable.
+     * @return If the environment variable is set, the parsed value. If not, null.
+     */
+    private Object getEnvValue(String envKey, Class<?> returnType) {
+        Object returnValue = null;
+        String envValue = environmentVariables.get(envKey);
+
+        try {
+            if (returnType == String.class) {
+                returnValue = envValue;
+            } else if (returnType.getSimpleName().equalsIgnoreCase("integer")) {
+                returnValue = Integer.valueOf(envValue);
+            } else if (returnType.getSimpleName().equalsIgnoreCase("boolean")) {
+                switch (envValue.toLowerCase()) {
+                    case "true" -> returnValue = Boolean.TRUE;
+                    case "false" -> returnValue = Boolean.FALSE;
+                    default -> throw new IllegalArgumentException();
+                }
+            } else if (returnType.getSimpleName().equalsIgnoreCase("double")) {
+                returnValue = Double.valueOf(envValue);
+            }
+        } catch (Exception e) {
+            log.error("Environment variable {} cannot be parsed. Proceeding with config value!", envKey);
+        }
+
+        return returnValue;
     }
 }

@@ -1,0 +1,10 @@
+!<Database>
+
+##########################
+# Database Configuration #
+##########################
+
+# Name of the database
+databaseName: MealTigerDB
+# MongoDB connection string. For more information see: https://www.mongodb.com/docs/manual/reference/connection-string/
+mongoDBURL: ''

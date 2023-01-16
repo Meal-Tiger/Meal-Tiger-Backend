@@ -1,0 +1,139 @@
+package com.mealtiger.backend.imageio.adapters;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * This test tests the class WebPAdapter.
+ *
+ * @author Sebastian Maier, Lucca Greschner
+ */
+@Tag("unit")
+class WebPAdapterTest {
+
+    private ImageAdapter webPAdapter;
+
+    @BeforeEach
+    @AfterEach
+    void beforeAfterEach() {
+        webPAdapter = new WebPAdapter();
+    }
+
+    /**
+     * Tests conversion of bitmap images
+     * @param image Bitmap image gathered from the method source.
+     */
+    @ParameterizedTest
+    @MethodSource("com.mealtiger.backend.imageio.ImageSource#bitmapImageStream")
+    void bitmapConversionTest(BufferedImage image) throws IOException {
+        byte[] output = webPAdapter.convert(image);
+
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(output)) {
+            ImageInputStream imageInputStream = ImageIO.createImageInputStream(byteArrayInputStream);
+            assertEquals("webp", ImageIO.getImageReaders(imageInputStream).next().getFormatName());
+        }
+    }
+
+    /**
+     * Tests conversion of jpeg images
+     * @param image JPEG image gathered from the method source.
+     */
+    @ParameterizedTest
+    @MethodSource("com.mealtiger.backend.imageio.ImageSource#jpegImageStream")
+    void jpegConversionTest(BufferedImage image) throws IOException {
+        byte[] output = webPAdapter.convert(image);
+
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(output)) {
+            ImageInputStream imageInputStream = ImageIO.createImageInputStream(byteArrayInputStream);
+            assertEquals("webp", ImageIO.getImageReaders(imageInputStream).next().getFormatName());
+        }
+    }
+
+    /**
+     * Tests conversion of png images
+     * @param image PNG image gathered from the method source.
+     */
+    @ParameterizedTest
+    @MethodSource("com.mealtiger.backend.imageio.ImageSource#pngImageStream")
+    void pngConversionTest(BufferedImage image) throws IOException {
+        byte[] output = webPAdapter.convert(image);
+
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(output)) {
+            ImageInputStream imageInputStream = ImageIO.createImageInputStream(byteArrayInputStream);
+            assertEquals("webp", ImageIO.getImageReaders(imageInputStream).next().getFormatName());
+        }
+    }
+
+    /**
+     * Tests conversion of gif images
+     * @param image GIF image gathered from the method source.
+     */
+    @ParameterizedTest
+    @MethodSource("com.mealtiger.backend.imageio.ImageSource#gifImageStream")
+    void gifConversionTest(BufferedImage image) throws IOException {
+        byte[] output = webPAdapter.convert(image);
+
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(output)) {
+            ImageInputStream imageInputStream = ImageIO.createImageInputStream(byteArrayInputStream);
+            assertEquals("webp", ImageIO.getImageReaders(imageInputStream).next().getFormatName());
+        }
+    }
+
+    /**
+     * Tests conversion of lossy webp images
+     * @param image WebP image gathered from the method source.
+     */
+    @ParameterizedTest
+    @MethodSource("com.mealtiger.backend.imageio.ImageSource#lossyWebPImageStream")
+    void lossyWebPConversionTest(BufferedImage image) throws IOException {
+        byte[] output = webPAdapter.convert(image);
+
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(output)) {
+            ImageInputStream imageInputStream = ImageIO.createImageInputStream(byteArrayInputStream);
+            assertEquals("webp", ImageIO.getImageReaders(imageInputStream).next().getFormatName());
+        }
+    }
+
+    /**
+     * Tests conversion of lossless webp images
+     * @param image WebP image gathered from the method source.
+     */
+    @ParameterizedTest
+    @MethodSource("com.mealtiger.backend.imageio.ImageSource#losslessWebPImageStream")
+    void losslessWebPConversionTest(BufferedImage image) throws IOException {
+        byte[] output = webPAdapter.convert(image);
+
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(output)) {
+            ImageInputStream imageInputStream = ImageIO.createImageInputStream(byteArrayInputStream);
+            assertEquals("webp", ImageIO.getImageReaders(imageInputStream).next().getFormatName());
+        }
+    }
+
+    /**
+     * Tests conversion of tiff images
+     * @param image TIFF image gathered from the method source.
+     */
+    @ParameterizedTest
+    @MethodSource("com.mealtiger.backend.imageio.ImageSource#tiffImageStream")
+    void tiffConversionTest(BufferedImage image) throws IOException {
+        byte[] output = webPAdapter.convert(image);
+
+        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(output)) {
+            ImageInputStream imageInputStream = ImageIO.createImageInputStream(byteArrayInputStream);
+            assertEquals("webp", ImageIO.getImageReaders(imageInputStream).next().getFormatName());
+        }
+    }
+
+
+}

@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM openjdk:latest
+FROM eclipse-temurin:17-alpine
 COPY ./target/*.jar /app.jar
 RUN mkdir /config
 WORKDIR /config

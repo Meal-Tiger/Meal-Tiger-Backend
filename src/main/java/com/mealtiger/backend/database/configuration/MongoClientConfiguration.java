@@ -5,6 +5,7 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import org.bson.UuidRepresentation;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -18,15 +19,20 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories(basePackages = "com.mealtiger.backend.database.repository")
 public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
 
+    private final Configurator configurator;
+
+    public MongoClientConfiguration(Configurator configurator) {
+        this.configurator = configurator;
+    }
+
     /**
      * @return Database Name
      */
     @Override
     protected String getDatabaseName() {
-        Configurator configurator = new Configurator();
         String databaseName;
 
-        databaseName = configurator.getString("Main.Database.databaseName");
+        databaseName = configurator.getString("Database.databaseName");
 
         return databaseName;
     }
@@ -38,14 +44,12 @@ public class MongoClientConfiguration extends AbstractMongoClientConfiguration {
      */
     @Override
     public MongoClient mongoClient() {
-        Configurator configurator = new Configurator();
-
-
         String mongoDBConnectionString;
-        mongoDBConnectionString = configurator.getString("Main.Database.mongoDBURL");
+        mongoDBConnectionString = configurator.getString("Database.mongoDBURL");
 
         ConnectionString connectionString = new ConnectionString(mongoDBConnectionString);
         MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
+                .uuidRepresentation(UuidRepresentation.JAVA_LEGACY)
                 .applyConnectionString(connectionString)
                 .build();
 

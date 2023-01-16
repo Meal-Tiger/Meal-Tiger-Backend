@@ -5,11 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Properties;
 
@@ -18,7 +14,7 @@ import java.util.Properties;
  *
  * @author Lucca Greschner, Sebastian Maier
  */
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
+@SpringBootApplication
 public class BackendApplication implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(BackendApplication.class);
@@ -27,8 +23,8 @@ public class BackendApplication implements CommandLineRunner {
         Configurator configurator = new Configurator();
         Properties springProperties = configurator.getSpringProperties();
 
-        if (configurator.getString("Main.Database.mongoDBURL").length() == 0) {
-            log.info("Database connection string is not defined. Please use the config file main.yml to configure!");
+        if (configurator.getString("Database.mongoDBURL").length() == 0) {
+            log.info("Database connection string is not defined. Please use the config file database.yml to configure!");
         } else {
             log.debug("Starting application with custom properties: {}!", springProperties);
             new SpringApplicationBuilder(BackendApplication.class)
@@ -36,24 +32,6 @@ public class BackendApplication implements CommandLineRunner {
                     .build()
                     .run(args);
         }
-    }
-
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                Configurator configurator = new Configurator();
-                String allowedOrigins;
-
-                allowedOrigins = configurator.getString("Main.REST.corsAllowedOrigins");
-
-                String[] allowedOriginsArray = allowedOrigins.split(",");
-
-                registry.addMapping("/recipes").allowedOrigins(allowedOriginsArray);
-                registry.addMapping("/recipes/**").allowedOrigins(allowedOriginsArray);
-            }
-        };
     }
 
     /**

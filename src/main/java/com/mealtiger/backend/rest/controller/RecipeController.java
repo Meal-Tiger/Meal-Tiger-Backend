@@ -1,17 +1,21 @@
 package com.mealtiger.backend.rest.controller;
 
+import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
-import com.mealtiger.backend.database.model.recipe.RecipeDTO;
+import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
+import com.mealtiger.backend.rest.error_handling.exceptions.RatingOwnRecipeException;
+import com.mealtiger.backend.rest.model.Response;
+import com.mealtiger.backend.rest.model.rating.AverageRatingResponse;
+import com.mealtiger.backend.rest.model.rating.RatingRequest;
+import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
 import com.mealtiger.backend.database.repository.RecipeRepository;
+import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This acts as the controller-part for our REST API.
@@ -44,16 +48,12 @@ public class RecipeController {
      */
     public Map<String, Object> getRecipePage(int pageNumber, int size, String sort) {
         log.trace("Getting recipes from repository.");
-        try {
-            Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
-            Page<Recipe> recipePage = recipeRepository.findAll(paging);
 
-            return assemblePaginatedResult(recipePage.map(recipe1 -> recipe1.toDTO()));
-        } catch (Exception e) {
-            return Collections.emptyMap();
-        }
+        Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
+        Page<Recipe> recipePage = recipeRepository.findAll(paging);
+
+        return assemblePaginatedResult(recipePage.map(Recipe::toResponse), "recipes");
     }
-
 
     /**
      * Gets recipes from Database and Returns them sorted and paginated.
@@ -65,28 +65,28 @@ public class RecipeController {
      */
     public Map<String, Object> getRecipePageByTitleQuery(int pageNumber, int size, String sort, String query) {
         log.trace("Getting recipes from repository.");
-        try {
+        Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
 
-            Pageable paging = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.DESC, sort));
+        Page<Recipe> page;
+        page = recipeRepository.findRecipesByTitleContainingIgnoreCase(query, paging);
 
-            Page<Recipe> page;
-            page = recipeRepository.findRecipesByTitleContainingIgnoreCase(query, paging);
-
-            return assemblePaginatedResult(page.map(recipe1 -> recipe1.toDTO()));
-        } catch (Exception e) {
-            return Collections.emptyMap();
+        if (page == null) {
+            throw new EntityNotFoundException("No recipes yet for this page!");
         }
+
+        return assemblePaginatedResult(page.map(Recipe::toResponse), "recipes");
     }
 
     /**
      * This saves a recipe to the repository
      *
-     * @param recipeDTO Recipe to be saved.
+     * @param recipeRequest Recipe to be saved.
      */
-    public void saveRecipe(RecipeDTO recipeDTO) {
-        Recipe recipe = Recipe.fromDTO(recipeDTO);
+    public Response saveRecipe(RecipeRequest recipeRequest, String userID) {
+        Recipe recipe = recipeRequest.toEntity();
+        recipe.setUserId(userID);
         log.trace("Saving recipe {} to repository!", recipe);
-        recipeRepository.save(recipe);
+        return recipeRepository.save(recipe).toResponse();
     }
 
     /**
@@ -95,98 +95,207 @@ public class RecipeController {
      * @param id ID of the recipe to get.
      * @return Recipe requested.
      */
-    public RecipeDTO getRecipe(String id) {
+    public Response getRecipe(String id) {
         log.trace("Getting recipe with id {} from repository.", id);
-        Recipe recipe = recipeRepository.findById(id).orElse(null);
-        return recipe != null ? recipe.toDTO(): null;
+        Recipe recipe = getRecipeFromRepository(id);
+        return recipe.toResponse();
     }
 
     /**
      * Replaces recipe in repository with new recipe.
      *
      * @param id     ID of the repository to be replaced.
-     * @param recipeDTO Recipe to replace the old recipe.
-     * @return Whether it was successful or not.
+     * @param recipeRequest Recipe to replace the old recipe.
      */
-    public boolean replaceRecipe(String id, RecipeDTO recipeDTO) {
-        Recipe recipe = Recipe.fromDTO(recipeDTO);
+    public void replaceRecipe(String id, RecipeRequest recipeRequest) {
+        Recipe recipe = recipeRequest.toEntity();
         log.trace("Replacing recipe with id {} in repository with {}.", id, recipe);
-        Recipe oldRecipe = recipeRepository.findById(id).orElse(null);
+        Recipe oldRecipe = getRecipeFromRepository(id);
 
-        if (oldRecipe != null) {
-            oldRecipe.setTitle(recipe.getTitle());
-            oldRecipe.setDescription(recipe.getDescription());
-            oldRecipe.setIngredients(recipe.getIngredients());
-            oldRecipe.setDifficulty(recipe.getDifficulty());
-            oldRecipe.setRating(recipe.getRating());
-            oldRecipe.setTime(recipe.getTime());
+        oldRecipe.setTitle(recipe.getTitle());
+        oldRecipe.setDescription(recipe.getDescription());
+        oldRecipe.setIngredients(recipe.getIngredients());
+        oldRecipe.setDifficulty(recipe.getDifficulty());
+        oldRecipe.setTime(recipe.getTime());
+        oldRecipe.setImages(recipe.getImages());
 
-            recipeRepository.deleteById(oldRecipe.getId());
-            recipeRepository.save(oldRecipe);
-            return true;
-        } else {
-            return false;
-        }
+        recipeRepository.deleteById(oldRecipe.getId());
+        recipeRepository.save(oldRecipe);
+    }
+
+    /**
+     * This method checks whether a user owns a certain recipe.
+     * @param id ID of the recipe.
+     * @param userId User ID to check against.
+     * @return True if the user owns the recipe, false otherwise.
+     */
+    public boolean isUserRecipeOwner(String id, String userId) {
+        RecipeResponse recipe = (RecipeResponse) getRecipe(id);
+        return recipe.getUserId().equals(userId);
+    }
+
+    /**
+     * This method Returns whether the Recipe does exit or not.
+     */
+    public boolean doesRecipeExist(String id) {
+        return recipeRepository.existsById(id);
     }
 
     /**
      * Deletes recipe.
      *
      * @param id ID of the requested recipe.
-     * @return Whether it was successful or not.
      */
-    public boolean deleteRecipe(String id) {
+    public void deleteRecipe(String id) {
         boolean returnValue = recipeRepository.existsById(id);
 
         if (returnValue) {
             recipeRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Recipe " + id + " does not exist yet!");
         }
-        return returnValue;
+    }
+
+    // RATINGS
+
+    /**
+     * Checks if a user has already rated a recipe.
+     * @param recipeId ID of the recipe to check.
+     * @param userId UserID of the user to check.
+     * @return True, if the user has already rated the recipe. False, if not.
+     */
+    public boolean doesRatingExist(String recipeId, String userId) {
+        Recipe recipe = getRecipeFromRepository(recipeId);
+        return Arrays.stream(recipe.getRatings()).anyMatch(rating -> rating.getUserId().equals(userId));
     }
 
     /**
-     * Checks if a recipe is valid or not.
-     *
-     * @param recipeDTO Recipe to check.
+     * Gets all ratings of a recipe.
+     * @param recipeId Id of the recipe to get the ratings from.
+     * @param page Page number.
+     * @param size Size of the pages.
+     * @return Assembled map of ratings, with total page count and total element count.
      */
-    public boolean checkValidity(RecipeDTO recipeDTO) {
-        Recipe recipe = Recipe.fromDTO(recipeDTO);
-        try {
-            boolean correctRating = recipe.getRating() <= 5 && recipe.getRating() > 0;
-            boolean correctDifficulty = recipe.getDifficulty() <= 3 && recipe.getDifficulty() > 0;
-            boolean correctIngredients = recipe.getIngredients().length > 0;
-            boolean correctDescription = recipe.getDescription().length() > 0;
-            boolean correctTime = recipe.getTime() > 0;
-            boolean correctTitle = recipe.getTitle().length() > 0;
+    public Map<String, Object> getRatings(String recipeId, int page, int size) {
+        Recipe recipe = getRecipeFromRepository(recipeId);
+        Rating[] ratings = recipe.getRatings();
 
-            return correctRating && correctDifficulty && correctIngredients && correctDescription && correctTime && correctTitle;
-        } catch (NullPointerException e) {
-            return false;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Rating> ratingPage = new PageImpl<>(List.of(ratings), pageable, ratings.length);
+
+        return assemblePaginatedResult(ratingPage.map(Rating::toResponse), "ratings");
+    }
+
+    /**
+     * Gets the rating with a certain id.
+     * @param id ID of the rating to get.
+     * @return RatingResponse of the rating.
+     */
+    public Response getRating(String id) {
+        Recipe recipe = recipeRepository.findRecipeByRatings_Id(id);
+        return Arrays.stream(recipe.getRatings())
+                .filter(rating -> rating.getId().equals(id))
+                .map(Rating::toResponse)
+                .findAny().orElseThrow(() -> new EntityNotFoundException("Rating " + id + " does not exist!"));
+    }
+
+    /**
+     * Gets the average rating of all ratings of a recipe
+     * @param recipeId Recipe to get the average rating from.
+     * @return AverageRatingResponse with the average rating
+     */
+    public Response getAverageRating(String recipeId) {
+        Recipe recipe = getRecipeFromRepository(recipeId);
+        return new AverageRatingResponse(Arrays.stream(recipe.getRatings()).mapToDouble(Rating::getRatingValue).average().orElse(0));
+    }
+
+    /**
+     * Adds a rating to a recipe.
+     * @param recipeId Recipe to add the rating to
+     * @param userId UserId of the user who rated the recipe.
+     * @param ratingRequest Rating the user gave.
+     * @return The added rating
+     */
+    public Response addRating(String recipeId, String userId, RatingRequest ratingRequest) {
+        if (isUserRecipeOwner(recipeId, userId)) {
+            throw new RatingOwnRecipeException("Recipe " + recipeId + " is your own recipe. You may not rate your own recipe!");
         }
+
+        Recipe recipe = getRecipeFromRepository(recipeId);
+        Rating rating = ratingRequest.toEntity();
+        rating.setId(UUID.randomUUID().toString());
+        rating.setUserId(userId);
+
+        List<Rating> allRatings = new ArrayList<>(Arrays.stream(recipe.getRatings()).toList());
+        allRatings.add(rating);
+
+        recipe.setRatings(allRatings.toArray(new Rating[0]));
+
+        recipeRepository.save(recipe);
+
+        return rating.toResponse();
+    }
+
+    /**
+     * Updates an existent rating.
+     * @param recipeId Recipe to update the rating on.
+     * @param userId UserId of the user that has rated
+     * @param ratingRequest Value user has rated.
+     */
+    public void updateRating(String recipeId, String userId, RatingRequest ratingRequest) {
+        deleteRating(recipeId, userId);
+        addRating(recipeId, userId, ratingRequest);
+    }
+
+    /**
+     * Delete rating from recipe.
+     * @param recipeId Id of the recipe to delete rating from.
+     * @param userId UserId of the creator of the rating.
+     */
+    public void deleteRating(String recipeId, String userId) {
+        Recipe recipe = getRecipeFromRepository(recipeId);
+
+        if (!doesRatingExist(recipeId, userId)) {
+            throw new EntityNotFoundException("Rating for recipe " + recipeId + " does not exist yet!");
+        }
+
+        List<Rating> allRatings = new ArrayList<>(Arrays.stream(recipe.getRatings()).toList());
+        allRatings.removeIf(r -> r.getUserId().equals(userId));
+        recipe.setRatings(allRatings.toArray(new Rating[0]));
+
+        recipeRepository.save(recipe);
     }
 
     // PRIVATE HELPER METHODS
 
     /**
+     * Gets a recipe from repository by its id.
+     * @param recipeId Id of recipe to get.
+     * @return Recipe
+     */
+    private Recipe getRecipeFromRepository(String recipeId) {
+        return recipeRepository.findById(recipeId).orElseThrow(() -> new EntityNotFoundException("Recipe " + recipeId + " does not exist!"));
+    }
+
+    /**
      * This method assembles a map that contains all needed information for a stateless implementation in the frontend application from a page.
      *
      * @param page Page to be used for assembling the result.
-     * @return Map that contains the entries 'recipes', 'currentPage', 'totalItems', 'totalPages'.
+     * @return Map that contains the entries objectName, 'currentPage', 'totalItems', 'totalPages'.
      */
-    private Map<String, Object> assemblePaginatedResult(Page<RecipeDTO> page) {
-        List<RecipeDTO> recipes = page.getContent();
+    private Map<String, Object> assemblePaginatedResult(Page<Response> page, String objectName) {
+        List<?> objects = page.getContent();
 
-        Map<String, Object> response;
-
-        if (!recipes.isEmpty()) {
-            response = new HashMap<>();
-            response.put("recipes", recipes);
-            response.put("currentPage", page.getNumber());
-            response.put("totalItems", page.getTotalElements());
-            response.put("totalPages", page.getTotalPages());
-        } else {
-            response = null;
+        if (objects.isEmpty()) {
+            throw new EntityNotFoundException("No items for page " + page.getNumber() + " yet!");
         }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put(objectName, objects);
+        response.put("currentPage", page.getNumber());
+        response.put("totalItems", page.getTotalElements());
+        response.put("totalPages", page.getTotalPages());
+
         return response;
     }
 }

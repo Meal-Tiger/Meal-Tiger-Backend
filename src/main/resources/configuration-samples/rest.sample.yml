@@ -1,0 +1,8 @@
+!<REST>
+
+######################
+# REST Configuration #
+######################
+
+# Allowed CORS Origins
+corsOrigins: '*'

@@ -23,4 +23,9 @@ public @interface ConfigNode {
      * If changed an environment variable of this name will override the config setting
      */
     String envKey() default "";
+
+    /**
+     * Spring properties associated with the config node.
+     */
+    String[] springProperties() default {};
 }

@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2023-01-15
+
+### Added
+
+- Authentication via JWT through OIDC Provider
+- ImageAPI with automatic storage of images in various formats
+- Authorization for images and recipes
+- Location header is set on HTTP Status Code CREATED
+- More configuration files
+- User Management
+
+### Changes
+
+- Improved configuration through environment variables
+- Configurator can now be loaded as Component by Spring
+- Default JDK for docker container now is Eclipse Temurin
+- Unit tests are separated from integration tests now
+
+### Fixed
+
+- Now, HTTP Status Code CREATED and NO_CONTENT are used in some cases instead of OK
+- Fixed environment variables of other types than string not working
 
 ## [1.0.2-alpha] - 2022-12-14
 
