@@ -11,7 +11,7 @@ public class TestConfig {
         return "I'm a sample!";
     }
 
-    @ConfigNode(name = "Sample.Spring.Property.Node", springProperties = "some.sample.property")
+    @ConfigNode(name = "Sample.Spring.Property.Node", springProperties = "some.sample.property", envKey = "SPRING_PROPERTY")
     public String getSampleSpringPropertyNode() {
         return "testValue";
     }

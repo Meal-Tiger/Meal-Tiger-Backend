@@ -58,6 +58,12 @@ class ConfigurationTest {
         Configurator configurator = new Configurator();
 
         assertEquals("testValue", configurator.getSpringProperties().getProperty("some.sample.property"));
+
+        Map<String, String> environmentVariables = new HashMap<>();
+        environmentVariables.put("SPRING_PROPERTY", "testValue2");
+        configurator = new Configurator(environmentVariables);
+
+        assertEquals("testValue2", configurator.getSpringProperties().getProperty("some.sample.property"));
     }
 
     // NEGATIVE TESTS
