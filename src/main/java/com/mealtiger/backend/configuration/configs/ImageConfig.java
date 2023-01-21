@@ -44,7 +44,7 @@ public class ImageConfig {
             stringBuilder.append("png,");
         }
         if (jpeg.enabled) {
-            stringBuilder.append("jpg,");
+            stringBuilder.append("jpeg,");
         }
         if (gif.enabled) {
             stringBuilder.append("gif,");
