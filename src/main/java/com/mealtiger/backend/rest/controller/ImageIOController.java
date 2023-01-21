@@ -101,7 +101,7 @@ public class ImageIOController {
 
             switch (format) {
                 case "bmp" -> imageBytes = bitmapAdapter.convert(image);
-                case "jpeg", "jpg" -> imageBytes = jpegAdapter.convert(image);
+                case "jpeg" -> imageBytes = jpegAdapter.convert(image);
                 case "gif" -> imageBytes = gifAdapter.convert(image);
                 case "png" -> imageBytes = pngAdapter.convert(image);
                 case "webp" -> imageBytes = webPAdapter.convert(image);
