@@ -113,13 +113,7 @@ public class Configurator {
                     String[] propertyKeys = method.getAnnotation(ConfigNode.class).springProperties();
                     String property = method.getAnnotation(ConfigNode.class).name();
 
-                    Object returnValue;
-
-                    try {
-                        returnValue = method.invoke(config);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        throw new ConfigPropertyException(property);
-                    }
+                    Object returnValue = getProperty(config.getClass().getAnnotation(Config.class).name() + "." + property);
 
                     for (String propertyKey : propertyKeys) {
                         properties.put(propertyKey, returnValue);

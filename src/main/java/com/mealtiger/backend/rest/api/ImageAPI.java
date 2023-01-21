@@ -70,7 +70,7 @@ public class ImageAPI {
                 }
                 controller.saveImage(image, String.valueOf(uuid), userId);
             } catch (IOException e) {
-                throw new UploadException("Could not open uploaded file " + file.getName());
+                throw new UploadException("Could not open uploaded file " + file.getName() + ". Reason: " + e.getMessage());
             } finally {
                 uuids.add(uuid);
             }
