@@ -2,13 +2,13 @@ package com.mealtiger.backend.rest.controller;
 
 import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
+import com.mealtiger.backend.database.repository.RecipeRepository;
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
 import com.mealtiger.backend.rest.error_handling.exceptions.RatingOwnRecipeException;
 import com.mealtiger.backend.rest.model.Response;
 import com.mealtiger.backend.rest.model.rating.AverageRatingResponse;
 import com.mealtiger.backend.rest.model.rating.RatingRequest;
 import com.mealtiger.backend.rest.model.recipe.RecipeRequest;
-import com.mealtiger.backend.database.repository.RecipeRepository;
 import com.mealtiger.backend.rest.model.recipe.RecipeResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,7 +181,19 @@ public class RecipeController {
         Rating[] ratings = recipe.getRatings();
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<Rating> ratingPage = new PageImpl<>(List.of(ratings), pageable, ratings.length);
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), ratings.length);
+
+        List<Rating> output;
+
+        try {
+            output = List.of(ratings).subList(start, end);
+        } catch (IllegalArgumentException e) {
+            output = Collections.emptyList();
+        }
+
+        Page<Rating> ratingPage = new PageImpl<>(output, pageable, ratings.length);
 
         return assemblePaginatedResult(ratingPage.map(Rating::toResponse), "ratings");
     }

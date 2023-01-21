@@ -222,7 +222,7 @@ class RecipeControllerTest {
 
         when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
 
-        Map<String, Object> returnValue = recipeController.getRatings("A", 1, 5);
+        Map<String, Object> returnValue = recipeController.getRatings("A", 0, 5);
         verify(recipeRepository).findById("A");
         verify(mockRecipe).getRatings();
 
@@ -230,6 +230,10 @@ class RecipeControllerTest {
         assertTrue(returnValue.containsKey("totalPages"));
         assertTrue(returnValue.containsKey("totalItems"));
         assertTrue(returnValue.containsKey("currentPage"));
+
+        assertEquals(1, ((List<?>) returnValue.get("ratings")).size());
+
+        assertThrows(EntityNotFoundException.class, () -> recipeController.getRatings("A", 1, 5));
 
         assertTrue(returnValue.get("ratings") instanceof List);
     }
