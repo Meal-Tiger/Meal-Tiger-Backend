@@ -9,7 +9,7 @@ import com.mealtiger.backend.configuration.annotations.ConfigNode;
  * @see com.mealtiger.backend.configuration.Configurator
  */
 @SuppressWarnings("unused")
-@Config(name = "Image", configPath = "image.yml")
+@Config(name = "Image", configPath = "image.yml", sampleConfig = "configuration-samples/image.sample.yml")
 public class ImageConfig {
 
     private final String imagePath;
