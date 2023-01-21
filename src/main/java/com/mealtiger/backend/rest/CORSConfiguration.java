@@ -27,13 +27,13 @@ public class CORSConfiguration {
 
                 String[] allowedOriginsArray = allowedOrigins.split(",");
 
-                registry.addMapping("/recipes").allowedOrigins(allowedOriginsArray);
-                registry.addMapping("/recipes/**").allowedOrigins(allowedOriginsArray);
-                registry.addMapping("/image").allowedOrigins(allowedOriginsArray);
-                registry.addMapping("/images").allowedOrigins(allowedOriginsArray);
-                registry.addMapping("/image/**").allowedOrigins(allowedOriginsArray);
-                registry.addMapping("/user").allowedOrigins(allowedOriginsArray);
-                registry.addMapping("/user/**").allowedOrigins(allowedOriginsArray);
+                registry.addMapping("/recipes").allowedMethods("GET", "POST").allowedOrigins(allowedOriginsArray);
+                registry.addMapping("/recipes/**").allowedMethods("GET", "POST", "PUT", "DELETE").allowedOrigins(allowedOriginsArray);
+                registry.addMapping("/image").allowedMethods("POST").allowedOrigins(allowedOriginsArray);
+                registry.addMapping("/images").allowedMethods("POST").allowedOrigins(allowedOriginsArray);
+                registry.addMapping("/image/**").allowedMethods("GET", "POST", "PUT", "DELETE").allowedOrigins(allowedOriginsArray);
+                registry.addMapping("/user").allowedMethods("GET", "POST", "PUT").allowedOrigins(allowedOriginsArray);
+                registry.addMapping("/user/**").allowedMethods("GET").allowedOrigins(allowedOriginsArray);
             }
         };
     }
