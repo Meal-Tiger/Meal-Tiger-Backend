@@ -2,7 +2,7 @@ package com.mealtiger.backend.rest.error_handling;
 
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
 import com.mealtiger.backend.rest.error_handling.exceptions.InvalidRequestFormatException;
-import com.mealtiger.backend.rest.error_handling.exceptions.RatingOwnRecipeException;
+import com.mealtiger.backend.rest.error_handling.exceptions.RatingException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -139,7 +139,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
      * @param request the current request.
      * @return ResponseEntity to be sent to the client.
      */
-    @ExceptionHandler(value = { RatingOwnRecipeException.class })
+    @ExceptionHandler(value = { RatingException.class })
     protected ResponseEntity<Object> handleRatingOwnRecipe(RuntimeException e, WebRequest request) {
         String uri = getRequestURI(request);
 
