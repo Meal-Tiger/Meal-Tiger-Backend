@@ -4,10 +4,7 @@ import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundExcept
 import com.mealtiger.backend.rest.error_handling.exceptions.InvalidRequestFormatException;
 import com.mealtiger.backend.rest.error_handling.exceptions.RatingException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -34,7 +31,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
      * @return ResponseEntity to be sent to the client.
      */
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         return handleExceptionInternal(e, handleBadRequest(new InvalidRequestFormatException(
                         e.getBindingResult().getAllErrors().stream()
                                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -51,7 +48,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
      * @return ResponseEntity to be sent to the client.
      */
     @Override
-    protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         String uri = getRequestURI(request);
 
         if(e.getMessage() == null) {
@@ -72,7 +69,7 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     }
 
     @Override
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(body);
     }
 

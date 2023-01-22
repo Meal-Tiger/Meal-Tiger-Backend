@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.6</version>
+        <version>3.0.2</version>
         <relativePath/>
     </parent>
     <groupId>com.meal-tiger</groupId>
@@ -15,6 +15,8 @@
     <description>Backend application for Meal-Tiger</description>
     <properties>
         <java.version>17</java.version>
+        <twelvemonkeys.version>3.9.4</twelvemonkeys.version>
+        <scrimage.version>4.0.33</scrimage.version>
     </properties>
     <dependencies>
         <dependency>
@@ -53,39 +55,39 @@
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-core</artifactId>
-            <version>3.9.4</version>
+            <version>${twelvemonkeys.version}</version>
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-jpeg</artifactId>
-            <version>3.9.4</version>
+            <version>${twelvemonkeys.version}</version>
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-tiff</artifactId>
-            <version>3.9.4</version>
+            <version>${twelvemonkeys.version}</version>
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-webp</artifactId>
-            <version>3.9.4</version>
+            <version>${twelvemonkeys.version}</version>
         </dependency>
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-bmp</artifactId>
-            <version>3.9.4</version>
+            <version>${twelvemonkeys.version}</version>
         </dependency>
 
         <!-- Scrimage for WebP Export Support -->
         <dependency>
             <groupId>com.sksamuel.scrimage</groupId>
             <artifactId>scrimage-core</artifactId>
-            <version>4.0.32</version>
+            <version>${scrimage.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sksamuel.scrimage</groupId>
             <artifactId>scrimage-webp</artifactId>
-            <version>4.0.32</version>
+            <version>${scrimage.version}</version>
         </dependency>
 
         <!-- Testing dependencies -->
@@ -106,7 +108,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>3.0.0-M8</version>
                 <configuration>
                     <groups>unit</groups>
                 </configuration>
@@ -115,7 +117,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M5</version>
+                <version>3.0.0-M8</version>
                 <configuration>
                     <includes>
                         <include>%regex[.*]</include>
@@ -126,7 +128,7 @@
                     <dependency>
                         <groupId>org.apache.maven.surefire</groupId>
                         <artifactId>surefire-junit-platform</artifactId>
-                        <version>3.0.0-M5</version>
+                        <version>3.0.0-M8</version>
                     </dependency>
                 </dependencies>
             </plugin>
