@@ -295,7 +295,7 @@ class RatingAPITest {
      */
     @Test
     @WithMockUser("123e4567-e89b-12d3-a456-42661417400")
-    void negative_403_postRatingsTest() throws Exception {
+    void negative_403_postRatingsOwnRecipeTest() throws Exception {
         recipeRepository.save(SampleSource.getSampleRecipes().get(0));
         String testId = recipeRepository.findAll().get(0).getId();
 
@@ -314,6 +314,36 @@ class RatingAPITest {
         }
 
         request.setComment("Some comment!");
+
+        for (int rating = 1; rating < 6; rating++) {
+            request.setRatingValue(rating);
+
+            mvc.perform(post("/recipes/" + testId + "/ratings")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writer().writeValueAsString(request)))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.error").isString())
+                    .andExpect(jsonPath("$.path").value("/recipes/" + testId + "/ratings"))
+                    .andExpect(jsonPath("$.status").value("403"));
+        }
+    }
+
+    /**
+     * Negative "FORBIDDEN" integration test for POST on ratings endpoint.
+     * FORBIDDEN - because the user has already rated the recipe.
+     */
+    @Test
+    @WithMockUser("e9add05b-0e50-4be9-bc00-f3ff870d51a6")
+    void negative_403_postRatingsTwiceTest() throws Exception {
+        Recipe recipe = SampleSource.getSampleRecipes().get(0);
+        recipe.setRatings(new Rating[]{
+                new Rating("Test", 1, "Horrible!", "e9add05b-0e50-4be9-bc00-f3ff870d51a6")
+        });
+
+        recipeRepository.save(recipe);
+        String testId = recipeRepository.findAll().get(0).getId();
+
+        RatingRequest request = new RatingRequest();
 
         for (int rating = 1; rating < 6; rating++) {
             request.setRatingValue(rating);
