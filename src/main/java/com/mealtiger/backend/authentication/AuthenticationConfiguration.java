@@ -49,18 +49,19 @@ public class AuthenticationConfiguration {
             final String images = "/images";
             final String image = "/image/**";
 
-            http.authorizeRequests(authorizeRequests -> authorizeRequests
-                            .antMatchers(HttpMethod.POST, recipes).authenticated()
-                            .antMatchers(HttpMethod.PUT, recipes).authenticated()
-                            .antMatchers(HttpMethod.DELETE, recipes).authenticated()
-                            .antMatchers(HttpMethod.GET, userWithoutId).authenticated()
-                            .antMatchers(HttpMethod.GET, userRecipes).authenticated()
-                            .antMatchers(HttpMethod.GET, userImages).authenticated()
-                            .antMatchers(HttpMethod.PUT, user).authenticated()
-                            .antMatchers(HttpMethod.POST, user).authenticated()
-                            .antMatchers(HttpMethod.POST, images).authenticated()
-                            .antMatchers(HttpMethod.DELETE, image).authenticated()
-                            .antMatchers(HttpMethod.POST, image).authenticated()
+            http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
+                            .requestMatchers(HttpMethod.POST, recipes).authenticated()
+                            .requestMatchers(HttpMethod.PUT, recipes).authenticated()
+                            .requestMatchers(HttpMethod.DELETE, recipes).authenticated()
+                            .requestMatchers(HttpMethod.GET, userWithoutId).authenticated()
+                            .requestMatchers(HttpMethod.GET, userRecipes).authenticated()
+                            .requestMatchers(HttpMethod.GET, userImages).authenticated()
+                            .requestMatchers(HttpMethod.PUT, user).authenticated()
+                            .requestMatchers(HttpMethod.POST, user).authenticated()
+                            .requestMatchers(HttpMethod.POST, images).authenticated()
+                            .requestMatchers(HttpMethod.DELETE, image).authenticated()
+                            .requestMatchers(HttpMethod.POST, image).authenticated()
+                            .anyRequest().permitAll()
                     )
                     .oauth2ResourceServer(oauth2ResourceServer ->
                             oauth2ResourceServer

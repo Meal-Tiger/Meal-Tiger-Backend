@@ -2,8 +2,8 @@ package com.mealtiger.backend.database.model.image_metadata.validation;
 
 import com.mealtiger.backend.configuration.Configurator;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
@@ -41,7 +41,7 @@ public class ImageArrayValidator implements ConstraintValidator<ImagesExist, UUI
      */
     @Override
     public boolean isValid(UUID[] value, ConstraintValidatorContext context) {
-        if (value == null || value.length == 0) return true;
+        if (value == null) return true;
 
         for (UUID imageUUID : value) {
             String imagePath = configurator.getString("Image.imagePath");

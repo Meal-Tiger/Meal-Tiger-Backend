@@ -4,8 +4,8 @@ import com.mealtiger.backend.database.model.image_metadata.validation.ImageExist
 import com.mealtiger.backend.database.model.user.UserMetadata;
 import com.mealtiger.backend.rest.model.Request;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 public class UserInformationRequest implements Request<UserMetadata> {
 

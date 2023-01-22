@@ -3,8 +3,8 @@ package com.mealtiger.backend.rest.model.rating;
 import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.rest.model.Request;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 /**
  * Request for the Rating model.

@@ -6,8 +6,8 @@ import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.rest.model.Request;
 
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import java.util.UUID;
 
 /**
