@@ -22,8 +22,8 @@ public class RecipeRequest implements Request<Recipe> {
 
     @NotBlank(message = "Recipe title is mandatory!")
     private String title;
-    @NotEmpty
-    @NotNull
+    @NotEmpty(message = "Ingredients must not be empty!")
+    @NotNull(message = "Ingredients must not be empty!")
     @Valid
     private Ingredient[] ingredients;
     @NotBlank(message = "Recipe description is mandatory!")
