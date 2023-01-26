@@ -9,11 +9,11 @@ import jakarta.validation.constraints.NotNull;
 
 public class UserInformationRequest implements Request<UserMetadata> {
 
-    @NotNull
-    @NotEmpty
+    @NotNull(message = "Username must not be empty!")
+    @NotEmpty(message = "Username must not be empty!")
     private final String username;
 
-    @ImageExists
+    @ImageExists(message = "The chosen picture does not exist!")
     private final String profilePictureId;
 
 
