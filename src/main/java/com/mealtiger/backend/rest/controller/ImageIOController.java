@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.*;
@@ -96,7 +97,6 @@ public class ImageIOController {
 
             try {
                 reader.setInput(imageInputStream);
-
                 image = reader.read(0);
             } finally {
                 reader.dispose();
@@ -129,6 +129,12 @@ public class ImageIOController {
         if (!filePath.exists() && !filePath.mkdir()) {
             throw new IllegalStateException("Couldn't create directory: " + filePath);
         }
+
+        // Convert the image type to a byte indexed image to drastically improve performance.
+        BufferedImage indexedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_INDEXED);
+        Graphics2D graphics2D = indexedImage.createGraphics();
+        graphics2D.drawImage(image, 0, 0, null);
+        image = indexedImage;
 
         for (String format : servedFormatsSplitted) {
             byte[] imageBytes;
