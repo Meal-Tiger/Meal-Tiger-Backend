@@ -17,10 +17,8 @@ import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,8 +57,8 @@ public class ImageAPI {
 
         for(MultipartFile file : files) {
             UUID uuid = UUID.randomUUID();
-            try (InputStream inputStream = file.getInputStream()) {
-                BufferedImage image = ImageIO.read(inputStream);
+            try {
+                BufferedImage image = controller.readImage(file);
                 if (image == null) {
                     // Image format is not supported!
                     for (UUID alreadySavedUUID : uuids) {
@@ -95,8 +93,8 @@ public class ImageAPI {
 
         UUID uuid = UUID.randomUUID();
 
-        try (InputStream inputStream = file.getInputStream()) {
-            BufferedImage image = ImageIO.read(inputStream);
+        try {
+            BufferedImage image = controller.readImage(file);
             if (image == null) {
                 // Image format is not supported!
                 throw new InvalidRequestFormatException("Image format not supported!");

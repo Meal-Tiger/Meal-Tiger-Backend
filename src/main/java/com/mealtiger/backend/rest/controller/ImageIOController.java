@@ -6,6 +6,7 @@ import com.mealtiger.backend.database.repository.ImageMetadataRepository;
 import com.mealtiger.backend.imageio.adapters.ImageAdapter;
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
 import com.mealtiger.backend.rest.error_handling.exceptions.ImageFormatNotServedException;
+import com.mealtiger.backend.rest.error_handling.exceptions.InvalidRequestFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
@@ -16,14 +17,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeType;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -73,6 +77,36 @@ public class ImageIOController {
     }
 
     /**
+     * Reads in a MultipartFile as a BufferedImage
+     * @param file Uploaded file
+     * @return BufferedImage
+     */
+    public BufferedImage readImage(MultipartFile file) throws IOException {
+        BufferedImage image;
+
+        try (InputStream inputStream = file.getInputStream(); ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
+            ImageIO.setUseCache(false);
+
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(imageInputStream);
+
+            if (!readers.hasNext()) {
+                throw new InvalidRequestFormatException("Unknown image format!");
+            }
+
+            ImageReader reader = readers.next();
+
+            try {
+                reader.setInput(imageInputStream);
+                image = reader.read(0);
+            } finally {
+                reader.dispose();
+            }
+        }
+
+        return image;
+    }
+
+    /**
      * Saves Image.
      * @param image the image.
      * @param uuid ID of the image.
@@ -95,6 +129,12 @@ public class ImageIOController {
         if (!filePath.exists() && !filePath.mkdir()) {
             throw new IllegalStateException("Couldn't create directory: " + filePath);
         }
+
+        // Convert the image type to a byte indexed image to drastically improve performance.
+        BufferedImage indexedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_INDEXED);
+        Graphics2D graphics2D = indexedImage.createGraphics();
+        graphics2D.drawImage(image, 0, 0, null);
+        image = indexedImage;
 
         for (String format : servedFormatsSplitted) {
             byte[] imageBytes;

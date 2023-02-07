@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 
 import java.awt.image.BufferedImage;
@@ -64,6 +65,23 @@ class ImageIOControllerTest {
     }
 
     /**
+     * Tests reading images.
+     */
+    @Test
+    void readImageTest() throws IOException {
+        when(configurator.getString("Image.imagePath")).thenReturn("testImages/");
+
+        ImageIOController controller = new ImageIOController(bitmapAdapter, gifAdapter, jpegAdapter, pngAdapter, webPAdapter, configurator, imageMetadataRepository);
+
+        MockMultipartFile multipartFile = spy(new MockMultipartFile("file", this.getClass().getClassLoader().getResourceAsStream("com/mealtiger/backend/imageio/testImages/DefaultTestImage/TestImage.jpg")));
+        BufferedImage image = controller.readImage(multipartFile);
+
+        verify(multipartFile).getInputStream();
+        assertNotEquals(0, image.getHeight());
+        assertNotEquals(0, image.getWidth());
+    }
+
+    /**
      * Tests saving images.
      */
     @Test
@@ -73,21 +91,21 @@ class ImageIOControllerTest {
 
         ImageIOController controller = new ImageIOController(bitmapAdapter, gifAdapter, jpegAdapter, pngAdapter, webPAdapter, configurator, imageMetadataRepository);
 
-        BufferedImage image = mock(BufferedImage.class);
+        BufferedImage image = new BufferedImage(256,256,BufferedImage.TYPE_INT_RGB);
 
-        when(bitmapAdapter.convert(image)).thenReturn(new byte[]{});
-        when(jpegAdapter.convert(image)).thenReturn(new byte[]{});
-        when(gifAdapter.convert(image)).thenReturn(new byte[]{});
-        when(pngAdapter.convert(image)).thenReturn(new byte[]{});
-        when(webPAdapter.convert(image)).thenReturn(new byte[]{});
+        when(bitmapAdapter.convert(any())).thenReturn(new byte[]{});
+        when(jpegAdapter.convert(any())).thenReturn(new byte[]{});
+        when(gifAdapter.convert(any())).thenReturn(new byte[]{});
+        when(pngAdapter.convert(any())).thenReturn(new byte[]{});
+        when(webPAdapter.convert(any())).thenReturn(new byte[]{});
 
         controller.saveImage(image, SAMPLE_IMAGE_ID, SAMPLE_USER_ID);
 
-        verify(bitmapAdapter).convert(image);
-        verify(jpegAdapter).convert(image);
-        verify(gifAdapter).convert(image);
-        verify(pngAdapter).convert(image);
-        verify(webPAdapter).convert(image);
+        verify(bitmapAdapter).convert(any());
+        verify(jpegAdapter).convert(any());
+        verify(gifAdapter).convert(any());
+        verify(pngAdapter).convert(any());
+        verify(webPAdapter).convert(any());
 
         verify(imageMetadataRepository).save(new ImageMetadata(SAMPLE_IMAGE_ID, SAMPLE_USER_ID));
     }
