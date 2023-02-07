@@ -16,8 +16,7 @@ public class WebPAdapter implements ImageAdapter {
 
     @Override
     public byte[] convert(BufferedImage input) throws IllegalStateException, IllegalArgumentException, IOException {
-        PNGAdapter pngAdapter = new PNGAdapter();
-        ImmutableImage image = ImmutableImage.loader().fromBytes(pngAdapter.convert(input));
+        ImmutableImage image = ImmutableImage.fromAwt(input);
 
         Configurator configurator = new Configurator();
         String compressionType = configurator.getString("Image.WebP.compressionType");
