@@ -16,14 +16,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeType;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -70,6 +72,38 @@ public class ImageIOController {
         this.configurator = configurator;
         this.imageMetadataRepository = imageMetadataRepository;
         this.imageRootPath = Path.of(configurator.getString("Image.imagePath"));
+    }
+
+    /**
+     * Reads in a MultipartFile as a BufferedImage
+     * @param file Uploaded file
+     * @return BufferedImage
+     */
+    public BufferedImage readImage(MultipartFile file) throws IOException {
+        BufferedImage image;
+
+        try (InputStream inputStream = file.getInputStream(); ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
+            ImageIO.setUseCache(false);
+
+            Iterator<ImageReader> readers = ImageIO.getImageReaders(imageInputStream);
+
+            if (!readers.hasNext()) {
+                throw new IllegalArgumentException("Unknown image format!");
+            }
+
+            ImageReader reader = readers.next();
+            log.info(reader.getClass().getName());
+
+            try {
+                reader.setInput(imageInputStream);
+
+                image = reader.read(0);
+            } finally {
+                reader.dispose();
+            }
+        }
+
+        return image;
     }
 
     /**
