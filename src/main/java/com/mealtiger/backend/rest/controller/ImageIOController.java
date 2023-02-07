@@ -94,7 +94,6 @@ public class ImageIOController {
             }
 
             ImageReader reader = readers.next();
-            log.info(reader.getClass().getName());
 
             try {
                 reader.setInput(imageInputStream);
