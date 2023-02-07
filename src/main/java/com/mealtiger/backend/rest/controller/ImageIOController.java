@@ -6,6 +6,7 @@ import com.mealtiger.backend.database.repository.ImageMetadataRepository;
 import com.mealtiger.backend.imageio.adapters.ImageAdapter;
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
 import com.mealtiger.backend.rest.error_handling.exceptions.ImageFormatNotServedException;
+import com.mealtiger.backend.rest.error_handling.exceptions.InvalidRequestFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
@@ -89,7 +90,7 @@ public class ImageIOController {
             Iterator<ImageReader> readers = ImageIO.getImageReaders(imageInputStream);
 
             if (!readers.hasNext()) {
-                throw new IllegalArgumentException("Unknown image format!");
+                throw new InvalidRequestFormatException("Unknown image format!");
             }
 
             ImageReader reader = readers.next();
