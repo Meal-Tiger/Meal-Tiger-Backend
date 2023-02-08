@@ -7,6 +7,7 @@ import com.mealtiger.backend.imageio.adapters.ImageAdapter;
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
 import com.mealtiger.backend.rest.error_handling.exceptions.ImageFormatNotServedException;
 import com.mealtiger.backend.rest.error_handling.exceptions.InvalidRequestFormatException;
+import com.mealtiger.backend.rest.error_handling.exceptions.UploadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
@@ -29,6 +30,8 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * This class provides a facade to the ImageIO implementation.
@@ -112,7 +115,9 @@ public class ImageIOController {
      * @param uuid ID of the image.
      * @param userId ID of the user.
      */
-    public void saveImage(BufferedImage image, String uuid, String userId) throws IOException {
+    public void saveImage(BufferedImage image, String uuid, String userId) throws IOException, UploadException {
+        log.trace("Saving image with uuid {}, uploaded by user {}", uuid, userId);
+
         String servedFormats = configurator.getString("Image.servedImageFormats");
         List<String> servedFormatsSplitted = List.of(servedFormats.split(","));
 
@@ -130,25 +135,73 @@ public class ImageIOController {
             throw new IllegalStateException("Couldn't create directory: " + filePath);
         }
 
+        log.trace("Converting image to type byte_indexed!");
+
         // Convert the image type to a byte indexed image to drastically improve performance.
         BufferedImage indexedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_INDEXED);
         Graphics2D graphics2D = indexedImage.createGraphics();
         graphics2D.drawImage(image, 0, 0, null);
         image = indexedImage;
 
-        for (String format : servedFormatsSplitted) {
-            byte[] imageBytes;
+        int threadCount = Runtime.getRuntime().availableProcessors();
 
+        log.trace("Starting executor service for image conversion. Thread count: {}", threadCount);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+
+        BufferedImage finalImage = image;
+
+        Callable<byte[]> bitmapConversion = () -> bitmapAdapter.convert(finalImage);
+        Callable<byte[]> jpegConversion = () -> jpegAdapter.convert(finalImage);
+        Callable<byte[]> gifConversion = () -> gifAdapter.convert(finalImage);
+        Callable<byte[]> pngConversion = () -> pngAdapter.convert(finalImage);
+        Callable<byte[]> webPConversion = () -> webPAdapter.convert(finalImage);
+
+        Map<String, Future<byte[]>> imageByteMap = new ConcurrentHashMap<>();
+
+        for (String format : servedFormatsSplitted) {
             switch (format) {
-                case "bmp" -> imageBytes = bitmapAdapter.convert(image);
-                case "jpeg" -> imageBytes = jpegAdapter.convert(image);
-                case "gif" -> imageBytes = gifAdapter.convert(image);
-                case "png" -> imageBytes = pngAdapter.convert(image);
-                case "webp" -> imageBytes = webPAdapter.convert(image);
-                default -> throw new IllegalArgumentException("Image format unknown: " + format);
+                case "bmp" -> {
+                    log.trace("Submitting conversion to format bitmap!");
+                    imageByteMap.put("bmp", executorService.submit(bitmapConversion));
+                }
+                case "jpeg" -> {
+                    log.trace("Submitting conversion to format jpeg!");
+                    imageByteMap.put("jpeg", executorService.submit(jpegConversion));
+                }
+                case "gif" -> {
+                    log.trace("Submitting conversion to format gif!");
+                    imageByteMap.put("gif", executorService.submit(gifConversion));
+                }
+                case "png" -> {
+                    log.trace("Submitting conversion to format png!");
+                    imageByteMap.put("png", executorService.submit(pngConversion));
+                }
+                case "webp" -> {
+                    log.trace("Submitting conversion to format webp!");
+                    imageByteMap.put("webp", executorService.submit(webPConversion));
+                }
+                default -> {
+                    log.error("Image format of name {} unknown!", format);
+                    throw new IllegalArgumentException("Image format unknown: " + format);
+                }
+            }
+        }
+
+        for (Map.Entry<String, Future<byte[]>> entry : imageByteMap.entrySet()) {
+            byte[] imageBytes;
+            String format = entry.getKey();
+
+            try {
+                log.trace("Trying to retrieve image bytes of type {}!", format);
+                imageBytes = entry.getValue().get();
+            } catch (InterruptedException | ExecutionException e) {
+                Thread.currentThread().interrupt();
+                throw new UploadException(e.getMessage());
             }
 
-            File file = new File(path + uuid + "/image." + format);
+            String imagePath = path + uuid + "/image." + format;
+            log.trace("Saving image of format {} on path {}.", format, imagePath);
+            File file = new File(imagePath);
             if (!file.createNewFile()) {
                 throw new IllegalStateException("Couldn't create file: " + file);
             }
@@ -158,6 +211,7 @@ public class ImageIOController {
             }
         }
 
+        log.trace("Saving metadata of image {} to database!", uuid);
         imageMetadataRepository.save(new ImageMetadata(uuid, userId));
     }
 

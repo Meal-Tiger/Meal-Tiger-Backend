@@ -6,6 +6,7 @@ import com.mealtiger.backend.database.repository.ImageMetadataRepository;
 import com.mealtiger.backend.imageio.adapters.*;
 import com.mealtiger.backend.rest.Helper;
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
+import com.mealtiger.backend.rest.error_handling.exceptions.UploadException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -85,7 +86,7 @@ class ImageIOControllerTest {
      * Tests saving images.
      */
     @Test
-    void saveImageTest() throws IOException {
+    void saveImageTest() throws IOException, UploadException {
         when(configurator.getString("Image.servedImageFormats")).thenReturn("png,jpeg,gif,webp,bmp");
         when(configurator.getString("Image.imagePath")).thenReturn("testImages/");
 

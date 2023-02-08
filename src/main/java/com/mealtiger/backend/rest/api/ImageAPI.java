@@ -58,14 +58,17 @@ public class ImageAPI {
         for(MultipartFile file : files) {
             UUID uuid = UUID.randomUUID();
             try {
+                log.trace("Reading uploaded image!");
                 BufferedImage image = controller.readImage(file);
                 if (image == null) {
                     // Image format is not supported!
+                    log.error("Error occured when reading image. Possibly, the image format is not supported! Aborting!");
                     for (UUID alreadySavedUUID : uuids) {
                         deleteImage(alreadySavedUUID.toString());
                     }
                     throw new InvalidRequestFormatException("Image format not supported!");
                 }
+                log.trace("Saving uploaded image!");
                 controller.saveImage(image, String.valueOf(uuid), userId);
             } catch (IOException e) {
                 throw new UploadException("Could not open uploaded file " + file.getName() + ". Reason: " + e.getMessage());
