@@ -23,8 +23,27 @@ public class WebPAdapter implements ImageAdapter {
 
         if ("DEFAULT".equals(compressionType)) {
             return image.bytes(WebpWriter.DEFAULT);
+        } else if ("LOSSLESS".equals(compressionType)) {
+            return image.bytes(WebpWriter.MAX_LOSSLESS_COMPRESSION);
+        } else if ("CUSTOM".equals(compressionType)) {
+            int compressionFactor = configurator.getInteger("Image.WebP.compressionFactor");
+            int compressionMethod = configurator.getInteger("Image.WebP.compressionMethod");
+            return image.bytes(WebpWriter.DEFAULT
+                    .withQ(compressionFactor)
+                    .withM(compressionMethod)
+            );
+        } else if ("CUSTOM_LOSSLESS".equals(compressionType)) {
+            int compressionFactor = configurator.getInteger("Image.WebP.compressionFactor");
+            int compressionMethod = configurator.getInteger("Image.WebP.compressionMethod");
+            int losslessSpeedFactor = configurator.getInteger("Image.WebP.losslessSpeedFactor");
+            return image.bytes(WebpWriter.MAX_LOSSLESS_COMPRESSION
+                    .withZ(losslessSpeedFactor)
+                    .withQ(compressionFactor)
+                    .withM(compressionMethod)
+            );
         }
-
-        return image.bytes(WebpWriter.MAX_LOSSLESS_COMPRESSION);
+        else {
+            throw new IllegalArgumentException("No such compressionType as " + compressionType + "!");
+        }
     }
 }
