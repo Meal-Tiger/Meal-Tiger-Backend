@@ -315,7 +315,7 @@ public class ImageIOController {
                     .body(resource);
         } catch (FileNotFoundException | NoSuchFileException e) {
             log.debug("File {} not found!", path);
-            throw new EntityNotFoundException("Image of MediaType" + type + " not found!");
+            throw new EntityNotFoundException("Image of MediaType " + type + " not found!");
         } catch (IOException e) {
             log.error("Error upon downloading file {}: {}", imageRootPath, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
