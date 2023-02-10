@@ -8,6 +8,7 @@ import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundExcept
 import com.mealtiger.backend.rest.error_handling.exceptions.ImageFormatNotServedException;
 import com.mealtiger.backend.rest.error_handling.exceptions.InvalidRequestFormatException;
 import com.mealtiger.backend.rest.error_handling.exceptions.UploadException;
+import com.twelvemonkeys.imageio.stream.ByteArrayImageInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
@@ -25,7 +26,10 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Iterator;
@@ -87,7 +91,7 @@ public class ImageIOController {
     public BufferedImage readImage(MultipartFile file) throws IOException {
         BufferedImage image;
 
-        try (InputStream inputStream = file.getInputStream(); ImageInputStream imageInputStream = ImageIO.createImageInputStream(inputStream)) {
+        try (ImageInputStream imageInputStream = new ByteArrayImageInputStream(file.getBytes())) {
             ImageIO.setUseCache(false);
 
             Iterator<ImageReader> readers = ImageIO.getImageReaders(imageInputStream);
