@@ -18,8 +18,29 @@ imagePath: images/
 # Enabled by default, image format of choice with modern web pages/applications.
 webp:
   enabled: true
-  # Configures the compression type. Valid values are: DEFAULT, LOSSLESS
+  # Configures the compression type. Valid values are: DEFAULT, LOSSLESS, CUSTOM, CUSTOM_LOSSLESS
   compressionType: DEFAULT
+  # Only applies when compressionType CUSTOM or CUSTOM_LOSSLESS is set.
+  # Defines the compression factor the RGB channels are compressed with.
+  # Generally, the higher you set this, the smaller
+  # the disk space taken by an image will be.
+  # However, this comes at the cost of performance.
+  # Valid values range from 0 to 100.
+  compressionFactor: 75
+  # Only applies when compressionType CUSTOM or CUSTOM_LOSSLESS is set.
+  # Defines the compression method an image is compressed with.
+  # Generally, the higher you set this, the smaller
+  # the disk space taken by an image will be.
+  # However, this comes at the cost of performance.
+  # Valid values range from 0 to 6.
+  compressionMethod: 4
+  # Only applies when compressionType CUSTOM_LOSSLESS is set.
+  # Defines the pace an image is compressed with.
+  # Generally, the higher you set this, the smaller
+  # the disk space taken by an image will be.
+  # However, this comes at the cost of performance.
+  # Valid values range from 0 to 9.
+  losslessSpeedFactor: 6
   # The higher this number, the likelier it is that the
   # integrated algorithm chooses this image format.
   qualityWeighting: 1.0
@@ -29,7 +50,7 @@ webp:
 jpeg:
   enabled: true
   # Defines the quality of the saved image.
-  # Generally, the lower you set this, the smaller
+  # Generally, the higher you set this, the smaller
   # the disk space taken by an image will be. However,
   # this comes at the cost of image quality.
   compressionQuality: 75.0
@@ -42,7 +63,7 @@ jpeg:
 bmp:
   enabled: false
   # Defines the quality of the saved image.
-  # Generally, the lower you set this, the smaller
+  # Generally, the higher you set this, the smaller
   # the disk space taken by an image will be. However,
   # this comes at the cost of image quality.
   compressionQuality: 75.0
@@ -59,7 +80,7 @@ bmp:
 gif:
   enabled: false
   # Defines the quality of the saved image.
-  # Generally, the lower you set this, the smaller
+  # Generally, the higher you set this, the smaller
   # the disk space taken by an image will be. However,
   # this comes at the cost of image quality.
   compressionQuality: 75.0
@@ -74,7 +95,7 @@ gif:
 png:
   enabled: false
   # Defines the quality of the saved image.
-  # Generally, the lower you set this, the smaller
+  # Generally, the higher you set this, the smaller
   # the disk space taken by an image will be. However,
   # this comes at the cost of image quality.
   compressionQuality: 75.0

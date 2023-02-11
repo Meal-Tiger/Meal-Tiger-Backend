@@ -43,7 +43,7 @@ public class JPEGAdapter implements ImageAdapter {
         BufferedImage input;
         if (image.getColorModel().hasAlpha()) {
             // Remove alpha channel
-            BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+            BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_BYTE_INDEXED);
             Graphics2D graphics2D = newImage.createGraphics();
             graphics2D.fillRect(0,0, image.getWidth(), image.getHeight());
             graphics2D.drawImage(image, 0, 0, null);

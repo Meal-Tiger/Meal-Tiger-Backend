@@ -109,6 +109,21 @@ public class ImageConfig {
         return webp.compressionType;
     }
 
+    @ConfigNode(name = "WebP.compressionFactor")
+    public int getWebPCompressionFactor() {
+        return webp.compressionFactor;
+    }
+
+    @ConfigNode(name = "WebP.compressionMethod")
+    public int getWebPCompressionMethod() {
+        return webp.compressionMethod;
+    }
+
+    @ConfigNode(name = "WebP.losslessSpeedFactor")
+    public int getWebPlosslessSpeedFactor() {
+        return webp.losslessSpeedFactor;
+    }
+
     @ConfigNode(name = "imagePath", envKey = "IMAGE_PATH")
     public String getImagePath() {
         return imagePath;
@@ -169,11 +184,17 @@ public class ImageConfig {
         private final boolean enabled;
         private final String compressionType;
         private final double qualityWeighting;
+        private final int compressionFactor;
+        private final int compressionMethod;
+        private final int losslessSpeedFactor;
 
         private WebP() {
             enabled = true;
             compressionType = "DEFAULT";
             qualityWeighting = 1.0;
+            compressionFactor = 75;
+            compressionMethod = 4;
+            losslessSpeedFactor = 6;
         }
     }
 }
