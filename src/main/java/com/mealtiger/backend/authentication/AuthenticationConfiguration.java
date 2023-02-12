@@ -1,5 +1,6 @@
 package com.mealtiger.backend.authentication;
 
+import com.mealtiger.backend.authentication.jwt_conversion.converters.JwtAuthenticationConverter;
 import com.mealtiger.backend.configuration.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,11 @@ public class AuthenticationConfiguration {
 
     private final Configurator configurator;
 
-    public AuthenticationConfiguration(Configurator configurator) {
+    private final JwtAuthenticationConverter jwtAuthenticationConverter;
+
+    public AuthenticationConfiguration(Configurator configurator, JwtAuthenticationConverter jwtAuthenticationConverter) {
         this.configurator = configurator;
+        this.jwtAuthenticationConverter = jwtAuthenticationConverter;
     }
 
     /**
@@ -66,7 +70,7 @@ public class AuthenticationConfiguration {
                     .oauth2ResourceServer(oauth2ResourceServer ->
                             oauth2ResourceServer
                                     .jwt(jwt -> jwt.decoder(JwtDecoders.fromIssuerLocation(jwtIssuerURL))
-                                            .jwtAuthenticationConverter(new CustomJwtAuthenticationConverter()))
+                                            .jwtAuthenticationConverter(jwtAuthenticationConverter))
                     );
         }
 
