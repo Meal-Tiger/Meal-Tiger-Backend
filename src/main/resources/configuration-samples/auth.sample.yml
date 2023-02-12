@@ -10,6 +10,9 @@ oidc:
 
   # URL of the authentication provider.
   authenticationProviderURL: ''
+  # Name of the authentication provider.
+  # Possible values: KEYCLOAK
+  authenticationProvider: 'KEYCLOAK'
   # ClientID for OIDC.
   clientID: mealtiger
   # Name of the admin role.

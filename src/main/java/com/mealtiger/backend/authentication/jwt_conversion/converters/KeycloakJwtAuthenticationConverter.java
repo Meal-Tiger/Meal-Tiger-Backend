@@ -1,9 +1,8 @@
-package com.mealtiger.backend.authentication;
+package com.mealtiger.backend.authentication.jwt_conversion.converters;
 
 import com.mealtiger.backend.configuration.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,9 +20,9 @@ import java.util.stream.Collectors;
  *
  * @author Lucca Greschner
  */
-public class CustomJwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+public class KeycloakJwtAuthenticationConverter implements JwtAuthenticationConverter {
 
-    private static final Logger log = LoggerFactory.getLogger(CustomJwtAuthenticationConverter.class);
+    private static final Logger log = LoggerFactory.getLogger(KeycloakJwtAuthenticationConverter.class);
 
 
     /**
