@@ -126,7 +126,7 @@ public class RatingAPI {
         log.debug("User {} is trying to delete rating on recipe {}", userId, id);
 
         recipeController.deleteRating(id, userId);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.noContent().build();
     }
 
 }
