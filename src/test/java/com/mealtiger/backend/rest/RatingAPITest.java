@@ -192,7 +192,7 @@ class RatingAPITest {
         String testId = recipeRepository.findAll().get(0).getId();
 
         mvc.perform(delete("/recipes/" + testId + "/ratings"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         assertEquals(0, recipeRepository.findAll().get(0).getRatings().length);
     }
