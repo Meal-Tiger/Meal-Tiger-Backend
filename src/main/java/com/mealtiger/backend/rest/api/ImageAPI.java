@@ -136,7 +136,7 @@ public class ImageAPI {
         String adminRole = configurator.getString("Authentication.OIDC.adminRole");
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(adminRole));
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equalsIgnoreCase("ROLE_" + adminRole));
 
         log.debug("Deleting image with uuid {}!", uuid);
 

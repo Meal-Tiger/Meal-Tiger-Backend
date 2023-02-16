@@ -116,7 +116,7 @@ public class RecipeAPI {
         String adminRole = configurator.getString("Authentication.OIDC.adminRole");
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(adminRole));
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equalsIgnoreCase("ROLE_" + adminRole));
 
         if (!recipeController.isUserRecipeOwner(id, userId) && !isAdmin) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -139,7 +139,7 @@ public class RecipeAPI {
         String adminRole = configurator.getString("Authentication.OIDC.adminRole");
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(adminRole));
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equalsIgnoreCase("ROLE_" + adminRole));
 
         if (!recipeController.isUserRecipeOwner(id, userId) && !isAdmin) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
