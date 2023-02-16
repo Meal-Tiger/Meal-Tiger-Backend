@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2023-02-16
+
+### Fixed
+
+- Wrong CORS mapping for put and delete operations
+- Users could submit multiple ratings for the same recipe
+- Fixed typo in 404 error message on image endpoint
+- Deleting a recipe returned the wrong status code (200 instead of 204)
+- Admin role detecting did not work reliably
+
+### Added
+
+- Some missing validation messages
+
+### Changes
+
+- Updated to Spring Boot 3.0.2
+- Optimized Dockerfile with layered JAR
+- Improved image conversion speeds through tweaks and multithreading
+- Added factory and interface for JwtAuthenticationConverter to accomodate the possibilty to add more OIDC Authentication Providers
+
 ## [2.0.1] - 2023-01-21
 
 ### Fixed
