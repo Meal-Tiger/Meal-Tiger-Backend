@@ -52,7 +52,7 @@ When the project proceeds to usuable state, we plan on also providing prebuilt j
 
 To start the application you may run the following command:
 
-`java -jar MealTigerBackend-2.0.0-alpha.jar`
+`java -jar MealTigerBackend-2.1.0.jar`
 
 ## How to generate javadoc documentation
 
@@ -109,7 +109,7 @@ A guide on how to configure the application will follow.
 
 ## Copyright
 
-Meal-Tiger-Backend (c) 2022 [Sebastian Maier](https://github.com/SebastianMaier03)
-, [Konstantinos Gimoussiakakis](https://github.com/Kostanix), [Lucca Greschner](https://github.com/Uggah)
+Meal-Tiger-Backend (c) 2023 [Sebastian Maier](https://github.com/SebastianMaier03)
+, [Konstantinos Gimoussiakakis](https://github.com/Kostanix), [Lucca Greschner](https://github.com/Uggah), [Kay Knöpfle](https://github.com/Joystick01)
 
 SPDX-License-Identifier: GPL-3.0
