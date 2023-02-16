@@ -2,7 +2,9 @@ package com.mealtiger.backend.rest;
 
 import com.mealtiger.backend.BackendApplication;
 import com.mealtiger.backend.configuration.Configurator;
+import com.mealtiger.backend.database.repository.ImageMetadataRepository;
 import com.mealtiger.backend.rest.controller.ImageIOController;
+import com.mealtiger.backend.rest.error_handling.exceptions.UploadException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -62,6 +64,9 @@ class ImageAPITest {
     private ImageIOController imageIOController;
 
     @Autowired
+    private ImageMetadataRepository imageMetadataRepository;
+
+    @Autowired
     private MockMvc mvc;
 
     @MockBean(answer = Answers.CALLS_REAL_METHODS)
@@ -76,6 +81,7 @@ class ImageAPITest {
         if(Files.exists(Path.of(configurator.getString("Image.imagePath")))) {
             Helper.deleteFile(Path.of(configurator.getString("Image.imagePath")));
         }
+        imageMetadataRepository.deleteAll();
     }
 
     /**
@@ -433,7 +439,7 @@ class ImageAPITest {
      * @param uuid UUID of the image.
      * @param userId UserID of the creating user.
      */
-    private void saveImage(File file, String uuid, String userId) throws IOException {
+    private void saveImage(File file, String uuid, String userId) throws IOException, UploadException {
         BufferedImage image = ImageIO.read(file);
         imageIOController.saveImage(image, uuid, userId);
     }

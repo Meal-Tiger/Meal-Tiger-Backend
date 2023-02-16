@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.Map;
 
@@ -126,7 +126,7 @@ public class RatingAPI {
         log.debug("User {} is trying to delete rating on recipe {}", userId, id);
 
         recipeController.deleteRating(id, userId);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.noContent().build();
     }
 
 }

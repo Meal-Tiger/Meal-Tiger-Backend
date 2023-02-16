@@ -17,10 +17,8 @@ import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,15 +57,18 @@ public class ImageAPI {
 
         for(MultipartFile file : files) {
             UUID uuid = UUID.randomUUID();
-            try (InputStream inputStream = file.getInputStream()) {
-                BufferedImage image = ImageIO.read(inputStream);
+            try {
+                log.trace("Reading uploaded image!");
+                BufferedImage image = controller.readImage(file);
                 if (image == null) {
                     // Image format is not supported!
+                    log.error("Error occured when reading image. Possibly, the image format is not supported! Aborting!");
                     for (UUID alreadySavedUUID : uuids) {
                         deleteImage(alreadySavedUUID.toString());
                     }
                     throw new InvalidRequestFormatException("Image format not supported!");
                 }
+                log.trace("Saving uploaded image!");
                 controller.saveImage(image, String.valueOf(uuid), userId);
             } catch (IOException e) {
                 throw new UploadException("Could not open uploaded file " + file.getName() + ". Reason: " + e.getMessage());
@@ -95,8 +96,8 @@ public class ImageAPI {
 
         UUID uuid = UUID.randomUUID();
 
-        try (InputStream inputStream = file.getInputStream()) {
-            BufferedImage image = ImageIO.read(inputStream);
+        try {
+            BufferedImage image = controller.readImage(file);
             if (image == null) {
                 // Image format is not supported!
                 throw new InvalidRequestFormatException("Image format not supported!");
@@ -135,7 +136,7 @@ public class ImageAPI {
         String adminRole = configurator.getString("Authentication.OIDC.adminRole");
 
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(adminRole));
+        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equalsIgnoreCase("ROLE_" + adminRole));
 
         log.debug("Deleting image with uuid {}!", uuid);
 

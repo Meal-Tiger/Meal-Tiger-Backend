@@ -4,7 +4,7 @@ import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.database.repository.RecipeRepository;
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
-import com.mealtiger.backend.rest.error_handling.exceptions.RatingOwnRecipeException;
+import com.mealtiger.backend.rest.error_handling.exceptions.RatingException;
 import com.mealtiger.backend.rest.model.Response;
 import com.mealtiger.backend.rest.model.rating.AverageRatingResponse;
 import com.mealtiger.backend.rest.model.rating.RatingRequest;
@@ -230,7 +230,11 @@ public class RecipeController {
      */
     public Response addRating(String recipeId, String userId, RatingRequest ratingRequest) {
         if (isUserRecipeOwner(recipeId, userId)) {
-            throw new RatingOwnRecipeException("Recipe " + recipeId + " is your own recipe. You may not rate your own recipe!");
+            throw new RatingException("Recipe " + recipeId + " is your own recipe. You may not rate your own recipe!");
+        }
+
+        if (doesRatingExist(recipeId, userId)) {
+            throw new RatingException("You may not rate the recipe " + recipeId + " twice!");
         }
 
         Recipe recipe = getRecipeFromRepository(recipeId);

@@ -1,8 +1,8 @@
 package com.mealtiger.backend.database.model.recipe;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
@@ -19,14 +19,14 @@ public class Ingredient {
     /**
      * Unit of the ingredient, e.g. milliliters
      **/
-    @NotEmpty
-    @NotNull
+    @NotEmpty(message = "Unit must not be empty!")
+    @NotNull(message = "Unit must not be empty!")
     private String unit;
     /**
      * Name of the ingredient, e.g. flour
      */
-    @NotEmpty
-    @NotNull
+    @NotEmpty(message = "Ingredient name must not be empty!")
+    @NotNull(message = "Ingredient name must not be empty!")
     private String name;
 
     public Ingredient(int amount, String unit, String name) {

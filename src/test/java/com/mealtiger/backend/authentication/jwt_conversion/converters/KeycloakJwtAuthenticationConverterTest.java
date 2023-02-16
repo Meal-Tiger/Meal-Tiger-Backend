@@ -1,4 +1,4 @@
-package com.mealtiger.backend.authentication;
+package com.mealtiger.backend.authentication.jwt_conversion.converters;
 
 import com.mealtiger.backend.configuration.Configurator;
 import org.junit.jupiter.api.Tag;
@@ -17,7 +17,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Tag("unit")
-class CustomJwtAuthenticationConverterTest {
+class KeycloakJwtAuthenticationConverterTest {
 
     /**
      * Tests the role extraction in CustomJwtAuthenticationConverterTest
@@ -27,7 +27,7 @@ class CustomJwtAuthenticationConverterTest {
         Configurator configurator = new Configurator();
         String clientIdString = configurator.getString("Authentication.OIDC.clientID");
 
-        CustomJwtAuthenticationConverter converter = new CustomJwtAuthenticationConverter();
+        KeycloakJwtAuthenticationConverter converter = new KeycloakJwtAuthenticationConverter();
 
         Map<String, Object> roles = new HashMap<>();
         roles.put("roles", List.of("test#1",

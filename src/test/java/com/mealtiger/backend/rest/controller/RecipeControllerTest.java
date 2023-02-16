@@ -6,7 +6,7 @@ import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.database.repository.RecipeRepository;
 import com.mealtiger.backend.rest.error_handling.exceptions.EntityNotFoundException;
-import com.mealtiger.backend.rest.error_handling.exceptions.RatingOwnRecipeException;
+import com.mealtiger.backend.rest.error_handling.exceptions.RatingException;
 import com.mealtiger.backend.rest.model.Response;
 import com.mealtiger.backend.rest.model.rating.AverageRatingResponse;
 import com.mealtiger.backend.rest.model.rating.RatingRequest;
@@ -309,7 +309,7 @@ class RecipeControllerTest {
 
         when(recipeRepository.findById("A")).thenReturn(Optional.of(mockRecipe));
         Response ratingResponse = recipeController.addRating("A", "e9add05b-0e50-4be9-bc00-f3ff870d51a6", ratingRequest);
-        verify(mockRecipe).getRatings();
+        verify(mockRecipe, times(2)).getRatings();
         verify(mockRecipe).setRatings(new Rating[]{new Rating(SAMPLE_RATING_ID, 4, "Sample comment", "e9add05b-0e50-4be9-bc00-f3ff870d51a6")});
         verify(recipeRepository).save(mockRecipe);
 
@@ -318,7 +318,8 @@ class RecipeControllerTest {
         assertNotNull(((RatingResponse) ratingResponse).getId());
         assertEquals("e9add05b-0e50-4be9-bc00-f3ff870d51a6", ((RatingResponse) ratingResponse).getUserId());
 
-        assertThrows(RatingOwnRecipeException.class, () -> recipeController.addRating("A", SAMPLE_USER_ID, ratingRequest));
+        assertThrows(RatingException.class, () -> recipeController.addRating("A", SAMPLE_USER_ID, ratingRequest));
+        assertThrows(RatingException.class, () -> recipeController.addRating("A", "e9add05b-0e50-4be9-bc00-f3ff870d51a6", ratingRequest));
     }
 
     /**
@@ -348,7 +349,7 @@ class RecipeControllerTest {
         ratingRequest.setRatingValue(3);
 
         recipeController.updateRating("A", "e9add05b-0e50-4be9-bc00-f3ff870d51a6", ratingRequest);
-        verify(mockRecipe, times(3)).getRatings();
+        verify(mockRecipe, times(4)).getRatings();
         verify(mockRecipe).setRatings(new Rating[]{});
         verify(mockRecipe).setRatings(new Rating[]{new Rating(SAMPLE_RATING_ID, 3, "Sample", "e9add05b-0e50-4be9-bc00-f3ff870d51a6")});
 

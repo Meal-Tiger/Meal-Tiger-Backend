@@ -1,6 +1,15 @@
 # syntax=docker/dockerfile:1
+FROM maven:3-eclipse-temurin-17-alpine as builder
+WORKDIR /application
+COPY . .
+RUN mvn package -DskipTests --file pom.xml
+RUN java -Djarmode=layertools -jar target/*.jar extract
+
 FROM eclipse-temurin:17
-COPY ./target/*.jar /app.jar
-RUN mkdir /config
+WORKDIR /application
+COPY --from=builder /application/dependencies/ ./
+COPY --from=builder /application/spring-boot-loader/ ./
+COPY --from=builder /application/application/ ./
 WORKDIR /config
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENV CLASSPATH=/application/
+ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]

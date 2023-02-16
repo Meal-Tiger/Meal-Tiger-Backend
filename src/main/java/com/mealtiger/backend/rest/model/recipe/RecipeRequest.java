@@ -6,8 +6,8 @@ import com.mealtiger.backend.database.model.recipe.Rating;
 import com.mealtiger.backend.database.model.recipe.Recipe;
 import com.mealtiger.backend.rest.model.Request;
 
-import javax.validation.Valid;
-import javax.validation.constraints.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import java.util.UUID;
 
 /**
@@ -22,8 +22,8 @@ public class RecipeRequest implements Request<Recipe> {
 
     @NotBlank(message = "Recipe title is mandatory!")
     private String title;
-    @NotEmpty
-    @NotNull
+    @NotEmpty(message = "Ingredients must not be empty!")
+    @NotNull(message = "Ingredients must not be empty!")
     @Valid
     private Ingredient[] ingredients;
     @NotBlank(message = "Recipe description is mandatory!")

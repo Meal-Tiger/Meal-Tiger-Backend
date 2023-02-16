@@ -31,6 +31,11 @@ public class AuthenticationConfig {
         return oidc.authenticationProviderURL;
     }
 
+    @ConfigNode(name = "OIDC.authenticationProvider", envKey = "OIDC_AUTHENTICATION_PROVIDER")
+    public String getAuthenticationProvider() {
+        return oidc.authenticationProvider;
+    }
+
     @ConfigNode(name = "OIDC.clientID", envKey = "OIDC_CLIENT_ID")
     public String getOIDCClientID() {
         return oidc.clientID;
@@ -55,6 +60,11 @@ public class AuthenticationConfig {
         private final String authenticationProviderURL;
 
         /**
+         * Name of the authentication provider.
+         */
+        private final String authenticationProvider;
+
+        /**
          * ID of the client used to validate JWTs
          */
         private final String clientID;
@@ -68,6 +78,8 @@ public class AuthenticationConfig {
             this.enableOIDCAuthentication = true;
 
             this.authenticationProviderURL = "";
+
+            this.authenticationProvider = "KEYCLOAK";
 
             this.clientID = "mealtiger";
 

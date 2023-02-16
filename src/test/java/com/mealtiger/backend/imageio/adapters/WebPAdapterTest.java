@@ -1,8 +1,7 @@
 package com.mealtiger.backend.imageio.adapters;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
+import com.mealtiger.backend.UnitTestConfigSetup;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -28,6 +27,16 @@ class WebPAdapterTest {
     @AfterEach
     void beforeAfterEach() {
         webPAdapter = new WebPAdapter();
+    }
+
+    @BeforeAll
+    static void beforeAll() {
+        UnitTestConfigSetup.setupConfigs();
+    }
+
+    @AfterAll
+    static void afterAll() {
+        UnitTestConfigSetup.teardownConfigs();
     }
 
     /**

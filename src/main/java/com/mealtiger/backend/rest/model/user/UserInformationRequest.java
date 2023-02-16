@@ -4,16 +4,16 @@ import com.mealtiger.backend.database.model.image_metadata.validation.ImageExist
 import com.mealtiger.backend.database.model.user.UserMetadata;
 import com.mealtiger.backend.rest.model.Request;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 public class UserInformationRequest implements Request<UserMetadata> {
 
-    @NotNull
-    @NotEmpty
+    @NotNull(message = "Username must not be empty!")
+    @NotEmpty(message = "Username must not be empty!")
     private final String username;
 
-    @ImageExists
+    @ImageExists(message = "The chosen picture does not exist!")
     private final String profilePictureId;
 
 
